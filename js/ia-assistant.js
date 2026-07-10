@@ -92,7 +92,7 @@ function iniciarSesionIA() {
 
     if (typeof crearAlertasProactivasLuna === 'function') crearAlertasProactivasLuna();
 
-    const nombre = currentUser?.displayName || 'equipo';
+    const nombre = getNombreLuna(currentUser);
     const rol = currentUser?.rol || 'Direccion';
     const saludo = IA_SALUDOS[rol] || IA_SALUDOS.Direccion;
     agregarMensajeIA('assistant',
@@ -175,7 +175,10 @@ function construirContextoIA() {
     const ctx = {
         fecha: new Date().toLocaleString('es-MX'),
         usuario: {
-            nombre: currentUser?.displayName,
+            nombre: getNombreLuna(currentUser),
+            nombreCompleto: currentUser?.displayName,
+            correo: currentUser?.correo || '',
+            telefono: currentUser?.telefono || '',
             rol: currentUser?.rol,
             rolEtiqueta: rhEtiquetaRol(currentUser?.rol)
         },

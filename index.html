@@ -71,7 +71,7 @@
             <div class="topbar-right">
                 <span id="db-status-badge" class="db-status-pill db-status-local">Solo este navegador</span>
                 <span id="reloj" class="topbar-chip">00:00:00</span>
-                <span id="user-role-display" class="topbar-chip topbar-user">Usuario</span>
+                <span id="user-role-display" class="topbar-chip topbar-user topbar-user--clickable" title="Mi perfil" onclick="abrirMiPerfil()" role="button" tabindex="0">Usuario</span>
                 <button class="btn-logout" type="button" onclick="logout()">Cerrar sesión</button>
             </div>
         </header>
@@ -282,8 +282,8 @@
                 <div id="mod-usuarios" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
-                            <h3>Usuarios y vendedores</h3>
-                            <p class="module-desc">Alta, edición y baja de vendedores (máx. 5).</p>
+                            <h3>Usuarios del equipo</h3>
+                            <p class="module-desc">Configura nombre, contacto y acceso. Luna saluda a cada persona por su nombre.</p>
                         </div>
                         <div class="module-toolbar-actions">
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirNuevoVendedor()">+ Nuevo vendedor</button>
@@ -294,7 +294,7 @@
                         <div class="mkt-metric-card"><span class="mkt-metric-label">Vendedores</span><span class="mkt-metric-value" id="usr-vendedores">0</span></div>
                     </div>
                     <div class="table-responsive table-clean table-mkt">
-                        <table id="table-usuarios"><thead><tr><th>Nombre</th><th>Rol</th><th>Contraseña</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+                        <table id="table-usuarios"><thead><tr><th>Nombre</th><th>Rol</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody></table>
                     </div>
                 </div>
             </main>
@@ -529,15 +529,49 @@
     <!-- Modal usuario -->
     <div id="modal-usuario" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3>Editar usuario</h3><button type="button" class="btn-close" onclick="closeModal('modal-usuario')">&times;</button></div>
+            <div class="modal-header"><h3>Configurar usuario</h3><button type="button" class="btn-close" onclick="closeModal('modal-usuario')">&times;</button></div>
             <form id="form-usuario" class="form-grid">
                 <input type="hidden" id="usr-edit-id">
-                <div class="form-group full-width"><label>Nombre</label><input type="text" id="usr-edit-nombre" class="form-control" required></div>
-                <div class="form-group full-width"><label>Contraseña</label><input type="text" id="usr-edit-password" class="form-control" required></div>
-                <div class="form-group full-width"><label><input type="checkbox" id="usr-edit-activo" checked> Activo</label></div>
+                <div class="form-group full-width">
+                    <label>Nombre *</label>
+                    <input type="text" id="usr-edit-nombre" class="form-control" required placeholder="Ej. Ana, Carlos, María">
+                    <small class="field-hint">Así aparece en el sistema y así te llama Luna.</small>
+                </div>
+                <div class="form-group"><label>Correo</label><input type="email" id="usr-edit-correo" class="form-control" placeholder="opcional@correo.com"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="usr-edit-telefono" class="form-control" placeholder="Opcional"></div>
+                <div class="form-group full-width" id="usr-edit-rol-wrap">
+                    <label>Rol</label>
+                    <input type="text" id="usr-edit-rol" class="form-control field-locked" readonly>
+                </div>
+                <div class="form-group full-width"><label>Contraseña *</label><input type="text" id="usr-edit-password" class="form-control" required></div>
+                <div class="form-group full-width" id="usr-edit-activo-wrap"><label><input type="checkbox" id="usr-edit-activo" checked> Usuario activo</label></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-usuario')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-mi-perfil" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Mi perfil</h3><button type="button" class="btn-close" onclick="closeModal('modal-mi-perfil')">&times;</button></div>
+            <form id="form-mi-perfil" class="form-grid">
+                <div class="form-group full-width">
+                    <label>Tu nombre *</label>
+                    <input type="text" id="perfil-nombre" class="form-control" required placeholder="Cómo quieres que te llamen">
+                    <small class="field-hint">Luna te saludará con este nombre.</small>
+                </div>
+                <div class="form-group"><label>Correo</label><input type="email" id="perfil-correo" class="form-control" placeholder="Opcional"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="perfil-telefono" class="form-control" placeholder="Opcional"></div>
+                <div class="form-group full-width">
+                    <label>Rol en el sistema</label>
+                    <input type="text" id="perfil-rol" class="form-control field-locked" readonly>
+                </div>
+                <div class="form-group full-width"><label>Contraseña *</label><input type="text" id="perfil-password" class="form-control" required></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-mi-perfil')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar cambios</button>
                 </div>
             </form>
         </div>
@@ -547,7 +581,13 @@
         <div class="modal-content">
             <div class="modal-header"><h3>Nuevo vendedor</h3><button type="button" class="btn-close" onclick="closeModal('modal-nuevo-vendedor')">&times;</button></div>
             <form id="form-nuevo-vendedor" class="form-grid">
-                <div class="form-group full-width"><label>Nombre</label><input type="text" id="nv-nombre" class="form-control" required></div>
+                <div class="form-group full-width">
+                    <label>Nombre *</label>
+                    <input type="text" id="nv-nombre" class="form-control" required placeholder="Nombre del vendedor">
+                    <small class="field-hint">Luna y el equipo lo verán con este nombre.</small>
+                </div>
+                <div class="form-group"><label>Correo</label><input type="email" id="nv-correo" class="form-control" placeholder="Opcional"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="nv-telefono" class="form-control" placeholder="Opcional"></div>
                 <div class="form-group full-width"><label>Contraseña</label><input type="text" id="nv-password" class="form-control" value="1234"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-nuevo-vendedor')">Cancelar</button>

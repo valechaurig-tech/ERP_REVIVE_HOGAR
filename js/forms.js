@@ -12,6 +12,7 @@ function bindAllForms() {
     bindFormSubmit('form-montos-casa', guardarMontosCasa);
     bindFormSubmit('form-nuevo-vendedor', guardarNuevoVendedor);
     bindFormSubmit('form-usuario', guardarUsuarioEditado);
+    bindFormSubmit('form-mi-perfil', guardarMiPerfil);
     bindFormSubmit('form-tarea', guardarTarea);
     bindFormSubmit('form-mensaje-caso', enviarMensajeCaso);
 }
@@ -368,17 +369,29 @@ function eliminarCostoRemodelacion(casaId, costoId) {
     refreshActiveModule();
 }
 
+function aplicarDatosUsuarioFormulario(u, datos) {
+    u.displayName = datos.nombre;
+    u.nombreLuna = datos.nombre;
+    u.correo = datos.correo || '';
+    u.telefono = datos.telefono || '';
+    u.password = datos.password;
+}
+
 function guardarNuevoVendedor(e) {
     e.preventDefault();
     if (!puedeGestionarUsuarios()) return;
     const vendedores = DB.get('usuariosLogin').filter(u => u.rol === 'Vendedor');
     if (vendedores.length >= 5) { alert('Máximo 5 vendedores.'); return; }
     const nombre = document.getElementById('nv-nombre').value.trim();
+    if (nombre.length < 2) { alert('Indica el nombre del vendedor.'); return; }
     const usuarios = DB.get('usuariosLogin');
     usuarios.push({
         id: DB.getId(),
         tipo: 'vendedor',
         displayName: nombre,
+        nombreLuna: nombre,
+        correo: document.getElementById('nv-correo')?.value.trim() || '',
+        telefono: document.getElementById('nv-telefono')?.value.trim() || '',
         rol: 'Vendedor',
         password: document.getElementById('nv-password').value.trim() || '1234',
         activo: true
@@ -397,12 +410,49 @@ function guardarUsuarioEditado(e) {
     const usuarios = DB.get('usuariosLogin');
     const idx = usuarios.findIndex(u => u.id === id);
     if (idx < 0) return;
-    usuarios[idx].displayName = document.getElementById('usr-edit-nombre').value.trim();
-    usuarios[idx].password = document.getElementById('usr-edit-password').value.trim() || '1234';
+    const nombre = document.getElementById('usr-edit-nombre').value.trim();
+    if (nombre.length < 2) { alert('El nombre es obligatorio.'); return; }
+    aplicarDatosUsuarioFormulario(usuarios[idx], {
+        nombre,
+        correo: document.getElementById('usr-edit-correo')?.value.trim(),
+        telefono: document.getElementById('usr-edit-telefono')?.value.trim(),
+        password: document.getElementById('usr-edit-password').value.trim() || '1234'
+    });
     usuarios[idx].activo = document.getElementById('usr-edit-activo').checked;
     DB.set('usuariosLogin', usuarios);
+    sincronizarUsuarioSesion(usuarios[idx].id);
     logAction(`Usuario actualizado: ${usuarios[idx].displayName}`);
     cargarUsuariosLogin();
     closeModal('modal-usuario');
     renderUsuarios();
+}
+
+function guardarMiPerfil(e) {
+    e.preventDefault();
+    if (!currentUser) return;
+    const nombre = document.getElementById('perfil-nombre').value.trim();
+    if (nombre.length < 2) { alert('Indica tu nombre.'); return; }
+    const usuarios = DB.get('usuariosLogin');
+    const idx = usuarios.findIndex(u => u.id === currentUser.id);
+    if (idx < 0) return;
+    aplicarDatosUsuarioFormulario(usuarios[idx], {
+        nombre,
+        correo: document.getElementById('perfil-correo')?.value.trim(),
+        telefono: document.getElementById('perfil-telefono')?.value.trim(),
+        password: document.getElementById('perfil-password').value.trim() || '1234'
+    });
+    DB.set('usuariosLogin', usuarios);
+    sincronizarUsuarioSesion(currentUser.id);
+    logAction(`Perfil actualizado: ${usuarios[idx].displayName}`);
+    closeModal('modal-mi-perfil');
+}
+
+function sincronizarUsuarioSesion(userId) {
+    const u = DB.get('usuariosLogin').find(x => x.id === userId);
+    if (!u || !currentUser || currentUser.id !== userId) return;
+    currentUser = { ...u };
+    const chip = document.getElementById('user-role-display');
+    if (chip) chip.textContent = u.displayName;
+    const sidebarName = document.querySelector('.sidebar-brand-text span');
+    if (sidebarName) sidebarName.textContent = u.displayName;
 }

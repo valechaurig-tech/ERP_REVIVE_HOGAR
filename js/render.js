@@ -381,6 +381,13 @@ function renderAuditoria() {
 }
 
 /* —— Usuarios —— */
+function formatoContactoUsuario(u) {
+    const partes = [];
+    if (u.correo) partes.push(escapeHtml(u.correo));
+    if (u.telefono) partes.push(escapeHtml(u.telefono));
+    return partes.length ? partes.join('<br>') : '<span class="celda-muted">—</span>';
+}
+
 function renderUsuarios() {
     if (!puedeGestionarUsuarios()) return;
     const usuarios = DB.get('usuariosLogin');
@@ -389,12 +396,12 @@ function renderUsuarios() {
     const tbody = document.querySelector('#table-usuarios tbody');
     if (!tbody) return;
     tbody.innerHTML = usuarios.map(u => `<tr>
-        <td><strong>${escapeHtml(u.displayName)}</strong></td>
+        <td><strong>${escapeHtml(u.displayName)}</strong>${u.nombreLuna && u.nombreLuna !== u.displayName ? `<br><small class="celda-muted">Luna: ${escapeHtml(getNombreLuna(u))}</small>` : ''}</td>
         <td>${escapeHtml(rhEtiquetaRol(u.rol))}</td>
-        <td><code>${escapeHtml(u.password || '1234')}</code></td>
+        <td>${formatoContactoUsuario(u)}</td>
         <td>${u.activo === false ? '<span class="badge-mkt badge-mkt-danger">Inactivo</span>' : '<span class="badge-mkt badge-mkt-success">Activo</span>'}</td>
         <td class="celda-acciones">
-            ${u.rol === 'Vendedor' || rhEsDireccion(currentUser) ? `<button type="button" class="btn btn-primary btn-small" onclick="abrirEditorUsuario('${escapeHtml(u.id)}')">Editar</button>` : '—'}
+            <button type="button" class="btn btn-primary btn-small" onclick="abrirEditorUsuario('${escapeHtml(u.id)}')">Configurar</button>
             ${u.rol === 'Vendedor' ? `<button type="button" class="btn btn-danger btn-small" onclick="eliminarVendedor('${escapeHtml(u.id)}')">Eliminar</button>` : ''}
         </td>
     </tr>`).join('');
@@ -405,10 +412,24 @@ function abrirEditorUsuario(id) {
     const u = DB.get('usuariosLogin').find(x => x.id === id);
     if (!u) return;
     document.getElementById('usr-edit-id').value = u.id;
-    document.getElementById('usr-edit-nombre').value = u.displayName;
+    document.getElementById('usr-edit-nombre').value = u.displayName || '';
+    document.getElementById('usr-edit-correo').value = u.correo || '';
+    document.getElementById('usr-edit-telefono').value = u.telefono || '';
+    document.getElementById('usr-edit-rol').value = rhEtiquetaRol(u.rol);
     document.getElementById('usr-edit-password').value = u.password || '1234';
     document.getElementById('usr-edit-activo').checked = u.activo !== false;
     document.getElementById('modal-usuario')?.classList.add('active');
+}
+
+function abrirMiPerfil() {
+    if (!currentUser) return;
+    const u = DB.get('usuariosLogin').find(x => x.id === currentUser.id) || currentUser;
+    document.getElementById('perfil-nombre').value = u.displayName || '';
+    document.getElementById('perfil-correo').value = u.correo || '';
+    document.getElementById('perfil-telefono').value = u.telefono || '';
+    document.getElementById('perfil-rol').value = rhEtiquetaRol(u.rol);
+    document.getElementById('perfil-password').value = u.password || '1234';
+    document.getElementById('modal-mi-perfil')?.classList.add('active');
 }
 
 function abrirNuevoVendedor() {

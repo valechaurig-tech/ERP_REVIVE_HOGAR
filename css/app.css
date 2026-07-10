@@ -2691,3 +2691,13 @@ tr:hover { background-color: #fafcff; }
 }
 .rh-map-link:hover { text-decoration: underline; }
 .detalle-map-wrap { grid-column: 1 / -1; padding: 0; background: transparent; border: none; }
+
+.topbar-user--clickable {
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.topbar-user--clickable:hover {
+    background: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+.celda-muted { color: #94a3b8; font-size: 12px; }

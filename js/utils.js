@@ -93,6 +93,13 @@ function getProspectoById(id) {
     return DB.get('prospectos').find(p => p.id === id);
 }
 
+function getNombreLuna(user) {
+    if (!user) return 'equipo';
+    const preferido = (user.nombreLuna || user.displayName || '').trim();
+    if (!preferido) return 'equipo';
+    return preferido.split(/\s+/)[0];
+}
+
 function puedeGestionarUsuarios() {
     return currentUser && (rhEsDireccion(currentUser) || currentUser.rol === 'Administradora');
 }

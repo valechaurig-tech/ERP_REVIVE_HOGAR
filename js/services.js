@@ -34,8 +34,22 @@ function initSeedData() {
     ];
     base.forEach(u => {
         if (!usuarios.some(x => x.displayName === u.displayName && x.rol === u.rol)) {
-            usuarios.push({ id: DB.getId(), activo: true, ...u });
+            usuarios.push({
+                id: DB.getId(),
+                activo: true,
+                nombreLuna: u.displayName,
+                correo: '',
+                telefono: '',
+                ...u
+            });
         }
+    });
+    DB.set('usuariosLogin', usuarios);
+
+    usuarios.forEach(u => {
+        if (!u.nombreLuna && u.displayName) u.nombreLuna = u.displayName;
+        if (u.correo == null) u.correo = '';
+        if (u.telefono == null) u.telefono = '';
     });
     DB.set('usuariosLogin', usuarios);
 }
