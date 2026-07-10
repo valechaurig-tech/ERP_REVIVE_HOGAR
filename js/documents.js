@@ -29,7 +29,7 @@ function recolectarDatosDocumento(p) {
         adeudoAgua: formatearMoneda(p.adeudoAgua),
         adeudoLuz: formatearMoneda(p.adeudoLuz),
         adeudoPredial: formatearMoneda(p.adeudoPredial),
-        propuestaFinal: p.propuestaFinal || '',
+        montoAdquisicion: formatearMoneda(p.montoAdquisicion),
         fecha: new Date().toLocaleDateString('es-MX')
     };
 }
@@ -39,7 +39,7 @@ function plantillaDocumento(tipo, d) {
         <p>Fecha: ${escapeHtml(d.fecha)}</p>
         <p>En Revive Hogar, con domicilio operativo en México, y el/la C. <strong>${escapeHtml(d.nombreCompleto)}</strong>, teléfono ${escapeHtml(d.telefono)}, propiedad ubicada en <strong>${escapeHtml(d.direccionPropiedad)}</strong>, con crédito <strong>${escapeHtml(d.tipoCredito)}</strong>, escrituras: <strong>${escapeHtml(d.tieneEscrituras)}</strong>, situación de invasión: <strong>${escapeHtml(d.invadida)}</strong>.</p>
         <p>Adeudos reportados — Crédito: ${escapeHtml(d.adeudoCredito)}; Agua: ${escapeHtml(d.adeudoAgua)}; Luz: ${escapeHtml(d.adeudoLuz)}; Predial: ${escapeHtml(d.adeudoPredial)}.</p>
-        <p><strong>Propuesta:</strong> ${escapeHtml(d.propuestaFinal || '[Pendiente de completar por administradora]')}</p>
+        <p><strong>Precio de compra acordado:</strong> ${escapeHtml(d.montoAdquisicion || '—')}</p>
         <p><em>Plantilla provisional — sustituir cuando se entreguen los formatos oficiales.</em></p>`;
 }
 

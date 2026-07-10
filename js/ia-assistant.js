@@ -229,7 +229,7 @@ function construirContextoIA() {
             nombre: c.nombreCompleto,
             estatus: c.estatusPipeline,
             direccion: c.direccionPropiedad,
-            propuesta: c.propuestaFinal || '—'
+            propuesta: c.montoAdquisicion ? formatearMoneda(c.montoAdquisicion) : '—'
         })),
         tareasActivasLista: tareas.filter(t => t.estado !== 'Completada').slice(0, 8).map(t => ({
             titulo: t.titulo,

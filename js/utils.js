@@ -128,7 +128,7 @@ function getMontoAdquisicionCasa(casa, prospecto) {
     if (prospecto?.montoAdquisicion != null && prospecto.montoAdquisicion !== '') {
         return Number(prospecto.montoAdquisicion) || 0;
     }
-    return parseMontoTexto(casa?.propuestaFinal || prospecto?.propuestaFinal);
+    return 0;
 }
 
 function calcularEconomiaCasa(casa, prospecto) {

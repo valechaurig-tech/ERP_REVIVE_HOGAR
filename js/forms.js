@@ -229,10 +229,9 @@ function guardarExpedienteAdmin(e) {
     p.adeudoAgua = normalizarAdeudo(document.getElementById('exp-adeudo-agua')?.value);
     p.adeudoLuz = normalizarAdeudo(document.getElementById('exp-adeudo-luz')?.value);
     p.adeudoPredial = normalizarAdeudo(document.getElementById('exp-adeudo-predial')?.value);
-    p.propuestaFinal = document.getElementById('exp-propuesta').value.trim();
     p.montoAdquisicion = normalizarAdeudo(document.getElementById('exp-monto-adquisicion')?.value);
     if (!p.montoAdquisicion) {
-        alert('Indica el precio de compra a la familia (monto numérico).');
+        alert('Indica el precio de compra a la familia.');
         return;
     }
     p.estatus = RH_ESTATUS_PROSPECTO.PROPUESTA_LISTA;
@@ -249,7 +248,6 @@ function guardarExpedienteAdmin(e) {
     const casas = DB.get('casas');
     const casaIdx = casas.findIndex(c => c.prospectoId === p.id);
     if (casaIdx >= 0) {
-        casas[casaIdx].propuestaFinal = p.propuestaFinal;
         casas[casaIdx].montoAdquisicion = p.montoAdquisicion;
         DB.set('casas', casas);
     }

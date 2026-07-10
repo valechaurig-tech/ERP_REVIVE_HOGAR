@@ -69,7 +69,7 @@ const LUNA_KNOWLEDGE = {
         'form-campana': 'Campaña: nombre libre, canal (Facebook/Instagram/Google/Otros), costo, fecha inicio, días duración.',
         'form-prospecto': 'Prospecto: nombre, teléfono, dirección, campaña, vendedor (marketing) o auto-asignación (vendedor).',
         'form-gestion-prospecto': 'Gestión: estatus, tipo crédito, escrituras, invasión, adeudos. Botón Enviar a administradora cuando Interesado.',
-        'form-expediente-admin': 'Expediente: monto adquisición, propuesta final, documentos. Marca Propuesta lista.',
+        'form-expediente-admin': 'Expediente: precio de compra a la familia, documentos. Marca Propuesta lista.',
         'form-pipeline': 'Pipeline: nuevo estatus; precio venta al pasar a En venta o Cerrada.',
         'form-costo-remodelacion': 'Costo remodelación: concepto, categoría, monto, nota (tab Remodelación en detalle de propiedad).',
         'form-tarea': 'Tarea: título, descripción, asignado, prioridad, fecha límite.',

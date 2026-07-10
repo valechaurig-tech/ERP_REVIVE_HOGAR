@@ -269,7 +269,6 @@ function abrirExpedienteAdmin(id) {
     const p = getProspectoById(id);
     if (!p) return;
     document.getElementById('exp-id').value = p.id;
-    document.getElementById('exp-propuesta').value = p.propuestaFinal || '';
     const montoExp = document.getElementById('exp-monto-adquisicion');
     if (montoExp) montoExp.value = p.montoAdquisicion != null ? p.montoAdquisicion : getMontoAdquisicionCasa(null, p);
 
