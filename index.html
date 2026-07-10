@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/revive-hogar-mark.svg">
-    <link rel="stylesheet" href="css/app.css?v=20260709e">
+    <link rel="stylesheet" href="css/app.css?v=20260709f">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -219,19 +219,19 @@
                             <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaBriefingDiario()">Briefing de hoy</button>
                         </div>
                     </div>
-                    <div class="mkt-analytics-grid">
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Inversión campañas</span><span class="mkt-metric-value" id="dash-presupuesto">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-label">Costo / prospecto</span><span class="mkt-metric-value" id="dash-costo-prospecto">—</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Casas en pipeline</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="dash-casas-venta">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="dash-remodelacion">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="dash-inversion-propiedades">$0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span></div>
-                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="dash-utilidad-proyectada">—</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Inversión campañas</span><span class="mkt-metric-value" id="dash-presupuesto">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">👥</span><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-danger"><span class="mkt-metric-emoji">✖️</span><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-accent"><span class="mkt-metric-emoji">📊</span><span class="mkt-metric-label">Costo / prospecto</span><span class="mkt-metric-value" id="dash-costo-prospecto">—</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">🏠</span><span class="mkt-metric-label">Casas en pipeline</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">🏷️</span><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="dash-casas-venta">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-warning"><span class="mkt-metric-emoji">🔧</span><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="dash-remodelacion">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="dash-inversion-propiedades">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-accent"><span class="mkt-metric-emoji">🎯</span><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="dash-utilidad-proyectada">—</span></div>
                     </div>
                 </div>
 
