@@ -46,9 +46,11 @@ function renderPlanner() {
     if (typeof renderPmSummaryBar === 'function') renderPmSummaryBar();
 
     if (esDir) {
+        aplicarEstadoColapsable('planner-equipo', true);
         renderPlannerResumenEquipo();
     } else {
-        renderPlannerKanban(activas, true);
+        const normalizadas = tareas.map(t => typeof normalizarTarea === 'function' ? normalizarTarea(t) : t);
+        renderPlannerKanban(normalizadas.filter(t => t.estado !== 'Completada'), true);
         renderPlannerCompletadas(completadas);
     }
 
@@ -82,32 +84,20 @@ function renderPlannerResumenEquipo() {
 function renderPlannerKanban(tareas, interactivo) {
     const cols = {
         Pendiente: document.getElementById('kanban-pendiente'),
-        'En proceso': document.getElementById('kanban-proceso')
+        'En proceso': document.getElementById('kanban-proceso'),
+        'En seguimiento': document.getElementById('kanban-seguimiento')
     };
     if (!cols.Pendiente) return;
 
     const renderCard = (t) => {
-        const vence = t.fechaVencimiento
-            ? `<span class="task-due${t.fechaVencimiento < hoyISO() ? ' task-due--late' : ''}">📅 ${escapeHtml(t.fechaVencimiento)}</span>`
-            : '';
-        let acciones = '';
-        if (interactivo && puedeGestionarTarea(t)) {
-            acciones = t.estado === 'Pendiente'
-                ? `<button type="button" class="btn btn-primary btn-small" onclick="updateTaskStatus('${escapeHtml(t.id)}','En proceso')">Iniciar</button>`
-                : `<button type="button" class="btn btn-success btn-small" onclick="updateTaskStatus('${escapeHtml(t.id)}','Completada')">Completar</button>`;
+        if (typeof pmCardHtml === 'function') {
+            return pmCardHtml(t, { clickable: interactivo });
         }
-        return `<div class="kanban-card kanban-card--${t.priority?.toLowerCase() || 'baja'}">
-            <div class="kanban-card-top">
-                <span class="pill ${priorityClass(t.priority)}">${escapeHtml(t.priority || 'Media')}</span>
-                ${vence}
-            </div>
-            <strong>${escapeHtml(t.titulo)}</strong>
-            ${t.descripcion ? `<p class="kanban-card-desc">${escapeHtml(t.descripcion)}</p>` : ''}
-            ${acciones ? `<div class="planner-actions">${acciones}</div>` : ''}
-        </div>`;
+        return `<div class="kanban-card"><strong>${escapeHtml(t.titulo)}</strong></div>`;
     };
 
-    ['Pendiente', 'En proceso'].forEach(estado => {
+    ['Pendiente', 'En proceso', 'En seguimiento'].forEach(estado => {
+        if (!cols[estado]) return;
         const items = tareas.filter(t => t.estado === estado);
         cols[estado].innerHTML = items.length === 0
             ? '<div class="kanban-card kanban-card-empty">Sin tareas</div>'
@@ -164,11 +154,8 @@ function abrirModalTarea() {
     }
     const form = document.getElementById('form-tarea');
     if (form) form.reset();
-    const sel = document.getElementById('tarea-asignado');
-    if (sel) {
-        const usuarios = DB.get('usuariosLogin').filter(u => u.activo !== false);
-        sel.innerHTML = usuarios.map(u => `<option value="${escapeHtml(u.id)}">${escapeHtml(u.displayName)} — ${escapeHtml(rhEtiquetaRol(u.rol))}</option>`).join('');
-        if (!rhEsDireccion(currentUser) && currentUser) sel.value = currentUser.id;
+    if (typeof poblarSelectAsignadosTarea === 'function') {
+        poblarSelectAsignadosTarea('tarea-asignado', true);
     }
     document.getElementById('tarea-vencimiento').value = '';
     document.getElementById('modal-tarea')?.classList.add('active');
@@ -178,17 +165,27 @@ function updateTaskStatus(id, estado) {
     const tareas = DB.get('tareas');
     const idx = tareas.findIndex(t => t.id === id);
     if (idx < 0) return;
-    if (!puedeGestionarTarea(tareas[idx])) return;
+    const t = typeof normalizarTarea === 'function' ? normalizarTarea(tareas[idx]) : tareas[idx];
+    if (!puedeGestionarTarea(t)) return;
 
-    tareas[idx].estado = estado;
+    t.estado = estado;
+    if (estado === 'En seguimiento') t.enSeguimiento = true;
+    if (estado !== 'En seguimiento' && estado !== 'Completada') t.enSeguimiento = false;
     if (estado === 'Completada') {
-        tareas[idx].fechaCompletada = new Date().toISOString();
+        t.fechaCompletada = new Date().toISOString();
+        t.enSeguimiento = false;
     } else {
-        tareas[idx].fechaCompletada = '';
+        t.fechaCompletada = '';
     }
-    DB.set('tareas', tareas);
-    logAction(`Tarea ${estado.toLowerCase()}: ${tareas[idx].titulo}`);
-    addHistory('tarea', `Tarea ${estado.toLowerCase()}`, tareas[idx].titulo);
+    tareas[idx] = t;
+    if (typeof persistirTareas === 'function') persistirTareas(tareas);
+    else DB.set('tareas', tareas);
+    if (typeof agregarNotaSistema === 'function') {
+        agregarNotaSistema(id, `Estado → ${estado}`);
+    }
+    logAction(`Tarea ${estado.toLowerCase()}: ${t.titulo}`);
+    addHistory('tarea', `Tarea ${estado.toLowerCase()}`, t.titulo);
+    if (tareaDetalleId === id && typeof abrirDetalleTarea === 'function') abrirDetalleTarea(id);
     refreshActiveModule();
 }
 
@@ -196,20 +193,33 @@ function guardarTarea(e) {
     e.preventDefault();
     if (!puedeCrearTareaEnModuloActual()) return;
 
+    const assignedUserId = document.getElementById('tarea-asignado').value;
+    if (!assignedUserId) {
+        alert('Selecciona a quién asignar la tarea.');
+        return;
+    }
+    if (currentUser && assignedUserId === currentUser.id) {
+        alert('No puedes asignarte una tarea a ti mismo. Elige otra persona del equipo.');
+        return;
+    }
+
     const tareas = DB.get('tareas');
     const nueva = {
         id: DB.getId(),
         titulo: document.getElementById('tarea-titulo').value.trim(),
         descripcion: document.getElementById('tarea-descripcion').value.trim(),
-        assignedUserId: document.getElementById('tarea-asignado').value,
+        assignedUserId,
         createdByUserId: currentUser?.id || '',
         priority: document.getElementById('tarea-prioridad').value,
         estado: 'Pendiente',
+        enSeguimiento: false,
+        notas: [],
         fechaVencimiento: document.getElementById('tarea-vencimiento').value || '',
         fechaCreacion: new Date().toISOString()
     };
     tareas.push(nueva);
-    DB.set('tareas', tareas);
+    if (typeof persistirTareas === 'function') persistirTareas(tareas);
+    else DB.set('tareas', tareas);
     createAlert({
         titulo: 'Nueva tarea asignada',
         mensaje: nueva.titulo,

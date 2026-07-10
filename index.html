@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="assets/revive-hogar-mark.png">
-    <link rel="stylesheet" href="css/app.css?v=20260709b">
+    <link rel="icon" type="image/svg+xml" href="assets/revive-hogar-mark.svg">
+    <link rel="stylesheet" href="css/app.css?v=20260709c">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -113,17 +113,23 @@
                         <button type="button" id="pm-btn-gestor" class="btn btn-primary btn-toolbar pm-btn-gestor hidden" onclick="irAGestorProyectos()">Abrir gestor de proyectos →</button>
                     </div>
 
-                    <section id="planner-equipo-resumen" class="mkt-section hidden">
-                        <h4 class="section-title">Tableros del equipo <span class="section-badge-lectura">solo lectura</span></h4>
-                        <p class="module-desc" style="margin-bottom:14px">Dirección no opera tableros personales. Usa el gestor de proyectos para asignar y dar seguimiento.</p>
-                        <div id="planner-equipo-grid" class="pm-equipo-grid"></div>
+                    <section id="planner-equipo-resumen" class="mkt-section rh-section-collapsible hidden">
+                        <button type="button" class="rh-section-toggle" data-collapse-target="planner-equipo" onclick="toggleSeccionColapsable('planner-equipo')">
+                            <span><span class="rh-collapse-chevron">▸</span> Tableros del equipo</span>
+                            <span class="section-badge-lectura">solo lectura</span>
+                        </button>
+                        <div id="planner-equipo-body" class="rh-section-body is-collapsed">
+                            <p class="module-desc rh-section-hint">Cada persona tiene su tablero independiente. Gestiona desde el gestor de proyectos.</p>
+                            <div id="planner-equipo-grid" class="pm-equipo-grid"></div>
+                        </div>
                     </section>
 
                     <section id="planner-kanban-section" class="mkt-section">
-                        <h4 class="section-title" id="planner-kanban-title">Mi tablero Kanban</h4>
-                        <div class="kanban-board kanban-board-active">
-                            <div class="kanban-column kanban-column--pending"><h5>Por hacer</h5><div id="kanban-pendiente"></div></div>
-                            <div class="kanban-column kanban-column--progress"><h5>En curso</h5><div id="kanban-proceso"></div></div>
+                        <h4 class="section-title" id="planner-kanban-title">📋 Mi tablero</h4>
+                        <div class="kanban-board pm-kanban-board">
+                            <div class="kanban-column kanban-column--pending"><h5>📝 Por hacer</h5><div id="kanban-pendiente"></div></div>
+                            <div class="kanban-column kanban-column--progress"><h5>⚡ En curso</h5><div id="kanban-proceso"></div></div>
+                            <div class="kanban-column kanban-column--follow"><h5>📌 Seguimiento</h5><div id="kanban-seguimiento"></div></div>
                         </div>
                     </section>
                     <section class="mkt-section">
@@ -147,10 +153,15 @@
                 <div id="mod-proyectos" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
-                            <h3>Gestor de proyectos</h3>
-                            <p class="module-desc">Vista tipo Monday / Asana: asigna tareas, filtra por persona y mueve el trabajo del equipo.</p>
+                            <h3>📌 Gestor de proyectos</h3>
+                            <p class="module-desc">Tablero, tabla, notas y seguimiento — estilo Monday / Asana.</p>
                         </div>
                         <div class="module-toolbar-actions">
+                            <div class="proy-vista-toggle">
+                                <button type="button" id="proy-vista-kanban" class="proy-vista-btn active" onclick="setProyectosVista('kanban')">▦ Kanban</button>
+                                <button type="button" id="proy-vista-tabla" class="proy-vista-btn" onclick="setProyectosVista('tabla')">≡ Tabla</button>
+                            </div>
+                            <label class="proy-chk-seguimiento"><input type="checkbox" id="proy-filtro-seguimiento"> 📌 Solo seguimiento</label>
                             <div class="proy-filtro-wrap">
                                 <label for="proy-filtro-usuario">Persona</label>
                                 <select id="proy-filtro-usuario" class="form-control proy-filtro-select">
@@ -161,21 +172,32 @@
                         </div>
                     </div>
                     <div class="mkt-analytics-grid planner-kpis">
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Personas</span><span class="mkt-metric-value" id="proy-equipo">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">📋</span><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-danger"><span class="mkt-metric-emoji">🔥</span><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-warning"><span class="mkt-metric-emoji">📌</span><span class="mkt-metric-label">Seguimiento</span><span class="mkt-metric-value" id="proy-seguimiento">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
                     </div>
-                    <section class="mkt-section">
-                        <h4 class="section-title">Equipo — tableros independientes</h4>
-                        <div id="proy-equipo-grid" class="pm-equipo-grid"></div>
+                    <section class="mkt-section rh-section-collapsible">
+                        <button type="button" class="rh-section-toggle" data-collapse-target="proy-equipo" onclick="toggleSeccionColapsable('proy-equipo')">
+                            <span><span class="rh-collapse-chevron">▸</span> Equipo — tableros independientes</span>
+                        </button>
+                        <div id="proy-equipo-body" class="rh-section-body is-collapsed">
+                            <div id="proy-equipo-grid" class="pm-equipo-grid"></div>
+                        </div>
                     </section>
                     <section class="mkt-section" id="proy-kanban-wrap">
-                        <h4 class="section-title">Tablero Kanban</h4>
+                        <h4 class="section-title">▦ Tablero Kanban</h4>
                         <div class="kanban-board pm-kanban-board">
-                            <div class="kanban-column kanban-column--pending"><h5>Por hacer</h5><div id="proy-kanban-pendiente"></div></div>
-                            <div class="kanban-column kanban-column--progress"><h5>En curso</h5><div id="proy-kanban-proceso"></div></div>
-                            <div class="kanban-column kanban-column--done"><h5>Listo</h5><div id="proy-kanban-hecho"></div></div>
+                            <div class="kanban-column kanban-column--pending"><h5>📝 Por hacer</h5><div id="proy-kanban-pendiente"></div></div>
+                            <div class="kanban-column kanban-column--progress"><h5>⚡ En curso</h5><div id="proy-kanban-proceso"></div></div>
+                            <div class="kanban-column kanban-column--follow"><h5>📌 Seguimiento</h5><div id="proy-kanban-seguimiento"></div></div>
+                            <div class="kanban-column kanban-column--done"><h5>✅ Listo</h5><div id="proy-kanban-hecho"></div></div>
+                        </div>
+                    </section>
+                    <section class="mkt-section hidden" id="proy-tabla-wrap">
+                        <h4 class="section-title">≡ Vista tabla</h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-proy-activas"><thead><tr><th>Tarea</th><th>Asignado</th><th>Estado</th><th>Prioridad</th><th>Seg.</th><th>Límite</th><th>Notas</th></tr></thead><tbody></tbody></table>
                         </div>
                     </section>
                     <section class="mkt-section">
@@ -406,6 +428,48 @@
             </div>
             <div class="detalle-tab-panel" data-panel="luna"><div id="detalle-luna-panel" class="luna-caso-panel"></div></div>
         </div>
+    </div>
+
+    <!-- Panel detalle tarea (Monday-style) -->
+    <div id="tarea-detalle-panel" class="tarea-detalle-panel" aria-hidden="true">
+        <div class="tarea-detalle-backdrop" onclick="cerrarDetalleTarea()"></div>
+        <aside class="tarea-detalle-drawer">
+            <header class="td-header">
+                <h3 id="td-titulo">Tarea</h3>
+                <button type="button" class="btn-close" onclick="cerrarDetalleTarea()" aria-label="Cerrar">&times;</button>
+            </header>
+            <div class="td-body">
+                <div class="td-meta-row">
+                    <span>👤 <strong id="td-meta-asignado">—</strong></span>
+                    <span>✍️ <span id="td-meta-creador">—</span></span>
+                </div>
+                <div class="td-fields">
+                    <div class="td-field"><label>Estado</label><select id="td-estado" class="form-control"></select></div>
+                    <div class="td-field"><label>Prioridad</label>
+                        <select id="td-prioridad" class="form-control">
+                            <option value="Baja">Baja</option><option value="Media">Media</option>
+                            <option value="Alta">Alta</option><option value="Urgente">Urgente</option>
+                        </select>
+                    </div>
+                    <div class="td-field"><label>📅 Fecha límite</label><input type="date" id="td-vencimiento" class="form-control"></div>
+                </div>
+                <button type="button" id="td-btn-seguimiento" class="btn btn-ghost btn-small td-btn-seguimiento" onclick="toggleSeguimientoDetalleTarea()">📌 Marcar seguimiento</button>
+                <div class="td-field full-width">
+                    <label>Descripción</label>
+                    <textarea id="td-descripcion" class="form-control" rows="3" placeholder="Detalles de la tarea…"></textarea>
+                </div>
+                <button type="button" class="btn btn-outline btn-small" onclick="guardarCamposDetalleTarea()">💾 Guardar cambios</button>
+                <div id="td-acciones-rapidas" class="td-acciones-rapidas"></div>
+                <section class="td-notas-section">
+                    <h4>💬 Actualizaciones y notas</h4>
+                    <div id="td-notas-lista" class="td-notas-lista"></div>
+                    <div class="td-nota-compose">
+                        <textarea id="td-nota-input" class="form-control" rows="2" placeholder="Escribe una nota o actualización…"></textarea>
+                        <button type="button" id="td-btn-guardar-nota" class="btn btn-primary btn-small" onclick="agregarNotaTarea()">Publicar nota</button>
+                    </div>
+                </section>
+            </div>
+        </aside>
     </div>
 
     <!-- Modal nueva tarea -->
@@ -710,15 +774,16 @@
     <script src="js/db.js"></script>
     <script src="js/services.js"></script>
     <script src="js/documents.js"></script>
-    <script src="js/brand.js?v=20260709b"></script>
-    <script src="js/planner.js?v=20260709b"></script>
-    <script src="js/proyectos.js?v=20260709b"></script>
+    <script src="js/brand.js?v=20260709c"></script>
+    <script src="js/proyectos.js?v=20260709c"></script>
+    <script src="js/planner.js?v=20260709c"></script>
     <script src="js/caso-detalle.js"></script>
     <script src="js/luna.js"></script>
     <script src="js/luna-knowledge.js"></script>
     <script src="js/ia-features.js"></script>
     <script src="js/ia-assistant.js"></script>
-    <script src="js/render.js?v=20260709b"></script>
+    <script src="js/render.js?v=20260709c"></script>
+    <script src="js/brand.js?v=20260709c"></script>
     <script src="js/forms.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>

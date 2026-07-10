@@ -2,7 +2,8 @@
  * Revive Hogar — identidad visual oficial + marca EchauriApps
  */
 
-const REVIVE_LOGO_MARK = 'assets/revive-hogar-mark.png';
+const REVIVE_LOGO_MARK = 'assets/revive-hogar-mark.svg';
+const REVIVE_LOGO_MARK_PNG = 'assets/revive-hogar-mark.png';
 const REVIVE_LOGO_FULL = 'assets/revive-hogar-logo-full.png';
 const ECHAURI_LOGO_SRC = 'assets/echauriapps-logo.svg';
 
@@ -10,6 +11,7 @@ function getReviveLogoImg(variant) {
     const v = variant || 'md';
     const isFull = v === 'full';
     const src = isFull ? REVIVE_LOGO_FULL : REVIVE_LOGO_MARK;
+    const fallback = isFull ? REVIVE_LOGO_FULL : REVIVE_LOGO_MARK_PNG;
     const sizes = {
         full: { h: 108, w: 280 },
         hero: { h: 68, w: 68 },
@@ -21,7 +23,7 @@ function getReviveLogoImg(variant) {
     };
     const size = sizes[v] || sizes.md;
     const cls = `logo-revive-img logo-revive-img--${v}`;
-    return `<img src="${src}" alt="Revive Hogar" class="${cls}" width="${size.w}" height="${size.h}" loading="eager" decoding="async">`;
+    return `<img src="${src}" alt="Revive Hogar" class="${cls}" width="${size.w}" height="${size.h}" loading="eager" decoding="async" onerror="this.onerror=null;this.src='${fallback}'">`;
 }
 
 function getEchauriLogoImg(variant) {
