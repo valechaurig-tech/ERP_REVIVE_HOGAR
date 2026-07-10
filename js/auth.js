@@ -79,38 +79,8 @@ function createNavItemButton(menu, isActive) {
     btn.className = `nav-item${isActive ? ' active' : ''}`;
     btn.dataset.moduleId = menu.id;
     btn.innerHTML = `<span class="nav-icon">${rhGetNavIconSvg(menu.id)}</span><span class="nav-label">${escapeHtml(menu.name)}</span>`;
-    btn.addEventListener('click', () => {
-        showModule(menu.id, btn);
-        closeMobileNav();
-    });
+    btn.addEventListener('click', () => showModule(menu.id, btn));
     return btn;
-}
-
-function toggleMobileNav(forceOpen) {
-    const open = typeof forceOpen === 'boolean'
-        ? forceOpen
-        : !document.body.classList.contains('mobile-nav-open');
-    document.body.classList.toggle('mobile-nav-open', open);
-    const toggle = document.getElementById('mobile-nav-toggle');
-    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    document.getElementById('sidebar-backdrop')?.setAttribute('aria-hidden', open ? 'false' : 'true');
-    if (open) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
-}
-
-function closeMobileNav() {
-    toggleMobileNav(false);
-}
-
-function bindMobileNav() {
-    document.getElementById('mobile-nav-toggle')?.addEventListener('click', () => toggleMobileNav());
-    document.getElementById('sidebar-backdrop')?.addEventListener('click', closeMobileNav);
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeMobileNav();
-    });
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 900) closeMobileNav();
-    });
 }
 
 function buildSidebar() {
@@ -192,7 +162,6 @@ function refreshActiveModule(incluirSelects = false) {
 function logout() {
     DB.flush();
     logAction(`Cierre de sesión: ${currentUser ? currentUser.displayName : 'Sistema'}`);
-    closeMobileNav();
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
     currentUser = null;

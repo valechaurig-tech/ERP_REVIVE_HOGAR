@@ -368,7 +368,7 @@ textarea.form-control { min-height: 96px; resize: vertical; }
 .priority-urgent { background: #f3e8ff; color: #6d28d9; }
 
 /* ================= APP LAYOUT ================= */
-#app-screen { display: none; height: 100vh; height: 100dvh; flex-direction: column; }
+#app-screen { display: none; height: 100vh; flex-direction: column; }
 .topbar { background: linear-gradient(90deg, var(--primary), #14706a); color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 22px rgba(16, 37, 61, 0.16); z-index: 10; }
 .topbar-left { display: flex; align-items: center; min-width: 0; }
 .topbar-left strong { font-size: 18px; letter-spacing: 0.4px; }
@@ -2041,8 +2041,7 @@ tr:hover { background-color: #fafcff; }
 .brand-revive { font-weight: 500; color: rgba(255, 255, 255, 0.92); }
 .brand-hogar { font-weight: 800; color: #ffffff; }
 .brand-lockup--topbar .brand-revive,
-.brand-lockup--topbar .brand-hogar { color: var(--primary); }
-.brand-lockup--topbar .brand-lockup-title { color: var(--primary); }
+.brand-lockup--topbar .brand-hogar { color: #ffffff; }
 .logo-revive-svg--lg { width: 72px; height: 72px; }
 .logo-revive-svg--md { width: 48px; height: 48px; }
 .logo-revive-svg--sm { width: 34px; height: 34px; }
@@ -2574,36 +2573,6 @@ tr:hover { background-color: #fafcff; }
 
 .tipo-luna_estancado, .tipo-riva_estancado { background: #fef3c7; color: #92400e; }
 
-@media (max-width: 900px) {
-    .login-shell { grid-template-columns: 1fr; min-height: auto; }
-    .login-hero { padding: 36px 28px; }
-    .login-box { padding: 36px 28px; }
-    .sidebar { width: 100%; max-height: none; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .main-container { flex-direction: column; }
-    #app-screen { height: auto; min-height: 100vh; }
-    .content-area { padding: 16px; }
-    .module-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
-    .module-toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .module-toolbar-actions .btn { width: auto; flex: 1; min-width: 140px; }
-    .mkt-analytics-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: none !important; }
-    .modal-content { width: 95%; margin: 20px auto; max-height: 90vh; overflow-y: auto; }
-    .chat-compose { grid-template-columns: 1fr; }
-    .detalle-grid { grid-template-columns: 1fr; }
-    .ia-widget { bottom: 16px; right: 16px; }
-    .ia-panel { width: calc(100vw - 32px); height: min(70vh, 520px); }
-    #echauri-brand-badge { bottom: 12px; left: 12px; max-width: 42vw; }
-    #echauri-brand-badge .logo-echauri-img--badge { max-height: 48px; max-width: 88px; }
-    .form-grid { grid-template-columns: 1fr !important; }
-    .topbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
-    .topbar-right { width: 100%; justify-content: flex-end; }
-}
-
-@media (max-width: 480px) {
-    .mkt-analytics-grid { grid-template-columns: 1fr !important; }
-    .role-option { font-size: 12px; padding: 10px 6px; }
-    .btn-toolbar { width: 100%; }
-}
-
 /* Costos de remodelación */
 .remodel-panel { padding: 4px 0 8px; }
 .remodel-resumen { margin-bottom: 18px; }
@@ -2621,515 +2590,55 @@ tr:hover { background-color: #fafcff; }
 .mkt-celda-monto { text-align: right; font-variant-numeric: tabular-nums; }
 .detalle-tab--remodelacion.active { color: #b45309; background: linear-gradient(180deg, #fffbeb, transparent); }
 
-/* —— Mejoras UI v2: métricas, login Luna, módulos —— */
-.mkt-metric-card {
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-}
-.mkt-metric-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), #5eead4);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-.mkt-metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(13, 79, 74, 0.1);
-    border-color: rgba(13, 148, 136, 0.25);
-}
-.mkt-metric-card:hover::before { opacity: 1; }
-.mkt-metric-success::before { background: linear-gradient(90deg, var(--success), #4ade80); }
-.mkt-metric-danger::before { background: linear-gradient(90deg, var(--danger), #f87171); }
-.mkt-metric-warning::before { background: linear-gradient(90deg, var(--warning), #fbbf24); }
-.mkt-metric-accent::before { background: linear-gradient(90deg, var(--accent), #2dd4bf); }
-
-.login-luna-hint {
-    margin-top: 20px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #0f766e;
-    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
-    border: 1px solid rgba(45, 212, 191, 0.35);
-    text-align: center;
-}
-.login-luna-hint strong { color: #0d4f4a; }
-
-.module-toolbar {
-    background: linear-gradient(180deg, #ffffff 0%, #f8fffe 100%);
-    border: 1px solid rgba(197, 221, 217, 0.8);
-    box-shadow: 0 2px 12px rgba(13, 79, 74, 0.04);
-}
-.module-toolbar h3 {
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.btn-luna-toolbar {
-    border-color: rgba(13, 148, 136, 0.35) !important;
-    color: #0f766e !important;
-    background: linear-gradient(180deg, #f0fdfa, #fff) !important;
-}
-.btn-luna-toolbar:hover {
-    background: linear-gradient(180deg, #ccfbf1, #99f6e4) !important;
-    border-color: #2dd4bf !important;
-    color: #0d4f4a !important;
-}
-
-.content-area {
-    background: linear-gradient(180deg, #f8fcfb 0%, #f4faf9 120px, #f0f7f6 100%);
-}
-
-.nav-item.active {
-    background: linear-gradient(90deg, rgba(13, 148, 136, 0.28) 0%, rgba(13, 148, 136, 0.12) 100%);
-    box-shadow: inset 3px 0 0 0 #14b8a6, 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.ia-quick { max-height: 140px; }
-.ia-quick-btn--guide {
-    border-color: rgba(13, 148, 136, 0.5);
-    background: linear-gradient(180deg, #ecfdf5, #d1fae5);
-}
-
-.breadcrumbs {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 10px;
-    padding: 8px 14px;
-    margin-bottom: 16px;
-    border: 1px solid rgba(197, 221, 217, 0.5);
-}
-
-.table-clean tbody tr {
-    transition: background 0.15s ease;
-}
-.table-clean tbody tr:hover {
-    background: rgba(240, 253, 250, 0.65);
-}
-
-.topbar {
-    background: linear-gradient(90deg, #ffffff 0%, #f8fffe 100%);
-    border-bottom: 1px solid rgba(197, 221, 217, 0.6);
-    box-shadow: 0 2px 16px rgba(13, 79, 74, 0.04);
-}
-.topbar-chip {
-    background: #f0fdfa;
-    border: 1px solid rgba(45, 212, 191, 0.3);
-    color: #0f766e;
-}
-
-.luna-caso-grid {
-    gap: 10px;
-}
-.luna-action-card {
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-.luna-action-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.12);
-}
-
-/* ================= RESPONSIVE MÓVIL — experiencia completa ================= */
-
-/* Base táctil y viewport dinámico */
-html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-}
-body {
-    min-height: 100vh;
-    min-height: 100dvh;
-}
-#app-screen {
-    min-height: 100dvh;
-}
-
-/* Menú hamburguesa (oculto en escritorio) */
-.mobile-nav-toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    margin-right: 10px;
-    flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.12);
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-.mobile-nav-toggle:hover { background: rgba(255, 255, 255, 0.22); }
-.mobile-nav-toggle-bar {
-    display: block;
-    width: 20px;
-    height: 2px;
-    border-radius: 2px;
-    background: #fff;
-    transition: transform 0.25s ease, opacity 0.25s ease;
-}
-.topbar-brand-wrap {
-    min-width: 0;
-    flex: 1;
-}
-.sidebar-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 180;
-    background: rgba(6, 26, 24, 0.55);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-/* Tablet y móvil */
+/* Responsive móvil — sin alterar escritorio */
 @media (max-width: 900px) {
-    .mobile-nav-toggle { display: flex; }
-    .mobile-nav-toggle {
-        border: 1px solid rgba(13, 148, 136, 0.3);
-        background: #f0fdfa;
-    }
-    .mobile-nav-toggle:hover { background: #ccfbf1; }
-    .mobile-nav-toggle-bar { background: #0f766e; }
-
-    .topbar .btn-logout {
-        background: #f0fdfa;
-        color: #0f766e;
-        border-color: rgba(13, 148, 136, 0.35);
-    }
-        padding: 16px 12px;
-        align-items: flex-start;
-        padding-top: max(16px, env(safe-area-inset-top));
-    }
-    .login-shell {
-        border-radius: 18px;
-        max-width: 100%;
-    }
-    .login-hero {
-        padding: 28px 24px;
-    }
-    .login-hero-quote { font-size: 14px; }
-    .login-brand { font-size: 28px; }
-    .login-box {
-        padding: 28px 24px 32px;
-        padding-bottom: max(32px, env(safe-area-inset-bottom));
-    }
-    .login-box h2 { font-size: 24px; }
-    .login-luna-hint { font-size: 12px; padding: 10px 12px; }
-
-    #app-screen {
-        height: 100dvh;
-        height: 100vh;
-    }
-    .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 150;
-        padding: 10px 14px;
-        padding-top: max(10px, env(safe-area-inset-top));
-        flex-wrap: nowrap;
-        gap: 8px;
-    }
-    .topbar-left {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        align-items: center;
-    }
-    .topbar-right {
-        flex-shrink: 0;
-        gap: 6px;
-        width: auto;
-    }
-    .topbar-chip {
-        font-size: 11px;
-        padding: 5px 10px;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .btn-logout {
-        padding: 8px 12px;
-        min-height: 40px;
-        font-size: 11px;
-    }
-
-    .sidebar-backdrop { display: block; }
-    body.mobile-nav-open .sidebar-backdrop {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    body.mobile-nav-open .mobile-nav-toggle-bar:nth-child(1) {
-        transform: translateY(7px) rotate(45deg);
-    }
-    body.mobile-nav-open .mobile-nav-toggle-bar:nth-child(2) { opacity: 0; }
-    body.mobile-nav-open .mobile-nav-toggle-bar:nth-child(3) {
-        transform: translateY(-7px) rotate(-45deg);
-    }
-
-    .main-container {
-        flex: 1;
-        flex-direction: row;
-        overflow: hidden;
-        min-height: 0;
-    }
+    .login-shell { grid-template-columns: 1fr; min-height: auto; }
+    .login-hero { padding: 36px 28px; }
+    .login-box { padding: 36px 28px; }
+    .main-container { flex-direction: column; }
     .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: min(300px, 88vw);
+        width: 100%;
         max-height: none;
-        height: 100dvh;
-        z-index: 200;
-        transform: translateX(-105%);
-        transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
         border-right: none;
-        border-bottom: none;
-        padding-top: max(16px, env(safe-area-inset-top));
-        padding-bottom: max(20px, env(safe-area-inset-bottom));
-        box-shadow: 8px 0 40px rgba(0, 0, 0, 0.35);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px;
     }
-    body.mobile-nav-open .sidebar { transform: translateX(0); }
     .sidebar-nav {
-        flex-direction: column !important;
-        overflow-x: visible !important;
-        overflow-y: visible !important;
+        flex-direction: row;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        gap: 4px;
     }
     .sidebar-nav .nav-item {
-        width: 100% !important;
-        white-space: normal;
-        min-height: 48px;
-        padding: 12px 14px;
-    }
-    .nav-item.active {
-        box-shadow: inset 3px 0 0 0 #14b8a6, 0 4px 12px rgba(0, 0, 0, 0.12) !important;
-    }
-
-    .content-area {
-        flex: 1;
-        width: 100%;
-        padding: 14px 12px 100px;
-        padding-bottom: max(100px, calc(88px + env(safe-area-inset-bottom)));
-        overflow-y: auto;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .breadcrumbs {
-        font-size: 12px;
-        padding: 8px 12px;
-        margin-bottom: 12px;
-    }
-
-    .module-toolbar {
-        padding: 14px;
-        border-radius: 14px;
-    }
-    .module-toolbar-text h3 { font-size: 18px; }
-    .module-toolbar-text .module-desc { font-size: 13px; }
-    .module-toolbar-actions {
-        width: 100%;
-        flex-direction: column;
-    }
-    .module-toolbar-actions .btn-toolbar {
-        width: 100%;
-        min-height: 44px;
-        flex: none;
-    }
-
-    .mkt-analytics-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px;
-        max-width: none !important;
-    }
-    .mkt-metric-card { padding: 14px 12px; }
-    .mkt-metric-value { font-size: 22px; }
-    .mkt-metric-label { font-size: 10px; }
-
-    .planner-kpis { grid-template-columns: repeat(2, 1fr) !important; }
-
-    .table-responsive {
-        position: relative;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 12px;
-    }
-    .table-responsive::after {
-        content: 'Desliza →';
-        position: sticky;
-        left: 100%;
-        transform: translateX(-100%);
-        display: block;
-        text-align: right;
-        font-size: 10px;
-        font-weight: 700;
-        color: #94a3b8;
-        padding: 6px 10px 8px;
-        background: linear-gradient(90deg, transparent, #f8fafc 40%);
-        pointer-events: none;
-    }
-    .table-responsive table { min-width: 560px; }
-    th, td { padding: 10px 12px; font-size: 12px; }
-    .btn-small {
-        min-height: 40px;
-        padding: 8px 12px;
-        font-size: 12px;
-    }
-
-    .kanban-board,
-    .kanban-board-active {
-        grid-template-columns: 1fr !important;
-        gap: 12px;
-    }
-    .kanban-column { min-height: 120px; }
-
-    .modal {
-        padding: 0;
-        align-items: flex-end;
-    }
-    .modal-content {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        border-radius: 20px 20px 0 0;
-        max-height: 92dvh;
-        padding: 20px 16px;
-        padding-bottom: max(20px, env(safe-area-inset-bottom));
-    }
-    .modal-content.modal-wide,
-    .modal-content.modal-extra-wide,
-    .modal-detalle {
-        max-width: 100% !important;
-    }
-    .modal-header { margin-bottom: 14px; }
-    .modal-header h3 { font-size: 18px; }
-    .modal-form-actions {
-        flex-direction: column-reverse;
-    }
-    .modal-form-actions .btn {
-        width: 100%;
-        min-height: 44px;
-    }
-
-    .detalle-tabs {
-        gap: 2px;
-        padding-bottom: 2px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-    .detalle-tabs::-webkit-scrollbar { display: none; }
-    .detalle-tab {
+        width: auto;
+        flex-shrink: 0;
+        white-space: nowrap;
         padding: 10px 14px;
-        font-size: 12px;
-        min-height: 44px;
+        font-size: 13px;
     }
-    .detalle-tab-panel { padding: 16px 0 8px; }
-    .detalle-grid { grid-template-columns: 1fr !important; }
-    .luna-caso-hero {
-        flex-direction: column;
-        text-align: center;
-        padding: 16px;
-    }
-    .luna-caso-grid { grid-template-columns: repeat(2, 1fr); }
-
-    .mkt-filter-bar { padding: 12px; }
-    .mkt-filter-group { min-width: 100%; }
-    .mkt-filter-control { max-width: 100%; }
-
-    .ia-widget {
-        bottom: max(12px, env(safe-area-inset-bottom));
-        right: max(12px, env(safe-area-inset-right));
-    }
-    .ia-fab {
-        padding: 6px;
-        gap: 0;
-        min-width: 56px;
-        min-height: 56px;
-        justify-content: center;
-    }
-    .ia-fab-text { display: none; }
-    .ia-fab-avatar-slot { width: 48px; height: 48px; }
-    .ia-fab-rings { left: 50%; transform: translate(-50%, -50%); }
-    .ia-panel {
-        position: fixed;
-        inset: 0;
-        width: 100% !important;
-        height: 100% !important;
-        max-height: 100dvh !important;
-        border-radius: 0;
-    }
-    .ia-header { padding-top: max(20px, env(safe-area-inset-top)); }
-    .ia-form { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
-    .ia-quick { max-height: 110px; }
-
-    #echauri-brand-badge {
-        bottom: max(76px, calc(68px + env(safe-area-inset-bottom)));
-        left: max(12px, env(safe-area-inset-left));
-        max-width: 36vw;
-    }
-
-    .form-control,
-    .btn,
-    select.form-control {
-        font-size: 16px; /* evita zoom automático en iOS */
-    }
+    .nav-item.active { box-shadow: inset 0 -3px 0 0 #14b8a6; }
+    .content-area { padding: 16px; }
+    .module-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
+    .module-toolbar-actions { width: 100%; flex-wrap: wrap; }
+    .module-toolbar-actions .btn-toolbar { flex: 1; min-width: 140px; }
+    .mkt-analytics-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: none !important; }
+    .modal-content { width: 95%; margin: 20px auto; max-height: 90vh; overflow-y: auto; }
+    .detalle-grid { grid-template-columns: 1fr; }
     .form-grid { grid-template-columns: 1fr !important; }
     .full-width { grid-column: span 1; }
-
-    .section-title { font-size: 13px; }
-    .mkt-section { margin-bottom: 20px; }
-
-    .remodel-montos-form,
-    .remodel-add-section { padding: 12px; }
-
-    .chat-compose { grid-template-columns: 1fr !important; }
-    .funnel-arrow { display: none; }
-    #funnel-grid { flex-direction: column; align-items: stretch; }
-    .atencion-dos-columnas { grid-template-columns: 1fr; }
-    .rank-grid { grid-template-columns: 1fr; }
-    .charts-grid { grid-template-columns: 1fr; }
-    .panel-grid { grid-template-columns: 1fr; }
+    .kanban-board,
+    .kanban-board-active { grid-template-columns: 1fr !important; }
+    .ia-widget { bottom: 16px; right: 16px; }
+    .ia-panel { width: calc(100vw - 32px); height: min(70vh, 520px); }
+    .topbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+    .topbar-right { width: 100%; justify-content: flex-end; }
+    .table-responsive { -webkit-overflow-scrolling: touch; }
 }
 
-/* Móvil pequeño */
 @media (max-width: 480px) {
-    .topbar-chip--hide-mobile { display: none !important; }
-    .topbar-user { max-width: 90px; }
-
-    .login-hero-features { gap: 8px; }
-    .login-feature { font-size: 12px; padding: 10px 12px; }
-    .role-option { font-size: 12px; padding: 12px 8px; min-height: 44px; }
-
     .mkt-analytics-grid,
-    .planner-kpis {
-        grid-template-columns: 1fr !important;
-    }
-    .mkt-metric-value { font-size: 24px; }
-
-    .module-toolbar-text h3 { font-size: 17px; }
-
-    .luna-caso-grid { grid-template-columns: 1fr; }
-
-    .table-responsive table { min-width: 480px; }
-}
-
-/* Escritorio: menú siempre visible */
-@media (min-width: 901px) {
-    .mobile-nav-toggle { display: none !important; }
-    .sidebar-backdrop { display: none !important; }
-    body.mobile-nav-open .sidebar { transform: none; }
+    .planner-kpis { grid-template-columns: 1fr !important; }
+    .role-option { font-size: 12px; padding: 10px 6px; }
+    .btn-toolbar { width: 100%; }
+    th, td { padding: 8px 10px; font-size: 12px; }
 }

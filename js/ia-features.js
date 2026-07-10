@@ -124,11 +124,6 @@ function renderPanelLunaCaso() {
                 <strong>Pregúntame</strong>
                 <small>Chat libre con Luna</small>
             </button>
-            <button type="button" class="luna-action-card" onclick="lunaGuiaModulo()">
-                <span class="luna-action-icon">🗺️</span>
-                <strong>Guía del módulo</strong>
-                <small>Pasos en este pantallazo</small>
-            </button>
         </div>`;
 }
 
