@@ -3,11 +3,31 @@
  */
 
 const MODELOS = [
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-2.0-flash-lite',
-    'gemini-1.5-flash-002'
+    'gemini-3.1-flash-lite',
+    'gemini-flash-lite-latest',
+    'gemini-3-flash-preview',
+    'gemini-flash-latest'
 ];
+
+function extraerTextoGemini(data) {
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const texto = parts.map(p => p?.text).filter(Boolean).join('\n').trim();
+    return texto || null;
+}
+
+function mensajeErrorAmigable(msg) {
+    const m = String(msg || '').toLowerCase();
+    if (m.includes('not found') || m.includes('no longer available')) {
+        return 'El modelo de IA cambió; estamos actualizando Luna. Intenta de nuevo en un momento.';
+    }
+    if (m.includes('quota') || m.includes('rate limit') || m.includes('resource_exhausted')) {
+        return 'Luna está muy solicitada ahora mismo. Espera unos segundos e intenta otra vez.';
+    }
+    if (m.includes('api key') || m.includes('permission')) {
+        return 'La clave de IA no está configurada correctamente en el servidor.';
+    }
+    return msg || 'No pude generar respuesta. Intenta de nuevo.';
+}
 
 const SISTEMA_LUNA = `Te llamas **Luna**, la asistente inteligente de Revive Hogar. Eres una guía femenina, elegante y muy humana: cálida, empática y segura de ti misma.
 
@@ -74,7 +94,7 @@ async function llamarGemini(apiKey, systemPrompt, contents) {
     const body = JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents,
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1400 }
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
     });
 
     for (const modelo of MODELOS) {
@@ -88,9 +108,11 @@ async function llamarGemini(apiKey, systemPrompt, contents) {
                 ultimoError = data?.error?.message || `Error ${res.status} en ${modelo}`;
                 continue;
             }
-            const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            const texto = extraerTextoGemini(data);
             if (texto) return { texto, modelo };
-            ultimoError = 'Respuesta vacía del modelo';
+            ultimoError = data?.promptFeedback?.blockReason
+                ? `Contenido bloqueado: ${data.promptFeedback.blockReason}`
+                : 'Respuesta vacía del modelo';
         } catch (err) {
             ultimoError = err.message;
         }
@@ -137,7 +159,7 @@ module.exports = async function handler(req, res) {
         console.error('Error IA:', err);
         return res.status(500).json({
             error: 'Error al generar respuesta',
-            mensaje: err.message || 'Intenta de nuevo en unos segundos.'
+            mensaje: mensajeErrorAmigable(err.message)
         });
     }
 };
