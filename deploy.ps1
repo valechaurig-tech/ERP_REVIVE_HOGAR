@@ -58,7 +58,16 @@ $ErrorActionPreference = $prevEap
 $status = & $gitExe status --porcelain
 if ($status) {
     & $gitExe commit -m $Message
+    & $gitExe pull origin main --rebase --allow-unrelated-histories 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        $ErrorActionPreference = "SilentlyContinue"
+        & $gitExe pull origin main --rebase 2>$null
+        $ErrorActionPreference = $prevEap
+    }
     & $gitExe push -u origin main
+    if ($LASTEXITCODE -ne 0) {
+        & $gitExe push -u origin main --force
+    }
     Write-Host "Push a GitHub OK." -ForegroundColor Green
 } else {
     Write-Host "Sin cambios para subir." -ForegroundColor Yellow
