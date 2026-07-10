@@ -944,29 +944,66 @@ tr:hover { background-color: #fafcff; }
 .mkt-filter-control { max-width: 220px; }
 
 .mkt-analytics-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px; margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 9px;
+    margin-bottom: 18px;
 }
 .mkt-analytics-grid--compact {
-    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-    gap: 8px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 9px;
+    margin-bottom: 18px;
+}
+.mkt-analytics-grid .mkt-metric-card {
+    background: var(--surface);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 10px;
+    padding: 11px 12px 10px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+    min-height: 0;
+}
+.mkt-analytics-grid .mkt-metric-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.35;
+    order: 2;
+    letter-spacing: 0.01em;
+}
+.mkt-analytics-grid .mkt-metric-value {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    order: 3;
+}
+.mkt-analytics-grid .mkt-metric-emoji {
+    font-size: 15px;
+    line-height: 1;
+    order: 1;
+    margin-bottom: 3px;
+    opacity: 0.92;
+    display: block;
 }
 .mkt-metric-card {
     background: var(--surface); border: 1px solid rgba(15, 23, 42, 0.06); border-radius: 10px;
-    padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 4px;
+    padding: 11px 12px 10px 13px; display: flex; flex-direction: column; gap: 3px;
     box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
 }
 .mkt-metric-label {
     font-size: 10px;
     font-weight: 600;
     color: #64748b;
-    line-height: 1.3;
+    line-height: 1.35;
     order: 2;
     letter-spacing: 0.01em;
 }
 .mkt-metric-value {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
     color: var(--primary);
     letter-spacing: -0.02em;
@@ -974,20 +1011,14 @@ tr:hover { background-color: #fafcff; }
     order: 3;
 }
 .mkt-metric-emoji {
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1;
     order: 1;
-    margin-bottom: 2px;
-    opacity: 0.88;
+    margin-bottom: 3px;
+    opacity: 0.92;
+    display: block;
 }
-.mkt-metric-card--refined {
-    padding: 9px 10px 8px 12px;
-    gap: 2px;
-    min-height: 0;
-}
-.mkt-metric-card--refined .mkt-metric-value { font-size: 17px; font-weight: 700; }
-.mkt-metric-card--refined .mkt-metric-label { font-size: 9.5px; font-weight: 600; color: #94a3b8; }
-.mkt-metric-card--refined .mkt-metric-emoji { font-size: 12px; margin-bottom: 1px; }
+.mkt-metric-card--refined { /* alias — misma estructura global */ }
 .mkt-metric-success .mkt-metric-value { color: var(--success); }
 .mkt-metric-danger .mkt-metric-value { color: var(--danger); }
 .mkt-metric-accent .mkt-metric-value { color: var(--accent); }
@@ -3115,28 +3146,24 @@ body { background: #f4f7fa; }
     border-radius: var(--radius-md);
     border: 1px solid rgba(15, 23, 42, 0.06);
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-    padding: 10px 12px;
+    padding: 11px 12px 10px 13px;
     position: relative;
     overflow: hidden;
     background: #fff;
 }
-.mkt-metric-card::before {
+.mkt-analytics-grid .mkt-metric-card::before {
     content: '';
     position: absolute;
     left: 0; top: 14px; bottom: 14px;
     width: 2px;
     border-radius: 0 2px 2px 0;
     background: var(--primary-light);
-    opacity: 0.55;
+    opacity: 0.5;
 }
-.mkt-metric-card--refined::before { top: 12px; bottom: 12px; width: 1.5px; opacity: 0.45; }
-.mkt-metric-card--refined { padding: 9px 10px 8px 11px; }
-.mkt-metric-emoji { font-size: 12px; line-height: 1; margin-bottom: 2px; display: block; opacity: 0.9; }
-.mkt-metric-card--refined .mkt-metric-emoji { font-size: 11px; margin-bottom: 1px; }
-.mkt-metric-warning::before { background: var(--warning); opacity: 0.6; }
-.mkt-metric-danger::before { background: var(--danger); opacity: 0.6; }
-.mkt-metric-success::before { background: var(--success); opacity: 0.6; }
-.mkt-metric-accent::before { background: var(--accent); opacity: 0.6; }
+.mkt-metric-warning::before { background: var(--warning); opacity: 0.55; }
+.mkt-metric-danger::before { background: var(--danger); opacity: 0.55; }
+.mkt-metric-success::before { background: var(--success); opacity: 0.55; }
+.mkt-metric-accent::before { background: var(--accent); opacity: 0.55; }
 .module-toolbar-text h3 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
 .module-desc { font-size: 12.5px; color: #94a3b8; margin-top: 2px; }
 .kanban-column {

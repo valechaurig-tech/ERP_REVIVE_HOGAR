@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/revive-hogar-mark.svg">
-    <link rel="stylesheet" href="css/app.css?v=20260709g">
+    <link rel="stylesheet" href="css/app.css?v=20260709h">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -96,12 +96,12 @@
                             <button type="button" class="btn btn-primary btn-toolbar" id="planner-btn-nueva" onclick="abrirModalTarea()">+ Nueva tarea</button>
                         </div>
                     </div>
-                    <div class="mkt-analytics-grid planner-kpis">
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Alertas</span><span class="mkt-metric-value" id="planner-pendientes">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Tareas activas</span><span class="mkt-metric-value" id="planner-tareas-activas">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Urgentes / Alta</span><span class="mkt-metric-value" id="planner-tareas-urgentes">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="planner-tareas-completadas">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Resueltas</span><span class="mkt-metric-value" id="planner-resueltas">0</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">🔔</span><span class="mkt-metric-label">Alertas</span><span class="mkt-metric-value" id="planner-pendientes">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📋</span><span class="mkt-metric-label">Tareas activas</span><span class="mkt-metric-value" id="planner-tareas-activas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">🔥</span><span class="mkt-metric-label">Urgentes / Alta</span><span class="mkt-metric-value" id="planner-tareas-urgentes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="planner-tareas-completadas">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">✔️</span><span class="mkt-metric-label">Resueltas</span><span class="mkt-metric-value" id="planner-resueltas">0</span></div>
                     </div>
 
                     <div id="pm-summary-bar" class="pm-summary-bar">
@@ -171,11 +171,11 @@
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalTarea()">+ Nueva tarea</button>
                         </div>
                     </div>
-                    <div class="mkt-analytics-grid planner-kpis">
-                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">📋</span><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-danger"><span class="mkt-metric-emoji">🔥</span><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-warning"><span class="mkt-metric-emoji">📌</span><span class="mkt-metric-label">Seguimiento</span><span class="mkt-metric-value" id="proy-seguimiento">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact planner-kpis">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📋</span><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">🔥</span><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">📌</span><span class="mkt-metric-label">Seguimiento</span><span class="mkt-metric-value" id="proy-seguimiento">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
                     </div>
                     <section class="mkt-section rh-section-collapsible">
                         <button type="button" class="rh-section-toggle" data-collapse-target="proy-equipo" onclick="toggleSeccionColapsable('proy-equipo')">
@@ -220,18 +220,18 @@
                         </div>
                     </div>
                     <div class="mkt-analytics-grid mkt-analytics-grid--compact">
-                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Inversión campañas</span><span class="mkt-metric-value" id="dash-presupuesto">$0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">👥</span><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-danger"><span class="mkt-metric-emoji">✖️</span><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-accent"><span class="mkt-metric-emoji">📊</span><span class="mkt-metric-label">Costo / prospecto</span><span class="mkt-metric-value" id="dash-costo-prospecto">—</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">🏠</span><span class="mkt-metric-label">Casas en pipeline</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">🏷️</span><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="dash-casas-venta">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-warning"><span class="mkt-metric-emoji">🔧</span><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="dash-remodelacion">$0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="dash-inversion-propiedades">$0</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span></div>
-                        <div class="mkt-metric-card mkt-metric-card--refined mkt-metric-accent"><span class="mkt-metric-emoji">🎯</span><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="dash-utilidad-proyectada">—</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Inversión campañas</span><span class="mkt-metric-value" id="dash-presupuesto">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">👥</span><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">✖️</span><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-emoji">📊</span><span class="mkt-metric-label">Costo / prospecto</span><span class="mkt-metric-value" id="dash-costo-prospecto">—</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏠</span><span class="mkt-metric-label">Casas en pipeline</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">🏷️</span><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="dash-casas-venta">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">🔧</span><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="dash-remodelacion">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="dash-inversion-propiedades">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span></div>
+                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-emoji">🎯</span><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="dash-utilidad-proyectada">—</span></div>
                     </div>
                 </div>
 
@@ -247,11 +247,11 @@
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalProspectoMarketing()">+ Asignar prospecto</button>
                         </div>
                     </div>
-                    <div class="mkt-analytics-grid">
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Presupuesto</span><span class="mkt-metric-value" id="kpi-mkt-presupuesto">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="kpi-mkt-prospectos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="kpi-mkt-firmados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="kpi-mkt-declinados">0</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Presupuesto</span><span class="mkt-metric-value" id="kpi-mkt-presupuesto">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">👥</span><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="kpi-mkt-prospectos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="kpi-mkt-firmados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">✖️</span><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="kpi-mkt-declinados">0</span></div>
                     </div>
                     <section class="mkt-section">
                         <h4 class="section-title">Campañas</h4>
@@ -287,11 +287,11 @@
                         </div>
                     </div>
                     <div id="vend-vista-banner" class="vend-vista-banner hidden" aria-hidden="true"></div>
-                    <div class="mkt-analytics-grid" style="max-width:680px">
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="vend-total">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Sin contactar</span><span class="mkt-metric-value" id="vend-nuevos">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Interesados</span><span class="mkt-metric-value" id="vend-interesados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="vend-firmados">0</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📊</span><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="vend-total">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">📞</span><span class="mkt-metric-label">Sin contactar</span><span class="mkt-metric-value" id="vend-nuevos">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">💡</span><span class="mkt-metric-label">Interesados</span><span class="mkt-metric-value" id="vend-interesados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="vend-firmados">0</span></div>
                     </div>
                     <section class="mkt-section">
                         <div class="table-responsive table-clean table-mkt">
@@ -313,9 +313,9 @@
                             <p class="module-desc">Investigación, propuesta final y generación de documentos.</p>
                         </div>
                     </div>
-                    <div class="mkt-analytics-grid" style="max-width:420px">
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Pendientes</span><span class="mkt-metric-value" id="admin-pendientes">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Propuestas listas</span><span class="mkt-metric-value" id="admin-propuestas">0</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">Pendientes</span><span class="mkt-metric-value" id="admin-pendientes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">📄</span><span class="mkt-metric-label">Propuestas listas</span><span class="mkt-metric-value" id="admin-propuestas">0</span></div>
                     </div>
                     <section class="mkt-section">
                         <div class="table-responsive table-clean table-mkt">
@@ -341,15 +341,15 @@
                             <option value="Cerrada">Cerradas</option>
                         </select>
                     </div>
-                    <div class="mkt-analytics-grid">
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="pipe-total">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">En espera</span><span class="mkt-metric-value" id="pipe-espera">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Remodelación</span><span class="mkt-metric-value" id="pipe-remodelacion">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="pipe-venta">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Cerradas</span><span class="mkt-metric-value" id="pipe-cerradas">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="pipe-costo-remodelacion">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="pipe-inversion-total">$0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="pipe-utilidad-realizada">—</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏠</span><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="pipe-total">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">En espera</span><span class="mkt-metric-value" id="pipe-espera">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🔧</span><span class="mkt-metric-label">Remodelación</span><span class="mkt-metric-value" id="pipe-remodelacion">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">🏷️</span><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="pipe-venta">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🔒</span><span class="mkt-metric-label">Cerradas</span><span class="mkt-metric-value" id="pipe-cerradas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">💸</span><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="pipe-costo-remodelacion">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="pipe-inversion-total">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="pipe-utilidad-realizada">—</span></div>
                     </div>
                     <section class="mkt-section">
                         <div class="table-responsive table-clean table-mkt">
@@ -383,9 +383,9 @@
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirNuevoVendedor()">+ Nuevo vendedor</button>
                         </div>
                     </div>
-                    <div class="mkt-analytics-grid" style="max-width:320px">
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Usuarios</span><span class="mkt-metric-value" id="usr-total">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-label">Vendedores</span><span class="mkt-metric-value" id="usr-vendedores">0</span></div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">👤</span><span class="mkt-metric-label">Usuarios</span><span class="mkt-metric-value" id="usr-total">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🤝</span><span class="mkt-metric-label">Vendedores</span><span class="mkt-metric-value" id="usr-vendedores">0</span></div>
                     </div>
                     <div class="table-responsive table-clean table-mkt">
                         <table id="table-usuarios"><thead><tr><th>Nombre</th><th>Rol</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody></table>
