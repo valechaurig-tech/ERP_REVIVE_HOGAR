@@ -51,6 +51,7 @@ function renderDashboard() {
 function renderMarketing() {
     const campanas = DB.get('campanas');
     const prospectos = DB.get('prospectos');
+    document.getElementById('mkt-direccion-vendedor-hint')?.classList.toggle('hidden', !rhPuedeElegirVendedorVista());
     const presupuesto = campanas.reduce((s, c) => s + Number(c.costo || 0), 0);
     setText('kpi-mkt-presupuesto', formatearMoneda(presupuesto));
     setText('kpi-mkt-prospectos', prospectos.length);
@@ -117,19 +118,95 @@ function abrirModalProspectoMarketing() {
 }
 
 /* —— Vendedor —— */
+function actualizarToolbarVendedorVista() {
+    const picker = document.getElementById('vend-toolbar-picker');
+    const sel = document.getElementById('vend-vendedor-select');
+    const btnReg = document.getElementById('vend-btn-registrar');
+    const puedeElegir = rhPuedeElegirVendedorVista();
+
+    picker?.classList.toggle('hidden', !puedeElegir);
+    btnReg?.classList.toggle('hidden', puedeElegir);
+
+    if (!puedeElegir || !sel) return;
+
+    const vendedores = getVendedoresActivos();
+    const vid = getVendedorVistaId();
+    sel.innerHTML = vendedores.length
+        ? vendedores.map(v => `<option value="${escapeHtml(v.id)}">${escapeHtml(v.displayName)}</option>`).join('')
+        : '<option value="">Sin vendedores activos</option>';
+    if (vid) sel.value = vid;
+}
+
+function irAModuloVendedorDireccion() {
+    const btn = document.querySelector('.sidebar-nav .nav-item[data-module-id="mod-vendedor"]');
+    if (btn) showModule('mod-vendedor', btn);
+}
+
+function onCambioVendedorVista() {
+    const sel = document.getElementById('vend-vendedor-select');
+    if (!sel?.value) return;
+    setVendedorVistaId(sel.value);
+    renderVendedor();
+}
+
 function renderVendedor() {
     if (!currentUser) return;
-    const prospectos = DB.get('prospectos').filter(p => p.vendedorId === currentUser.id);
+    actualizarToolbarVendedorVista();
+
+    const vendedorId = getVendedorVistaId();
+    const vendedor = getVendedorVistaUsuario();
+    const esVistaDireccion = rhPuedeElegirVendedorVista();
+
+    const titleEl = document.getElementById('vend-mod-title');
+    const descEl = document.getElementById('vend-mod-desc');
+    const casasTitle = document.getElementById('vend-casas-title');
+    if (titleEl) {
+        titleEl.textContent = esVistaDireccion && vendedor
+            ? `Prospectos — ${vendedor.displayName}`
+            : 'Mis Prospectos';
+    }
+    if (descEl) {
+        descEl.textContent = esVistaDireccion
+            ? 'Vista del módulo comercial del vendedor seleccionado.'
+            : 'Seguimiento comercial y registro de prospectos en campo.';
+    }
+    if (casasTitle) {
+        casasTitle.textContent = esVistaDireccion && vendedor
+            ? `Propiedades de ${vendedor.displayName} (pipeline)`
+            : 'Mis propiedades (pipeline)';
+    }
+
+    if (!vendedorId) {
+        setText('vend-total', 0);
+        setText('vend-nuevos', 0);
+        setText('vend-interesados', 0);
+        setText('vend-firmados', 0);
+        const tbodyVac = document.querySelector('#table-vendedor tbody');
+        if (tbodyVac) {
+            tbodyVac.innerHTML = '<tr><td colspan="6" class="celda-vacia">No hay vendedores activos para mostrar.</td></tr>';
+        }
+        const casasVac = document.querySelector('#table-vendedor-casas tbody');
+        if (casasVac) {
+            casasVac.innerHTML = '<tr><td colspan="5" class="celda-vacia">—</td></tr>';
+        }
+        return;
+    }
+
+    const prospectos = DB.get('prospectos').filter(p => p.vendedorId === vendedorId);
     const nuevos = prospectos.filter(p => p.estatus === 'No contactado').length;
     setText('vend-total', prospectos.length);
     setText('vend-nuevos', nuevos);
     setText('vend-interesados', prospectos.filter(p => p.estatus === 'Interesado').length);
     setText('vend-firmados', prospectos.filter(p => p.estatus === 'Firmado').length);
 
+    const msgVacio = esVistaDireccion
+        ? 'Este vendedor no tiene prospectos asignados.'
+        : 'No tienes prospectos asignados.';
+
     const tbody = document.querySelector('#table-vendedor tbody');
     if (!tbody) return;
     tbody.innerHTML = prospectos.length === 0
-        ? '<tr><td colspan="6" class="celda-vacia">No tienes prospectos asignados.</td></tr>'
+        ? `<tr><td colspan="6" class="celda-vacia">${msgVacio}</td></tr>`
         : prospectos.map(p => {
             const camp = p.campañaId && p.campañaId !== 'OTRO' ? getCampanaById(p.campañaId) : null;
             return `<tr>
@@ -145,10 +222,13 @@ function renderVendedor() {
         }).join('');
 
     const casasVend = document.querySelector('#table-vendedor-casas tbody');
-    if (casasVend && currentUser) {
-        const misCasas = DB.get('casas').filter(c => c.vendedorId === currentUser.id);
+    if (casasVend) {
+        const misCasas = DB.get('casas').filter(c => c.vendedorId === vendedorId);
+        const msgCasasVacias = esVistaDireccion
+            ? 'Este vendedor no tiene propiedades firmadas aún.'
+            : 'Sin propiedades firmadas aún.';
         casasVend.innerHTML = misCasas.length === 0
-            ? '<tr><td colspan="5" class="celda-vacia">Sin propiedades firmadas aún.</td></tr>'
+            ? `<tr><td colspan="5" class="celda-vacia">${msgCasasVacias}</td></tr>`
             : misCasas.map(c => {
                 const eco = calcularEconomiaCasa(c, getProspectoById(c.prospectoId));
                 return `<tr>
@@ -173,7 +253,11 @@ function abrirModalProspectoVendedor() {
         if (pv) { pv.required = false; pv.value = currentUser.id; }
     } else {
         wrap?.classList.remove('hidden');
-        if (pv) pv.required = true;
+        if (pv) {
+            pv.required = true;
+            const vid = getVendedorVistaId();
+            if (vid) pv.value = vid;
+        }
     }
     document.getElementById('modal-prospecto')?.classList.add('active');
 }

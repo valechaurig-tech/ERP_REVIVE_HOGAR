@@ -7,6 +7,7 @@ const RH_MENU_PLANNER = { id: 'mod-planner', icon: '🔔', name: 'Tareas y Alert
 const RH_ALL_MODULES = [
     { id: 'mod-dashboard', icon: '📊', name: 'Resumen Ejecutivo', label: 'Panel Dirección' },
     { id: 'mod-planner', icon: '🔔', name: 'Tareas y Alertas', label: 'Alertas' },
+    { id: 'mod-proyectos', icon: '📌', name: 'Gestor de proyectos', label: 'Gestión de equipo' },
     { id: 'mod-marketing', icon: '📢', name: 'Marketing', label: 'Campañas y prospectos' },
     { id: 'mod-vendedor', icon: '💼', name: 'Mis Prospectos', label: 'Seguimiento comercial' },
     { id: 'mod-administradora', icon: '📋', name: 'Bandeja Administradora', label: 'Propuestas y documentos' },
@@ -21,7 +22,11 @@ const RH_MODULE_LABELS = Object.fromEntries(
     RH_ALL_MODULES.map(m => [m.id, m.label || m.name])
 );
 
-const RH_MENU_DIRECCION = RH_ALL_MODULES.map(m => ({ id: m.id, icon: m.icon, name: m.name }));
+const RH_MENU_DIRECCION = RH_ALL_MODULES.map(m => (
+    m.id === 'mod-vendedor'
+        ? { id: m.id, icon: m.icon, name: 'Prospectos vendedores', label: 'Vista por vendedor' }
+        : { id: m.id, icon: m.icon, name: m.name }
+));
 
 const RH_PERM_MAP = {
     Marketing: [
@@ -78,6 +83,7 @@ const RH_CATEGORIAS_COSTO_REM = [
 const RH_NAV_ICON_SVG = {
     'mod-dashboard': '<path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 6a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zM4 13a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"/>',
     'mod-planner': '<path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>',
+    'mod-proyectos': '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/>',
     'mod-marketing': '<path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>',
     'mod-vendedor': '<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>',
     'mod-administradora': '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',

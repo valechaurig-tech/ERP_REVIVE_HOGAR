@@ -56,7 +56,8 @@ const LUNA_KNOWLEDGE = {
         Cerrada: 'Venta finalizada; precio de venta obligatorio para utilidad realizada.'
     },
     modulosDetalle: {
-        'mod-planner': 'Planner: kanban de tareas, alertas del sistema (prospectos nuevos, propuestas listas, Luna estancamiento), historial reciente.',
+        'mod-proyectos': 'Gestor de proyectos (solo Dirección): kanban del equipo, asignar tareas, filtrar por persona. Cada usuario tiene tablero independiente en Tareas y Alertas.',
+        'mod-planner': 'Tareas y Alertas: resumen + tablero personal (cada quien solo las suyas). Dirección ve resumen del equipo y botón al gestor.',
         'mod-dashboard': 'Resumen Ejecutivo: inversión campañas, prospectos, firmados, pipeline, costos remodelación, utilidad.',
         'mod-marketing': 'Marketing: + Agregar campaña, + Asignar prospecto (elegir vendedor). Tablas de campañas y prospectos captados.',
         'mod-vendedor': 'Vendedor: + Registrar prospecto (campo), tabla con Gestionar. Mis propiedades muestra casas firmadas.',

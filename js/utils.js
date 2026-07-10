@@ -5,6 +5,8 @@
 let currentUser = null;
 let activeModuleId = null;
 let clockInterval = null;
+/** ID del vendedor cuya vista muestra Dirección en mod-vendedor */
+let vendedorVistaId = null;
 
 function escapeHtml(str) {
     if (str == null) return '';
@@ -87,6 +89,29 @@ function getCampanaById(id) {
 
 function getVendedoresActivos() {
     return DB.get('usuariosLogin').filter(u => u.rol === 'Vendedor' && u.activo !== false);
+}
+
+function rhPuedeElegirVendedorVista() {
+    return rhEsDireccion(currentUser);
+}
+
+function setVendedorVistaId(id) {
+    vendedorVistaId = id || null;
+}
+
+function getVendedorVistaId() {
+    if (!currentUser) return null;
+    if (!rhPuedeElegirVendedorVista()) return currentUser.id;
+    const vendedores = getVendedoresActivos();
+    if (!vendedores.length) return null;
+    if (vendedorVistaId && vendedores.some(v => v.id === vendedorVistaId)) return vendedorVistaId;
+    return vendedores[0].id;
+}
+
+function getVendedorVistaUsuario() {
+    const id = getVendedorVistaId();
+    if (!id) return null;
+    return DB.get('usuariosLogin').find(u => u.id === id) || null;
 }
 
 function getProspectoById(id) {

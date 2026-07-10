@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Revive Hogar</title>
-    <link rel="stylesheet" href="css/app.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/revive-hogar-mark.png">
+    <link rel="stylesheet" href="css/app.css?v=20260709b">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -84,12 +88,12 @@
                 <div id="mod-planner" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
-                            <h3>Planner — Tareas y Alertas</h3>
-                            <p class="module-desc">Tablero de trabajo, asignaciones, urgencias y seguimiento del equipo.</p>
+                            <h3>Tareas y Alertas</h3>
+                            <p class="module-desc">Tu tablero personal y alertas del sistema. Cada usuario tiene su propio espacio de trabajo.</p>
                         </div>
                         <div class="module-toolbar-actions">
                             <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaPriorizarKanban()">Hablar con Luna</button>
-                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalTarea()">+ Nueva tarea</button>
+                            <button type="button" class="btn btn-primary btn-toolbar" id="planner-btn-nueva" onclick="abrirModalTarea()">+ Nueva tarea</button>
                         </div>
                     </div>
                     <div class="mkt-analytics-grid planner-kpis">
@@ -99,8 +103,24 @@
                         <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="planner-tareas-completadas">0</span></div>
                         <div class="mkt-metric-card"><span class="mkt-metric-label">Resueltas</span><span class="mkt-metric-value" id="planner-resueltas">0</span></div>
                     </div>
-                    <section class="mkt-section">
-                        <h4 class="section-title">Tablero Kanban</h4>
+
+                    <div id="pm-summary-bar" class="pm-summary-bar">
+                        <div class="pm-summary-copy">
+                            <h4 id="pm-summary-titulo">Resumen</h4>
+                            <p id="pm-summary-desc" class="module-desc"></p>
+                            <div id="pm-summary-stats" class="pm-summary-stats"></div>
+                        </div>
+                        <button type="button" id="pm-btn-gestor" class="btn btn-primary btn-toolbar pm-btn-gestor hidden" onclick="irAGestorProyectos()">Abrir gestor de proyectos →</button>
+                    </div>
+
+                    <section id="planner-equipo-resumen" class="mkt-section hidden">
+                        <h4 class="section-title">Tableros del equipo <span class="section-badge-lectura">solo lectura</span></h4>
+                        <p class="module-desc" style="margin-bottom:14px">Dirección no opera tableros personales. Usa el gestor de proyectos para asignar y dar seguimiento.</p>
+                        <div id="planner-equipo-grid" class="pm-equipo-grid"></div>
+                    </section>
+
+                    <section id="planner-kanban-section" class="mkt-section">
+                        <h4 class="section-title" id="planner-kanban-title">Mi tablero Kanban</h4>
                         <div class="kanban-board kanban-board-active">
                             <div class="kanban-column kanban-column--pending"><h5>Por hacer</h5><div id="kanban-pendiente"></div></div>
                             <div class="kanban-column kanban-column--progress"><h5>En curso</h5><div id="kanban-proceso"></div></div>
@@ -112,7 +132,7 @@
                             <table id="table-planner"><thead><tr><th>Tipo</th><th>Alerta</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr></thead><tbody></tbody></table>
                         </div>
                     </section>
-                    <section class="mkt-section">
+                    <section id="planner-completadas-section" class="mkt-section">
                         <h4 class="section-title">Tareas completadas <span class="section-badge-lectura" id="planner-completadas-count">0</span></h4>
                         <div class="table-responsive table-clean table-mkt">
                             <table id="table-tareas-completadas"><thead><tr><th>Tarea</th><th>Asignado</th><th>Prioridad</th><th>Completada</th></tr></thead><tbody></tbody></table>
@@ -121,6 +141,48 @@
                     <section class="mkt-section">
                         <h4 class="section-title">Actividad reciente</h4>
                         <div id="history-list" class="history-list"></div>
+                    </section>
+                </div>
+
+                <div id="mod-proyectos" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Gestor de proyectos</h3>
+                            <p class="module-desc">Vista tipo Monday / Asana: asigna tareas, filtra por persona y mueve el trabajo del equipo.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <div class="proy-filtro-wrap">
+                                <label for="proy-filtro-usuario">Persona</label>
+                                <select id="proy-filtro-usuario" class="form-control proy-filtro-select">
+                                    <option value="">Todo el equipo</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalTarea()">+ Nueva tarea</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid planner-kpis">
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Personas</span><span class="mkt-metric-value" id="proy-equipo">0</span></div>
+                    </div>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Equipo — tableros independientes</h4>
+                        <div id="proy-equipo-grid" class="pm-equipo-grid"></div>
+                    </section>
+                    <section class="mkt-section" id="proy-kanban-wrap">
+                        <h4 class="section-title">Tablero Kanban</h4>
+                        <div class="kanban-board pm-kanban-board">
+                            <div class="kanban-column kanban-column--pending"><h5>Por hacer</h5><div id="proy-kanban-pendiente"></div></div>
+                            <div class="kanban-column kanban-column--progress"><h5>En curso</h5><div id="proy-kanban-proceso"></div></div>
+                            <div class="kanban-column kanban-column--done"><h5>Listo</h5><div id="proy-kanban-hecho"></div></div>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Completadas recientes</h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-proy-completadas"><thead><tr><th>Tarea</th><th>Asignado</th><th>Prioridad</th><th>Límite</th><th>Completada</th></tr></thead><tbody></tbody></table>
+                        </div>
                     </section>
                 </div>
 
@@ -177,6 +239,11 @@
                     </section>
                     <section class="mkt-section">
                         <h4 class="section-title">Prospectos captados</h4>
+                        <div id="mkt-direccion-vendedor-hint" class="mkt-direccion-hint hidden">
+                            Para ver el módulo comercial de un vendedor (seguimiento, gestión y pipeline), abre
+                            <button type="button" class="btn-link-inline" onclick="irAModuloVendedorDireccion()">Prospectos vendedores</button>
+                            en el menú lateral.
+                        </div>
                         <div class="table-responsive table-clean table-mkt">
                             <table id="table-prospectos-mkt"><thead><tr><th>Nombre</th><th>Campaña</th><th>Vendedor</th><th>Teléfono</th><th>Estatus</th><th>Origen</th></tr></thead><tbody></tbody></table>
                         </div>
@@ -186,13 +253,18 @@
                 <div id="mod-vendedor" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
-                            <h3>Mis Prospectos</h3>
-                            <p class="module-desc">Seguimiento comercial y registro de prospectos en campo.</p>
+                            <h3 id="vend-mod-title">Mis Prospectos</h3>
+                            <p class="module-desc" id="vend-mod-desc">Seguimiento comercial y registro de prospectos en campo.</p>
                         </div>
                         <div class="module-toolbar-actions">
-                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalProspectoVendedor()">+ Registrar prospecto</button>
+                            <div id="vend-toolbar-picker" class="vend-toolbar-picker hidden">
+                                <span class="vend-picker-label">Ver vendedor:</span>
+                                <select id="vend-vendedor-select" class="form-control vend-picker-select" onchange="onCambioVendedorVista()" title="Seleccionar vendedor"></select>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-toolbar" id="vend-btn-registrar" onclick="abrirModalProspectoVendedor()">+ Registrar prospecto</button>
                         </div>
                     </div>
+                    <div id="vend-vista-banner" class="vend-vista-banner hidden" aria-hidden="true"></div>
                     <div class="mkt-analytics-grid" style="max-width:680px">
                         <div class="mkt-metric-card"><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="vend-total">0</span></div>
                         <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Sin contactar</span><span class="mkt-metric-value" id="vend-nuevos">0</span></div>
@@ -205,7 +277,7 @@
                         </div>
                     </section>
                     <section class="mkt-section">
-                        <h4 class="mkt-section-title">Mis propiedades (pipeline)</h4>
+                        <h4 class="mkt-section-title" id="vend-casas-title">Mis propiedades (pipeline)</h4>
                         <div class="table-responsive table-clean table-mkt">
                             <table id="table-vendedor-casas"><thead><tr><th>Prospecto</th><th>Estatus</th><th>Remodelación</th><th>Dirección</th><th>Acción</th></tr></thead><tbody></tbody></table>
                         </div>
@@ -638,14 +710,15 @@
     <script src="js/db.js"></script>
     <script src="js/services.js"></script>
     <script src="js/documents.js"></script>
-    <script src="js/brand.js"></script>
-    <script src="js/planner.js"></script>
+    <script src="js/brand.js?v=20260709b"></script>
+    <script src="js/planner.js?v=20260709b"></script>
+    <script src="js/proyectos.js?v=20260709b"></script>
     <script src="js/caso-detalle.js"></script>
     <script src="js/luna.js"></script>
     <script src="js/luna-knowledge.js"></script>
     <script src="js/ia-features.js"></script>
     <script src="js/ia-assistant.js"></script>
-    <script src="js/render.js"></script>
+    <script src="js/render.js?v=20260709b"></script>
     <script src="js/forms.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>

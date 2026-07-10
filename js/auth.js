@@ -6,6 +6,7 @@ let allowedModuleIds = [];
 
 const MODULE_RENDERERS = {
     'mod-planner': () => renderPlanner(),
+    'mod-proyectos': () => renderProyectos(),
     'mod-dashboard': () => renderDashboard(),
     'mod-marketing': () => renderMarketing(),
     'mod-vendedor': () => renderVendedor(),
@@ -114,7 +115,7 @@ function buildSidebar() {
     });
 
     const sidebarLogo = document.getElementById('sidebar-brand-logo');
-    if (sidebarLogo) sidebarLogo.innerHTML = getReviveLogoSvg('logo-revive-svg logo-revive-svg--sidebar');
+    if (sidebarLogo) sidebarLogo.innerHTML = getReviveLogoImg('sidebar');
 
     if (firstBtn && initialId) showModule(initialId, firstBtn, true);
 }
@@ -167,6 +168,7 @@ function logout() {
     currentUser = null;
     activeModuleId = null;
     allowedModuleIds = [];
+    vendedorVistaId = null;
     if (typeof mostrarIAWidget === 'function') mostrarIAWidget(false);
     if (clockInterval) clearInterval(clockInterval);
 }

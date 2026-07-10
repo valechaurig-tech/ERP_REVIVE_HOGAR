@@ -1,8 +1,28 @@
 /**
- * Revive Hogar — identidad visual + marca EchauriApps
+ * Revive Hogar — identidad visual oficial + marca EchauriApps
  */
 
+const REVIVE_LOGO_MARK = 'assets/revive-hogar-mark.png';
+const REVIVE_LOGO_FULL = 'assets/revive-hogar-logo-full.png';
 const ECHAURI_LOGO_SRC = 'assets/echauriapps-logo.svg';
+
+function getReviveLogoImg(variant) {
+    const v = variant || 'md';
+    const isFull = v === 'full';
+    const src = isFull ? REVIVE_LOGO_FULL : REVIVE_LOGO_MARK;
+    const sizes = {
+        full: { h: 108, w: 280 },
+        hero: { h: 68, w: 68 },
+        md: { h: 44, w: 44 },
+        sm: { h: 36, w: 36 },
+        topbar: { h: 38, w: 38 },
+        sidebar: { h: 34, w: 34 },
+        loader: { h: 64, w: 64 }
+    };
+    const size = sizes[v] || sizes.md;
+    const cls = `logo-revive-img logo-revive-img--${v}`;
+    return `<img src="${src}" alt="Revive Hogar" class="${cls}" width="${size.w}" height="${size.h}" loading="eager" decoding="async">`;
+}
 
 function getEchauriLogoImg(variant) {
     const v = variant || 'badge';
@@ -17,39 +37,39 @@ function getEchauriBrandHtml(variant) {
     `;
 }
 
+/** @deprecated — conservado por compatibilidad; usar getReviveLogoImg */
 function getReviveLogoSvg(className) {
-    const cls = className || 'logo-revive-svg';
-    const uid = 'rh' + Math.random().toString(36).slice(2, 9);
-    return `<svg class="${cls}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-            <linearGradient id="${uid}-roof" x1="24" y1="8" x2="24" y2="28" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#5eead4"/>
-                <stop offset="100%" stop-color="#0d9488"/>
-            </linearGradient>
-            <linearGradient id="${uid}-base" x1="24" y1="22" x2="24" y2="42" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#14b8a6"/>
-                <stop offset="100%" stop-color="#0d4f4a"/>
-            </linearGradient>
-        </defs>
-        <path d="M24 6L8 22h4v18h24V22h4L24 6z" fill="url(#${uid}-base)"/>
-        <path d="M24 10L12 24h3v14h18V24h3L24 10z" fill="url(#${uid}-roof)" opacity="0.9"/>
-        <rect x="20" y="28" width="8" height="12" rx="1" fill="#ecfdf5" opacity="0.95"/>
-        <path d="M18 24h12" stroke="#ccfbf1" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>`;
+    const v = (className || '').includes('sidebar') ? 'sidebar'
+        : (className || '').includes('loader') ? 'loader'
+        : (className || '').includes('lg') ? 'lg' : 'md';
+    return getReviveLogoImg(v);
 }
 
 function getReviveBrandHtml(options) {
     const opts = options || {};
-    const size = opts.size || 'md';
-    const showSubtitle = opts.subtitle !== false;
+    const variant = opts.variant || (opts.size === 'lg' ? 'login' : opts.size || 'md');
     const wrapClass = opts.wrapClass || 'brand-lockup';
-    const subtitle = opts.subtitleText || 'Soluciones habitacionales';
-    const logoClass = `logo-revive-svg logo-revive-svg--${size}`;
+    const showSubtitle = opts.subtitle !== false;
+    const subtitle = opts.subtitleText || 'Grupo inmobiliario';
+    const useFullOnly = opts.fullLogo === true;
+
+    if (useFullOnly) {
+        return `
+        <div class="${wrapClass} brand-lockup--image-only">
+            ${getReviveLogoImg('full')}
+        </div>`;
+    }
+
+    const imgVariant = variant === 'login' ? 'hero' : (variant === 'sm' ? 'topbar' : variant);
+
     return `
         <div class="${wrapClass}">
-            <span class="brand-lockup-icon">${getReviveLogoSvg(logoClass)}</span>
+            <span class="brand-lockup-icon">${getReviveLogoImg(imgVariant)}</span>
             <span class="brand-lockup-text">
-                <strong class="brand-lockup-title"><span class="brand-revive">Revive</span> <span class="brand-hogar">Hogar</span></strong>
+                <strong class="brand-lockup-title">
+                    <span class="brand-revive">Revive</span>
+                    <span class="brand-hogar">Hogar</span>
+                </strong>
                 ${showSubtitle ? `<small class="brand-lockup-sub">${escapeHtml(subtitle)}</small>` : ''}
             </span>
         </div>`;
@@ -59,23 +79,27 @@ function inicializarMarcasUI() {
     const loginLockup = document.getElementById('login-brand-lockup');
     if (loginLockup) {
         loginLockup.innerHTML = getReviveBrandHtml({
-            size: 'lg',
+            variant: 'login',
             wrapClass: 'brand-lockup brand-lockup--login',
-            subtitleText: 'Apoyo en créditos Infonavit y Fovissste'
+            subtitleText: 'Grupo inmobiliario',
+            fullLogo: false
         });
     }
+
     const loaderMark = document.getElementById('loader-brand-mark');
-    if (loaderMark) loaderMark.innerHTML = getReviveLogoSvg('logo-revive-svg logo-revive-svg--loader');
+    if (loaderMark) loaderMark.innerHTML = getReviveLogoImg('loader');
+
     const topbarBrand = document.getElementById('topbar-brand');
     if (topbarBrand) {
         topbarBrand.innerHTML = getReviveBrandHtml({
-            size: 'sm',
+            variant: 'topbar',
             wrapClass: 'brand-lockup brand-lockup--topbar',
             subtitle: false
         });
     }
+
     const sidebarLogo = document.getElementById('sidebar-brand-logo');
-    if (sidebarLogo) sidebarLogo.innerHTML = getReviveLogoSvg('logo-revive-svg logo-revive-svg--sidebar');
+    if (sidebarLogo) sidebarLogo.innerHTML = getReviveLogoImg('sidebar');
 
     const loginEchauri = document.getElementById('login-echauri-brand');
     if (loginEchauri) {
