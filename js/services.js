@@ -1,0 +1,187 @@
+/**
+ * Revive Hogar — datos semilla, alertas, auditoría
+ */
+
+function initSeedData() {
+    DB_KEYS.forEach(k => {
+        if (!Array.isArray(DB.get(k))) DB.set(k, []);
+    });
+
+    let usuarios = DB.get('usuariosLogin');
+    const base = [
+        { tipo: 'general', displayName: 'Dirección', rol: 'Direccion', password: '1234' },
+        { tipo: 'general', displayName: 'Marketing', rol: 'Marketing', password: '1234' },
+        { tipo: 'general', displayName: 'Administradora', rol: 'Administradora', password: '1234' },
+        { tipo: 'vendedor', displayName: 'Vendedor 1', rol: 'Vendedor', password: '1234' },
+        { tipo: 'vendedor', displayName: 'Vendedor 2', rol: 'Vendedor', password: '1234' }
+    ];
+    base.forEach(u => {
+        if (!usuarios.some(x => x.displayName === u.displayName && x.rol === u.rol)) {
+            usuarios.push({ id: DB.getId(), activo: true, ...u });
+        }
+    });
+    DB.set('usuariosLogin', usuarios);
+
+    if (DB.get('campanas').length === 0) {
+        DB.set('campanas', [{
+            id: DB.getId(),
+            identificador: 'RH-DEMO-01',
+            nombre: 'Campaña demo Facebook',
+            costo: 5000,
+            fechaInicio: hoyISO(),
+            diasDuracion: 30,
+            estatus: 'Activa',
+            creadoPor: 'Sistema',
+            fechaCreacion: new Date().toISOString()
+        }]);
+    }
+}
+
+function logAction(accion) {
+    const logs = DB.get('auditoria');
+    const ahora = new Date();
+    logs.unshift({
+        id: DB.getId(),
+        fecha: ahora.toLocaleString(),
+        fechaISO: hoyISO(),
+        usuario: getUsuarioActual(),
+        accion
+    });
+    if (logs.length > 500) logs.pop();
+    DB.set('auditoria', logs);
+}
+
+function addHistory(tipo, titulo, detalle) {
+    const historial = DB.get('historial');
+    historial.unshift({
+        id: DB.getId(),
+        tipo,
+        titulo,
+        detalle,
+        fecha: new Date().toLocaleString(),
+        fechaISO: hoyISO(),
+        usuario: currentUser ? currentUser.displayName : 'Sistema'
+    });
+    if (historial.length > 100) historial.pop();
+    DB.set('historial', historial);
+}
+
+function createAlert({ titulo, mensaje, targetRoles, targetUserId, relatedId, tipo, casoTipo }) {
+    const alertas = DB.get('alertas');
+    const duplicada = alertas.some(a =>
+        a.relatedId === relatedId && a.tipo === tipo && a.estado !== 'Resuelta' && a.titulo === titulo
+    );
+    if (duplicada) return;
+    alertas.unshift({
+        id: DB.getId(),
+        titulo,
+        mensaje,
+        targetRoles: targetRoles || [],
+        targetUserId: targetUserId || '',
+        relatedId: relatedId || '',
+        tipo: tipo || 'general',
+        casoTipo: casoTipo || '',
+        estado: 'Pendiente',
+        creado: new Date().toLocaleString()
+    });
+    DB.set('alertas', alertas);
+}
+
+function resolverAlertasPorRelatedId(relatedId, tipo) {
+    const alertas = DB.get('alertas');
+    let cambio = false;
+    alertas.forEach(a => {
+        if (a.relatedId === relatedId && (!tipo || a.tipo === tipo) && a.estado !== 'Resuelta') {
+            a.estado = 'Resuelta';
+            cambio = true;
+        }
+    });
+    if (cambio) DB.set('alertas', alertas);
+}
+
+function resolverAlerta(id) {
+    const alertas = DB.get('alertas');
+    const a = alertas.find(x => x.id === id);
+    if (a) {
+        a.estado = 'Resuelta';
+        DB.set('alertas', alertas);
+        logAction(`Alerta resuelta: ${a.titulo}`);
+        refreshActiveModule();
+    }
+}
+
+function alertaVisibleParaUsuario(alerta) {
+    if (!currentUser) return false;
+    if (rhEsDireccion(currentUser)) return true;
+    if (alerta.targetUserId) return alerta.targetUserId === currentUser.id;
+    if (alerta.targetRoles && alerta.targetRoles.includes(currentUser.rol)) return true;
+    return false;
+}
+
+function notificarNuevoProspecto(prospecto, vendedorId) {
+    createAlert({
+        titulo: 'Nuevo prospecto asignado',
+        mensaje: `${prospecto.nombreCompleto} — ${prospecto.direccionPropiedad}`,
+        targetUserId: vendedorId,
+        relatedId: prospecto.id,
+        tipo: 'prospecto_nuevo'
+    });
+}
+
+function notificarProspectoInteresado(prospecto) {
+    createAlert({
+        titulo: 'Prospecto listo para administradora',
+        mensaje: `${prospecto.nombreCompleto} marcado como Interesado`,
+        targetRoles: ['Administradora', 'Direccion'],
+        relatedId: prospecto.id,
+        tipo: 'prospecto_interesado'
+    });
+}
+
+function notificarPropuestaLista(prospecto, vendedorId) {
+    createAlert({
+        titulo: 'Propuesta y documentos listos',
+        mensaje: `Revisa la propuesta de ${prospecto.nombreCompleto}`,
+        targetUserId: vendedorId,
+        relatedId: prospecto.id,
+        tipo: 'propuesta_lista'
+    });
+}
+
+function crearCasaDesdeProspectoFirmado(prospecto) {
+    const casas = DB.get('casas');
+    if (casas.some(c => c.prospectoId === prospecto.id)) return;
+    casas.push({
+        id: DB.getId(),
+        prospectoId: prospecto.id,
+        vendedorId: prospecto.vendedorId,
+        nombreCompleto: prospecto.nombreCompleto,
+        direccionPropiedad: prospecto.direccionPropiedad,
+        tipoCredito: prospecto.tipoCredito,
+        propuestaFinal: prospecto.propuestaFinal || '',
+        montoAdquisicion: prospecto.montoAdquisicion ?? parseMontoTexto(prospecto.propuestaFinal),
+        precioVenta: 0,
+        costosRemodelacion: [],
+        estatusPipeline: RH_ESTATUS_PIPELINE.ESPERA,
+        mensajes: [],
+        fechaFirma: new Date().toISOString(),
+        historial: [{
+            fecha: new Date().toLocaleString(),
+            estatus: RH_ESTATUS_PIPELINE.ESPERA,
+            usuario: getUsuarioActual(),
+            nota: 'Casa registrada tras firma'
+        }]
+    });
+    DB.set('casas', casas);
+    addHistory('casa', 'Nueva propiedad en pipeline', prospecto.nombreCompleto);
+}
+
+function agregarEventoProspecto(prospecto, evento, detalle) {
+    if (!prospecto.eventos) prospecto.eventos = [];
+    prospecto.eventos.unshift({
+        fecha: new Date().toLocaleString(),
+        evento,
+        detalle,
+        usuario: getUsuarioActual()
+    });
+}

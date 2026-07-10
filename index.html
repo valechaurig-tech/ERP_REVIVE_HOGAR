@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <title>Revive Hogar</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <div id="app-loader" class="app-loader">
+        <div class="loader-card">
+            <div class="loader-brand-mark" id="loader-brand-mark"></div>
+            <strong class="loader-brand-title">Revive <span>Hogar</span></strong>
+            <p>Cargando sistema…</p>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-shell">
+            <div class="login-hero">
+                <div class="login-hero-content">
+                    <div class="login-badge">CRÉDITOS · INFONAVIT · FOVISSSTE</div>
+                    <div id="login-brand-lockup" class="login-brand-lockup"></div>
+                    <p class="login-hero-quote">Apoyamos a familias con créditos en riesgo, invasiones o adeudos para encontrar una solución habitacional digna.</p>
+                    <div class="login-hero-features">
+                        <div class="login-feature"><span class="login-feature-dot"></span>Seguimiento de campañas y costos</div>
+                        <div class="login-feature"><span class="login-feature-dot"></span>Gestión de prospectos y propuestas</div>
+                        <div class="login-feature"><span class="login-feature-dot"></span>Pipeline de propiedades hasta cierre</div>
+                    </div>
+                </div>
+            </div>
+            <div class="login-box">
+                <h2>Bienvenido</h2>
+                <p class="login-subtitle">Selecciona tu perfil e ingresa tu contraseña.</p>
+                <form id="login-form" class="login-grid">
+                    <div class="form-group login-form-group">
+                        <label>Perfil de acceso</label>
+                        <div class="role-selector" role="tablist">
+                            <button type="button" class="role-option active" data-mode="general">Oficina</button>
+                            <button type="button" class="role-option" data-mode="vendedor">Vendedores</button>
+                        </div>
+                        <select id="login-access-mode" class="hidden">
+                            <option value="general">Oficina</option>
+                            <option value="vendedor">Vendedores</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="login-group-general">
+                        <label>Usuario</label>
+                        <select id="login-general-user" class="form-control" required></select>
+                    </div>
+                    <div class="form-group hidden" id="login-group-vendedor">
+                        <label>Vendedor</label>
+                        <select id="login-vendedor-user" class="form-control"></select>
+                    </div>
+                    <div class="form-group login-form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-password" class="form-control" required autocomplete="current-password" placeholder="Tu contraseña">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login-submit">Entrar al sistema</button>
+                </form>
+                <footer class="login-powered-by" id="login-echauri-brand" aria-label="Desarrollado por EchauriApps"></footer>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-screen">
+        <div id="echauri-brand-badge" class="echauri-brand-badge" aria-label="Desarrollado por EchauriApps"></div>
+        <header class="topbar">
+            <div class="topbar-left" id="topbar-brand"></div>
+            <div class="topbar-right">
+                <span id="db-status-badge" class="db-status-pill db-status-local">Solo este navegador</span>
+                <span id="reloj" class="topbar-chip">00:00:00</span>
+                <span id="user-role-display" class="topbar-chip topbar-user">Usuario</span>
+                <button class="btn-logout" type="button" onclick="logout()">Cerrar sesión</button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <nav class="sidebar" id="sidebar" aria-label="Navegación"></nav>
+            <main class="content-area">
+                <nav id="breadcrumbs" class="breadcrumbs" aria-label="Ruta"></nav>
+
+                <div id="mod-planner" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Planner — Tareas y Alertas</h3>
+                            <p class="module-desc">Tablero de trabajo, asignaciones, urgencias y seguimiento del equipo.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaPriorizarKanban()">Hablar con Luna</button>
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalTarea()">+ Nueva tarea</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid planner-kpis">
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Alertas</span><span class="mkt-metric-value" id="planner-pendientes">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Tareas activas</span><span class="mkt-metric-value" id="planner-tareas-activas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Urgentes / Alta</span><span class="mkt-metric-value" id="planner-tareas-urgentes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="planner-tareas-completadas">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Resueltas</span><span class="mkt-metric-value" id="planner-resueltas">0</span></div>
+                    </div>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Tablero Kanban</h4>
+                        <div class="kanban-board kanban-board-active">
+                            <div class="kanban-column kanban-column--pending"><h5>Por hacer</h5><div id="kanban-pendiente"></div></div>
+                            <div class="kanban-column kanban-column--progress"><h5>En curso</h5><div id="kanban-proceso"></div></div>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Alertas del sistema</h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-planner"><thead><tr><th>Tipo</th><th>Alerta</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Tareas completadas <span class="section-badge-lectura" id="planner-completadas-count">0</span></h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-tareas-completadas"><thead><tr><th>Tarea</th><th>Asignado</th><th>Prioridad</th><th>Completada</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Actividad reciente</h4>
+                        <div id="history-list" class="history-list"></div>
+                    </section>
+                </div>
+
+                <div id="mod-dashboard" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Resumen Ejecutivo</h3>
+                            <p class="module-desc">Indicadores de campañas, conversión y pipeline de propiedades.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaReporteSemanal()">Reporte con Luna</button>
+                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaBriefingDiario()">Briefing de hoy</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid">
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Inversión campañas</span><span class="mkt-metric-value" id="dash-presupuesto">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-label">Costo / prospecto</span><span class="mkt-metric-value" id="dash-costo-prospecto">—</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Casas en pipeline</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="dash-casas-venta">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="dash-remodelacion">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="dash-inversion-propiedades">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span></div>
+                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="dash-utilidad-proyectada">—</span></div>
+                    </div>
+                </div>
+
+                <div id="mod-marketing" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Marketing — Campañas</h3>
+                            <p class="module-desc">Registro de campañas, costos y asignación de prospectos.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaAnalizarCampanas()">Luna · Campañas</button>
+                            <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirModalCampana()">+ Agregar campaña</button>
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalProspectoMarketing()">+ Asignar prospecto</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid">
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Presupuesto</span><span class="mkt-metric-value" id="kpi-mkt-presupuesto">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="kpi-mkt-prospectos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="kpi-mkt-firmados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="kpi-mkt-declinados">0</span></div>
+                    </div>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Campañas</h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-campanas"><thead><tr><th>ID / Nombre</th><th>Inicio</th><th>Duración</th><th>Costo</th><th>Prospectos</th><th>En proceso</th><th>Firmados</th><th>Estatus</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h4 class="section-title">Prospectos captados</h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-prospectos-mkt"><thead><tr><th>Nombre</th><th>Campaña</th><th>Vendedor</th><th>Teléfono</th><th>Estatus</th><th>Origen</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="mod-vendedor" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Mis Prospectos</h3>
+                            <p class="module-desc">Seguimiento comercial y registro de prospectos en campo.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalProspectoVendedor()">+ Registrar prospecto</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid" style="max-width:680px">
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="vend-total">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Sin contactar</span><span class="mkt-metric-value" id="vend-nuevos">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Interesados</span><span class="mkt-metric-value" id="vend-interesados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="vend-firmados">0</span></div>
+                    </div>
+                    <section class="mkt-section">
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-vendedor"><thead><tr><th>Prospecto</th><th>Teléfono</th><th>Campaña</th><th>Estatus</th><th>Fecha</th><th>Acción</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                    <section class="mkt-section">
+                        <h4 class="mkt-section-title">Mis propiedades (pipeline)</h4>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-vendedor-casas"><thead><tr><th>Prospecto</th><th>Estatus</th><th>Remodelación</th><th>Dirección</th><th>Acción</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="mod-administradora" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Bandeja Administradora</h3>
+                            <p class="module-desc">Investigación, propuesta final y generación de documentos.</p>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid" style="max-width:420px">
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Pendientes</span><span class="mkt-metric-value" id="admin-pendientes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Propuestas listas</span><span class="mkt-metric-value" id="admin-propuestas">0</span></div>
+                    </div>
+                    <section class="mkt-section">
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-administradora"><thead><tr><th>Prospecto</th><th>Propiedad</th><th>Crédito</th><th>Vendedor</th><th>Estatus</th><th>Adeudo</th><th>Acción</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="mod-pipeline" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Propiedades — Pipeline</h3>
+                            <p class="module-desc">Casas firmadas: espera, remodelación, venta y cierre.</p>
+                        </div>
+                    </div>
+                    <div class="filter-bar">
+                        <label>Filtrar:</label>
+                        <select id="pipeline-filter" class="form-control">
+                            <option value="all">Todas</option>
+                            <option value="Espera remodelación">Espera remodelación</option>
+                            <option value="En remodelación">En remodelación</option>
+                            <option value="En venta">En venta</option>
+                            <option value="Cerrada">Cerradas</option>
+                        </select>
+                    </div>
+                    <div class="mkt-analytics-grid">
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Total</span><span class="mkt-metric-value" id="pipe-total">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">En espera</span><span class="mkt-metric-value" id="pipe-espera">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Remodelación</span><span class="mkt-metric-value" id="pipe-remodelacion">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="pipe-venta">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Cerradas</span><span class="mkt-metric-value" id="pipe-cerradas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="pipe-costo-remodelacion">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="pipe-inversion-total">$0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="pipe-utilidad-realizada">—</span></div>
+                    </div>
+                    <section class="mkt-section">
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-pipeline"><thead><tr><th>Prospecto</th><th>Dirección</th><th>Crédito</th><th>Estatus</th><th>Remodelación</th><th>Inversión</th><th>Utilidad</th><th>Firma</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </section>
+                    <div id="pipeline-detalle"></div>
+                </div>
+
+                <div id="mod-auditoria" class="module">
+                    <div class="module-header">
+                        <h3>Bitácora de auditoría</h3>
+                        <p class="module-desc">Registro de quién hizo qué y cuándo.</p>
+                    </div>
+                    <div class="audit-toolbar">
+                        <input type="text" id="audit-filter-user" class="form-control" placeholder="Filtrar usuario…">
+                        <input type="date" id="audit-filter-date" class="form-control">
+                    </div>
+                    <div class="table-responsive table-clean table-mkt">
+                        <table id="table-auditoria"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th></tr></thead><tbody></tbody></table>
+                    </div>
+                </div>
+
+                <div id="mod-usuarios" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Usuarios y vendedores</h3>
+                            <p class="module-desc">Alta, edición y baja de vendedores (máx. 5).</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirNuevoVendedor()">+ Nuevo vendedor</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid" style="max-width:320px">
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Usuarios</span><span class="mkt-metric-value" id="usr-total">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Vendedores</span><span class="mkt-metric-value" id="usr-vendedores">0</span></div>
+                    </div>
+                    <div class="table-responsive table-clean table-mkt">
+                        <table id="table-usuarios"><thead><tr><th>Nombre</th><th>Rol</th><th>Contraseña</th><th>Estado</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal detalle del caso (propiedad o prospecto) -->
+    <div id="modal-detalle-casa" class="modal">
+        <div class="modal-content modal-wide modal-tall modal-detalle">
+            <div class="modal-header modal-header-detalle">
+                <div>
+                    <h3 id="detalle-casa-titulo">Detalle del caso</h3>
+                    <p class="modal-subtitle" id="detalle-casa-sub"></p>
+                    <span id="detalle-casa-badge" class="detalle-tipo-badge"></span>
+                </div>
+                <button type="button" class="btn-close" onclick="closeModal('modal-detalle-casa')">&times;</button>
+            </div>
+            <div class="detalle-tabs" role="tablist">
+                <button type="button" class="detalle-tab active" data-tab="resumen" onclick="cambiarTabDetalleCasa('resumen')">Resumen</button>
+                <button type="button" class="detalle-tab" data-tab="historial" onclick="cambiarTabDetalleCasa('historial')">Historial</button>
+                <button type="button" class="detalle-tab" data-tab="expediente" onclick="cambiarTabDetalleCasa('expediente')">Expediente</button>
+                <button type="button" class="detalle-tab hidden detalle-tab--remodelacion" id="detalle-tab-remodelacion" data-tab="remodelacion" onclick="cambiarTabDetalleCasa('remodelacion')">Remodelación</button>
+                <button type="button" class="detalle-tab" data-tab="comunicacion" onclick="cambiarTabDetalleCasa('comunicacion')">Comunicación <span id="detalle-msg-count" class="tab-badge hidden">0</span></button>
+                <button type="button" class="detalle-tab detalle-tab--luna" data-tab="luna" onclick="cambiarTabDetalleCasa('luna')">Luna ✨</button>
+            </div>
+            <div class="detalle-tab-panel active" data-panel="resumen" id="detalle-resumen-content"></div>
+            <div class="detalle-tab-panel" data-panel="historial"><div id="detalle-historial-content" class="timeline-wrap"></div></div>
+            <div class="detalle-tab-panel" data-panel="expediente"><div id="detalle-expediente-content"></div></div>
+            <div class="detalle-tab-panel" data-panel="remodelacion"><div id="detalle-remodelacion-content" class="remodel-panel"></div></div>
+            <div class="detalle-tab-panel" data-panel="comunicacion">
+                <div id="detalle-mensajes-list" class="chat-thread"></div>
+                <form id="form-mensaje-caso" class="chat-compose">
+                    <div class="form-group"><label>Para</label><select id="msg-para-rol" class="form-control" required></select></div>
+                    <div class="form-group full-width"><label>Mensaje</label><textarea id="msg-texto" class="form-control" rows="3" placeholder="Solicita información, aclara dudas del caso…" required></textarea></div>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Enviar mensaje</button>
+                </form>
+            </div>
+            <div class="detalle-tab-panel" data-panel="luna"><div id="detalle-luna-panel" class="luna-caso-panel"></div></div>
+        </div>
+    </div>
+
+    <!-- Modal nueva tarea -->
+    <div id="modal-tarea" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header"><h3>Nueva tarea</h3><button type="button" class="btn-close" onclick="closeModal('modal-tarea')">&times;</button></div>
+            <form id="form-tarea" class="form-grid">
+                <div class="form-group full-width"><label>Título</label><input type="text" id="tarea-titulo" class="form-control" required></div>
+                <div class="form-group full-width"><label>Descripción</label><textarea id="tarea-descripcion" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label>Asignar a</label><select id="tarea-asignado" class="form-control" required></select></div>
+                <div class="form-group"><label>Prioridad</label>
+                    <select id="tarea-prioridad" class="form-control">
+                        <option value="Baja">Baja</option>
+                        <option value="Media" selected>Media</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Fecha límite</label><input type="date" id="tarea-vencimiento" class="form-control"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-tarea')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Crear tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal campaña -->
+    <div id="modal-campana" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3>Agregar campaña</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-campana')">&times;</button>
+            </div>
+            <form id="form-campana" class="form-grid">
+                <div class="form-group"><label>Identificador de campaña *</label><input type="text" id="camp-identificador" class="form-control" placeholder="Ej. RH-2026-01" required></div>
+                <div class="form-group"><label>Nombre descriptivo</label><input type="text" id="camp-nombre" class="form-control" required></div>
+                <div class="form-group"><label>Costo de la campaña</label><input type="number" id="camp-costo" class="form-control" min="0" step="0.01" required></div>
+                <div class="form-group"><label>Fecha de inicio</label><input type="date" id="camp-fecha" class="form-control" required></div>
+                <div class="form-group"><label>Días de duración</label><input type="number" id="camp-dias" class="form-control" min="1" required></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-campana')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar campaña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal prospecto -->
+    <div id="modal-prospecto" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3>Asignar prospecto</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-prospecto')">&times;</button>
+            </div>
+            <form id="form-prospecto" class="form-grid">
+                <input type="hidden" id="pros-origen-rol" value="marketing">
+                <div class="form-group"><label>Nombre completo *</label><input type="text" id="pros-nombre" class="form-control" required></div>
+                <div class="form-group"><label>Teléfono *</label><input type="tel" id="pros-tel" class="form-control" required></div>
+                <div class="form-group full-width"><label>Dirección de la propiedad *</label><input type="text" id="pros-dir" class="form-control" required></div>
+                <div class="form-group"><label>Campaña</label><select id="pros-campana" class="form-control"></select></div>
+                <div class="form-group" id="pros-vendedor-wrap"><label>Asignar a vendedor *</label><select id="pros-vendedor" class="form-control" required></select></div>
+                <div class="form-group full-width"><label>Notas</label><input type="text" id="pros-notas" class="form-control"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-prospecto')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Registrar prospecto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal gestión vendedor -->
+    <div id="modal-gestion-prospecto" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3>Gestión de prospecto</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-gestion-prospecto')">&times;</button>
+            </div>
+            <form id="form-gestion-prospecto" class="form-grid">
+                <input type="hidden" id="ges-id">
+                <div id="ges-locked-fields" class="full-width form-grid-span"></div>
+                <div class="form-group"><label>Estatus de seguimiento</label>
+                    <select id="ges-estatus" class="form-control">
+                        <option value="No contactado">No contactado</option>
+                        <option value="En contacto">En contacto</option>
+                        <option value="Interesado">Interesado</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Tipo de crédito *</label>
+                    <select id="ges-tipo-credito" class="form-control">
+                        <option value="">Selecciona…</option>
+                        <option value="Infonavit">Infonavit</option>
+                        <option value="Fovissste">Fovissste</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>¿Tiene escrituras? *</label>
+                    <select id="ges-escrituras" class="form-control"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option></select>
+                </div>
+                <div class="form-group"><label>¿Está invadida? *</label>
+                    <select id="ges-invadida" class="form-control"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option></select>
+                </div>
+                <div class="form-group"><label>Adeudo crédito</label><input type="number" id="ges-adeudo-credito" class="form-control" min="0" step="0.01" value="0"></div>
+                <div class="form-group"><label>Adeudo agua</label><input type="number" id="ges-adeudo-agua" class="form-control" min="0" step="0.01" value="0"></div>
+                <div class="form-group"><label>Adeudo luz</label><input type="number" id="ges-adeudo-luz" class="form-control" min="0" step="0.01" value="0"></div>
+                <div class="form-group"><label>Adeudo predial</label><input type="number" id="ges-adeudo-predial" class="form-control" min="0" step="0.01" value="0"></div>
+                <div class="form-group full-width modal-form-actions" id="ges-enviar-admin-wrap">
+                    <button type="button" class="btn btn-success btn-toolbar" onclick="enviarAAdministradora()">Enviar a administradora</button>
+                </div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaGuionProspecto(document.getElementById('ges-id').value)">Luna · Guión de llamada</button>
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirComunicacionDesdeGestion()">Comunicación del caso</button>
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-gestion-prospecto')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar seguimiento</button>
+                </div>
+                <div class="form-group full-width modal-form-actions hidden" id="ges-cierre-wrap">
+                    <button type="button" class="btn btn-success btn-toolbar" onclick="cerrarVentaVendedor('Firmado')">Firmado</button>
+                    <button type="button" class="btn btn-danger btn-toolbar" onclick="cerrarVentaVendedor('Declinado')">Declinado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal administradora -->
+    <div id="modal-expediente-admin" class="modal">
+        <div class="modal-content modal-wide modal-tall">
+            <div class="modal-header">
+                <h3>Expediente y propuesta</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-expediente-admin')">&times;</button>
+            </div>
+            <form id="form-expediente-admin">
+                <input type="hidden" id="exp-id">
+                <div id="exp-fields" class="form-grid"></div>
+                <div class="form-group"><label>Monto de adquisición</label><input type="number" id="exp-monto-adquisicion" class="form-control" min="0" step="0.01" placeholder="Precio acordado con el propietario"></div>
+                <div class="form-group full-width"><label>Propuesta final</label><textarea id="exp-propuesta" class="form-control" rows="4" required></textarea></div>
+                <div id="exp-documentos-preview"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirComunicacionDesdeExpediente()">Comunicación del caso</button>
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-expediente-admin')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar y enviar al vendedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pipeline -->
+    <div id="modal-pipeline" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cambiar estatus de propiedad</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-pipeline')">&times;</button>
+            </div>
+            <form id="form-pipeline" class="form-grid">
+                <input type="hidden" id="pipe-casa-id">
+                <div class="form-group full-width"><label>Nuevo estatus</label>
+                    <select id="pipe-nuevo-estatus" class="form-control" required onchange="togglePipePrecioVenta()">
+                        <option value="Espera remodelación">Espera remodelación</option>
+                        <option value="En remodelación">En remodelación</option>
+                        <option value="En venta">En venta</option>
+                        <option value="Cerrada">Cerrada</option>
+                    </select>
+                </div>
+                <div class="form-group full-width hidden" id="pipe-precio-venta-wrap">
+                    <label>Precio de venta</label>
+                    <input type="number" id="pipe-precio-venta" class="form-control" min="0" step="0.01" placeholder="Obligatorio al cerrar la venta">
+                </div>
+                <div class="form-group full-width"><label>Nota</label><input type="text" id="pipe-nota" class="form-control"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-pipeline')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Confirmar cambio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal usuario -->
+    <div id="modal-usuario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Editar usuario</h3><button type="button" class="btn-close" onclick="closeModal('modal-usuario')">&times;</button></div>
+            <form id="form-usuario" class="form-grid">
+                <input type="hidden" id="usr-edit-id">
+                <div class="form-group full-width"><label>Nombre</label><input type="text" id="usr-edit-nombre" class="form-control" required></div>
+                <div class="form-group full-width"><label>Contraseña</label><input type="text" id="usr-edit-password" class="form-control" required></div>
+                <div class="form-group full-width"><label><input type="checkbox" id="usr-edit-activo" checked> Activo</label></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-usuario')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-nuevo-vendedor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Nuevo vendedor</h3><button type="button" class="btn-close" onclick="closeModal('modal-nuevo-vendedor')">&times;</button></div>
+            <form id="form-nuevo-vendedor" class="form-grid">
+                <div class="form-group full-width"><label>Nombre</label><input type="text" id="nv-nombre" class="form-control" required></div>
+                <div class="form-group full-width"><label>Contraseña</label><input type="text" id="nv-password" class="form-control" value="1234"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-nuevo-vendedor')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Crear vendedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Luna — asistente IA premium -->
+    <div id="ia-widget" class="ia-widget hidden" aria-live="polite">
+        <div id="ia-panel" class="ia-panel">
+            <header class="ia-header">
+                <div class="ia-header-bg" aria-hidden="true"></div>
+                <div id="ia-header-avatar" class="ia-header-avatar-slot"></div>
+                <div class="ia-header-text">
+                    <strong>Luna</strong>
+                    <span class="ia-header-tag">Tu guía inteligente del hogar</span>
+                    <small id="ia-status">En línea</small>
+                </div>
+                <button type="button" id="ia-close" class="ia-close" aria-label="Cerrar Luna">&times;</button>
+            </header>
+            <div id="ia-messages" class="ia-messages"></div>
+            <div id="ia-quick" class="ia-quick"></div>
+            <form id="ia-form" class="ia-form">
+                <textarea id="ia-input" class="ia-input" rows="2" placeholder="Escríbele a Luna…" required></textarea>
+                <button type="submit" class="ia-send" aria-label="Enviar">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </form>
+        </div>
+        <button type="button" id="ia-fab" class="ia-fab" aria-label="Abrir a Luna">
+            <span class="ia-fab-rings" aria-hidden="true"></span>
+            <span id="ia-fab-avatar" class="ia-fab-avatar-slot"></span>
+            <span class="ia-fab-text">
+                <span class="ia-fab-label">Luna</span>
+                <span class="ia-fab-sub">Tu guía IA</span>
+            </span>
+            <span id="ia-fab-badge" class="ia-fab-badge hidden">0</span>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/modules.config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/documents.js"></script>
+    <script src="js/brand.js"></script>
+    <script src="js/planner.js"></script>
+    <script src="js/caso-detalle.js"></script>
+    <script src="js/luna.js"></script>
+    <script src="js/ia-features.js"></script>
+    <script src="js/ia-assistant.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/forms.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
