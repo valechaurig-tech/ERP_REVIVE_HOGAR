@@ -57,8 +57,8 @@ function initIAAssistant() {
     if (headerAvatar && typeof getLunaAvatarHtml === 'function') {
         headerAvatar.innerHTML = getLunaAvatarHtml('lg');
     }
-    if (fabAvatar && typeof getLunaSvg === 'function') {
-        fabAvatar.innerHTML = getLunaSvg('luna-svg luna-svg--fab', { animated: true });
+    if (fabAvatar && typeof getLunaFabHtml === 'function') {
+        fabAvatar.innerHTML = getLunaFabHtml();
     }
 
     if (fab) fab.addEventListener('click', toggleIAPanel);
@@ -110,8 +110,10 @@ function toggleIAPanel() {
 function setIAPanel(open) {
     iaAbierto = open;
     const panel = document.getElementById('ia-panel');
+    const shell = document.getElementById('ia-panel-shell');
     const fab = document.getElementById('ia-fab');
     if (panel) panel.classList.toggle('ia-panel--open', open);
+    if (shell) shell.classList.toggle('luna-gemini-shell--open', open);
     if (fab) fab.classList.toggle('ia-fab--hidden', open);
     if (open) {
         const input = document.getElementById('ia-input');
@@ -307,6 +309,8 @@ function setIAEstado(estado) {
     if (input) input.disabled = iaEnviando;
     const fab = document.getElementById('ia-fab');
     if (fab) fab.classList.toggle('ia-fab--thinking', iaEnviando);
+    const shell = document.getElementById('ia-panel-shell');
+    if (shell) shell.classList.toggle('luna-gemini-shell--thinking', iaEnviando);
 }
 
 async function enviarMensajeIA(e) {

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/revive-hogar-mark.svg">
-    <link rel="stylesheet" href="css/app.css?v=20260709c">
+    <link rel="stylesheet" href="css/app.css?v=20260709e">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -735,6 +735,9 @@
 
     <!-- Luna — asistente IA premium -->
     <div id="ia-widget" class="ia-widget hidden" aria-live="polite">
+        <div id="ia-panel-shell" class="luna-gemini-shell">
+            <span class="luna-gemini-shell__glow" aria-hidden="true"></span>
+            <span class="luna-gemini-shell__ring" aria-hidden="true"></span>
         <div id="ia-panel" class="ia-panel">
             <header class="ia-header">
                 <div class="ia-header-bg" aria-hidden="true"></div>
@@ -755,8 +758,8 @@
                 </button>
             </form>
         </div>
+        </div>
         <button type="button" id="ia-fab" class="ia-fab" aria-label="Abrir a Luna">
-            <span class="ia-fab-rings" aria-hidden="true"></span>
             <span id="ia-fab-avatar" class="ia-fab-avatar-slot"></span>
             <span class="ia-fab-text">
                 <span class="ia-fab-label">Luna</span>
@@ -774,16 +777,15 @@
     <script src="js/db.js"></script>
     <script src="js/services.js"></script>
     <script src="js/documents.js"></script>
-    <script src="js/brand.js?v=20260709c"></script>
+    <script src="js/brand.js?v=20260709e"></script>
     <script src="js/proyectos.js?v=20260709c"></script>
     <script src="js/planner.js?v=20260709c"></script>
     <script src="js/caso-detalle.js"></script>
-    <script src="js/luna.js"></script>
+    <script src="js/luna.js?v=20260709e"></script>
     <script src="js/luna-knowledge.js"></script>
     <script src="js/ia-features.js"></script>
-    <script src="js/ia-assistant.js"></script>
+    <script src="js/ia-assistant.js?v=20260709e"></script>
     <script src="js/render.js?v=20260709c"></script>
-    <script src="js/brand.js?v=20260709c"></script>
     <script src="js/forms.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>

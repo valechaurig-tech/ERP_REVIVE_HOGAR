@@ -1,7 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-  <rect width="64" height="64" rx="16" fill="#ffffff"/>
-  <path d="M32 10L14 26v22h12V36h12v12h12V26L32 10z" fill="#084d6e"/>
-  <path d="M32 15L19 28v16h8V34h10v10h8V28L32 15z" fill="#0a6289" opacity="0.35"/>
-  <path d="M44 38h8v10h-8V38z" fill="#f68853"/>
-  <path d="M26 30h12v2H26v-2zm0 5h9v2h-9v-2z" fill="#ffffff" opacity="0.9"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="rh-plate" x1="18" y1="10" x2="82" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0d7aa8"/>
+      <stop offset="38%" stop-color="#084d6e"/>
+      <stop offset="100%" stop-color="#032a3d"/>
+    </linearGradient>
+    <linearGradient id="rh-plate-deep" x1="50" y1="30" x2="50" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#084d6e" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#021a26" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="rh-roof" x1="50" y1="14" x2="50" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a8fbf"/>
+      <stop offset="100%" stop-color="#084d6e"/>
+    </linearGradient>
+    <linearGradient id="rh-accent" x1="58" y1="58" x2="92" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffc08a"/>
+      <stop offset="45%" stop-color="#f68853"/>
+      <stop offset="100%" stop-color="#e06530"/>
+    </linearGradient>
+    <linearGradient id="rh-accent-shine" x1="62" y1="62" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rh-r-fill" x1="30" y1="36" x2="58" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#d4eaf4"/>
+    </linearGradient>
+    <linearGradient id="rh-ring" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f68853" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#7ec8e3" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#084d6e" stop-opacity="0.85"/>
+    </linearGradient>
+    <radialGradient id="rh-ambient" cx="50" cy="38" r="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3eb8e8" stop-opacity="0.22"/>
+      <stop offset="70%" stop-color="#084d6e" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="rh-glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#032a3d" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#f68853" flood-opacity="0.18"/>
+    </filter>
+    <filter id="rh-inner" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="0.4"/>
+    </filter>
+    <clipPath id="rh-clip">
+      <rect x="14" y="14" width="72" height="72" rx="20"/>
+    </clipPath>
+  </defs>
+
+  <!-- Halo exterior -->
+  <circle cx="50" cy="50" r="47" stroke="url(#rh-ring)" stroke-width="1.2" fill="url(#rh-ambient)" opacity="0.95"/>
+
+  <!-- Placa principal -->
+  <rect x="14" y="14" width="72" height="72" rx="20" fill="url(#rh-plate)" filter="url(#rh-glow)"/>
+  <rect x="14" y="14" width="72" height="72" rx="20" fill="url(#rh-plate-deep)"/>
+
+  <g clip-path="url(#rh-clip)">
+    <!-- Techo arquitectónico -->
+    <path d="M50 20 L22 38.5 V41 L50 24.5 L78 41 V38.5 Z" fill="url(#rh-roof)"/>
+    <path d="M50 20 L22 38.5 L78 38.5 Z" fill="#ffffff" fill-opacity="0.12"/>
+
+    <!-- Cuerpo de la casa -->
+    <path d="M24 40 H76 V78 C76 81.3 73.3 84 70 84 H30 C26.7 84 24 81.3 24 78 Z" fill="#053448" fill-opacity="0.35"/>
+    <path d="M24 40 H76 V78 C76 81.3 73.3 84 70 84 H30 C26.7 84 24 81.3 24 78 Z" fill="url(#rh-plate)" fill-opacity="0.92"/>
+
+    <!-- Esquina naranja — sello distintivo -->
+    <path d="M58 58 H76 V78 C76 81.3 73.3 84 70 84 H58 Z" fill="url(#rh-accent)"/>
+    <path d="M60 60 H74 V80 C74 81.5 72.8 82.5 71 82.5 H60 Z" fill="url(#rh-accent-shine)"/>
+
+    <!-- Letra R — geométrica y elegante -->
+    <path fill="url(#rh-r-fill)" d="
+      M34 42 H48 C54.6 42 60 47.4 60 54 C60 58.2 57.6 61.9 54 63.8 L62 78 H56.5 L49.2 64.5 H38 V78 H34 V42 Z
+      M38 46 V60.5 H48 C52.4 60.5 56 56.9 56 52.5 C56 48.1 52.4 44.5 48 44.5 H38 Z"/>
+
+    <!-- Ventana luminosa -->
+    <rect x="62" y="46" width="8" height="8" rx="1.5" fill="#fff" fill-opacity="0.22"/>
+    <path d="M66 46 V54 M62 50 H70" stroke="#fff" stroke-opacity="0.35" stroke-width="0.8"/>
+
+    <!-- Chimenea -->
+    <rect x="68" y="28" width="6" height="11" rx="1.2" fill="#032a3d"/>
+    <rect x="68" y="28" width="3" height="11" rx="0.8" fill="#ffffff" fill-opacity="0.12"/>
+
+    <!-- Destello revival -->
+    <path d="M88 24 L89.6 27.8 L93.5 28.5 L90.5 31.2 L91.2 35 L88 33.2 L84.8 35 L85.5 31.2 L82.5 28.5 L86.4 27.8 Z" fill="#ffc08a" opacity="0.95"/>
+  </g>
+
+  <!-- Brillo de cristal -->
+  <path d="M22 28 C30 20 42 17 50 18 C38 22 30 30 26 38 Z" fill="#fff" fill-opacity="0.14"/>
+  <ellipse cx="36" cy="26" rx="10" ry="4" fill="#fff" fill-opacity="0.08" transform="rotate(-18 36 26)"/>
 </svg>
