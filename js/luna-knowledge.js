@@ -66,7 +66,7 @@ const LUNA_KNOWLEDGE = {
         'mod-auditoria': 'Bitácora: quién hizo qué; solo Dirección.'
     },
     formularios: {
-        'form-campana': 'Campaña: identificador único, nombre, costo, fecha inicio, días duración.',
+        'form-campana': 'Campaña: nombre libre, canal (Facebook/Instagram/Google/Otros), costo, fecha inicio, días duración.',
         'form-prospecto': 'Prospecto: nombre, teléfono, dirección, campaña, vendedor (marketing) o auto-asignación (vendedor).',
         'form-gestion-prospecto': 'Gestión: estatus, tipo crédito, escrituras, invasión, adeudos. Botón Enviar a administradora cuando Interesado.',
         'form-expediente-admin': 'Expediente: monto adquisición, propuesta final, documentos. Marca Propuesta lista.',

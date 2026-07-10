@@ -172,7 +172,7 @@
                     <section class="mkt-section">
                         <h4 class="section-title">Campañas</h4>
                         <div class="table-responsive table-clean table-mkt">
-                            <table id="table-campanas"><thead><tr><th>ID / Nombre</th><th>Inicio</th><th>Duración</th><th>Costo</th><th>Prospectos</th><th>En proceso</th><th>Firmados</th><th>Estatus</th></tr></thead><tbody></tbody></table>
+                            <table id="table-campanas"><thead><tr><th>Campaña</th><th>Canal</th><th>Inicio</th><th>Duración</th><th>Costo</th><th>Prospectos</th><th>En proceso</th><th>Firmados</th><th>Estatus</th></tr></thead><tbody></tbody></table>
                         </div>
                     </section>
                     <section class="mkt-section">
@@ -369,8 +369,16 @@
                 <button type="button" class="btn-close" onclick="closeModal('modal-campana')">&times;</button>
             </div>
             <form id="form-campana" class="form-grid">
-                <div class="form-group"><label>Identificador de campaña *</label><input type="text" id="camp-identificador" class="form-control" placeholder="Ej. RH-2026-01" required></div>
-                <div class="form-group"><label>Nombre descriptivo</label><input type="text" id="camp-nombre" class="form-control" required></div>
+                <div class="form-group full-width"><label>Nombre de la campaña *</label><input type="text" id="camp-nombre" class="form-control" placeholder="Ej. Promoción Infonavit marzo" required></div>
+                <div class="form-group"><label>Canal / origen *</label>
+                    <select id="camp-canal" class="form-control" required>
+                        <option value="">Selecciona…</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Google">Google</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
                 <div class="form-group"><label>Costo de la campaña</label><input type="number" id="camp-costo" class="form-control" min="0" step="0.01" required></div>
                 <div class="form-group"><label>Fecha de inicio</label><input type="date" id="camp-fecha" class="form-control" required></div>
                 <div class="form-group"><label>Días de duración</label><input type="number" id="camp-dias" class="form-control" min="1" required></div>
@@ -393,7 +401,6 @@
                 <input type="hidden" id="pros-origen-rol" value="marketing">
                 <div class="form-group"><label>Nombre completo *</label><input type="text" id="pros-nombre" class="form-control" required></div>
                 <div class="form-group"><label>Teléfono *</label><input type="tel" id="pros-tel" class="form-control" required></div>
-                <div class="form-group full-width"><label>Dirección de la propiedad *</label><input type="text" id="pros-dir" class="form-control" required></div>
                 <div class="form-group"><label>Campaña</label><select id="pros-campana" class="form-control"></select></div>
                 <div class="form-group" id="pros-vendedor-wrap"><label>Asignar a vendedor *</label><select id="pros-vendedor" class="form-control" required></select></div>
                 <div class="form-group full-width"><label>Notas</label><input type="text" id="pros-notas" class="form-control"></div>
@@ -415,6 +422,12 @@
             <form id="form-gestion-prospecto" class="form-grid">
                 <input type="hidden" id="ges-id">
                 <div id="ges-locked-fields" class="full-width form-grid-span"></div>
+                <div class="form-group full-width">
+                    <label>Dirección de la propiedad *</label>
+                    <input type="text" id="ges-dir" class="form-control" placeholder="Calle, número, colonia, ciudad">
+                    <small class="field-hint">La dirección se captura aquí al dar seguimiento. Verás el mapa al guardar o al escribir.</small>
+                </div>
+                <div id="ges-map-preview" class="form-group full-width rh-map-preview-wrap hidden"></div>
                 <div class="form-group"><label>Estatus de seguimiento</label>
                     <select id="ges-estatus" class="form-control">
                         <option value="No contactado">No contactado</option>
@@ -467,8 +480,17 @@
             <form id="form-expediente-admin">
                 <input type="hidden" id="exp-id">
                 <div id="exp-fields" class="form-grid"></div>
-                <div class="form-group"><label>Monto de adquisición</label><input type="number" id="exp-monto-adquisicion" class="form-control" min="0" step="0.01" placeholder="Precio acordado con el propietario"></div>
-                <div class="form-group full-width"><label>Propuesta final</label><textarea id="exp-propuesta" class="form-control" rows="4" required></textarea></div>
+                <div id="exp-map-preview" class="form-group full-width rh-map-preview-wrap"></div>
+                <div class="form-group">
+                    <label>Precio de compra a la familia *</label>
+                    <input type="number" id="exp-monto-adquisicion" class="form-control" min="0" step="0.01" placeholder="Ej. 450000" required>
+                    <small class="field-hint">Monto numérico que Revive Hogar paga por la propiedad. Se usa para calcular utilidad.</small>
+                </div>
+                <div class="form-group full-width">
+                    <label>Texto de la propuesta al cliente *</label>
+                    <textarea id="exp-propuesta" class="form-control" rows="4" required placeholder="Redacta la propuesta comercial: solución, condiciones, plazos…"></textarea>
+                    <small class="field-hint">Documento narrativo para el prospecto. No es el mismo dato que el precio de compra.</small>
+                </div>
                 <div id="exp-documentos-preview"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirComunicacionDesdeExpediente()">Comunicación del caso</button>
@@ -577,6 +599,7 @@
     <script src="js/config.js"></script>
     <script src="js/modules.config.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/maps.js"></script>
     <script src="js/db.js"></script>
     <script src="js/services.js"></script>
     <script src="js/documents.js"></script>

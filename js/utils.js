@@ -180,7 +180,6 @@ function camposContactoBloqueadosHtml(p, prefix, readonly = true) {
         <div class="form-group"><label>Nombre completo</label><input type="text" id="${prefix}-nombre" ${ro} value="${escapeHtml(p.nombreCompleto || '')}"></div>
         <div class="form-group"><label>Teléfono</label><input type="tel" id="${prefix}-tel" ${ro} value="${escapeHtml(p.telefono || '')}"></div>
         <div class="form-group"><label>Vendedor asignado</label><input type="text" ${ro} value="${escapeHtml(vend ? vend.displayName : '—')}"></div>
-        <div class="form-group full-width"><label>Dirección de la propiedad</label><input type="text" id="${prefix}-dir" ${ro} value="${escapeHtml(p.direccionPropiedad || '')}"></div>
         <div class="form-group full-width"><label>Notas iniciales</label><input type="text" id="${prefix}-notas" ${ro} value="${escapeHtml(p.notas || '')}"></div>`;
 }
 

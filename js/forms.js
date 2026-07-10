@@ -18,16 +18,16 @@ function bindAllForms() {
 
 function guardarCampana(e) {
     e.preventDefault();
-    const identificador = document.getElementById('camp-identificador').value.trim();
-    if (!identificador) { alert('El identificador de campaña es obligatorio.'); return; }
+    const nombre = document.getElementById('camp-nombre').value.trim();
+    const canal = document.getElementById('camp-canal').value;
+    if (!nombre) { alert('El nombre de la campaña es obligatorio.'); return; }
+    if (!canal) { alert('Selecciona el canal de la campaña.'); return; }
     const campanas = DB.get('campanas');
-    if (campanas.some(c => c.identificador.toLowerCase() === identificador.toLowerCase())) {
-        alert('Ya existe una campaña con ese identificador.'); return;
-    }
     const nueva = {
         id: DB.getId(),
-        identificador,
-        nombre: document.getElementById('camp-nombre').value.trim(),
+        identificador: nombre,
+        nombre,
+        canal,
         costo: Number(document.getElementById('camp-costo').value) || 0,
         fechaInicio: document.getElementById('camp-fecha').value || hoyISO(),
         diasDuracion: Number(document.getElementById('camp-dias').value) || 1,
@@ -37,8 +37,8 @@ function guardarCampana(e) {
     };
     campanas.push(nueva);
     DB.set('campanas', campanas);
-    logAction(`Campaña creada: ${identificador}`);
-    addHistory('campana', 'Nueva campaña', identificador);
+    logAction(`Campaña creada: ${nombre} (${canal})`);
+    addHistory('campana', 'Nueva campaña', `${nombre} · ${canal}`);
     closeModal('modal-campana');
     e.target.reset();
     refreshActiveModule(true);
@@ -48,9 +48,7 @@ function guardarProspecto(e) {
     e.preventDefault();
     const nombre = document.getElementById('pros-nombre').value.trim();
     const tel = document.getElementById('pros-tel').value.trim();
-    const dir = document.getElementById('pros-dir').value.trim();
     if (nombre.length < 3) { alert('Nombre completo obligatorio.'); return; }
-    if (dir.length < 5) { alert('Dirección de la propiedad obligatoria.'); return; }
     if (!tel) { alert('Teléfono obligatorio.'); return; }
 
     const campVal = document.getElementById('pros-campana').value;
@@ -69,7 +67,7 @@ function guardarProspecto(e) {
         id: DB.getId(),
         nombreCompleto: nombre,
         telefono: tel,
-        direccionPropiedad: dir,
+        direccionPropiedad: '',
         notas: document.getElementById('pros-notas').value.trim(),
         campañaId: campVal === 'OTRO' ? null : campVal,
         campañaOtro: campVal === 'OTRO',
@@ -117,6 +115,7 @@ function guardarGestionProspecto(e) {
     p.tipoCredito = document.getElementById('ges-tipo-credito').value;
     p.tieneEscrituras = document.getElementById('ges-escrituras').value;
     p.invadida = document.getElementById('ges-invadida').value;
+    p.direccionPropiedad = document.getElementById('ges-dir')?.value.trim() || '';
     p.adeudoCredito = normalizarAdeudo(document.getElementById('ges-adeudo-credito').value);
     p.adeudoAgua = normalizarAdeudo(document.getElementById('ges-adeudo-agua').value);
     p.adeudoLuz = normalizarAdeudo(document.getElementById('ges-adeudo-luz').value);
@@ -141,6 +140,20 @@ function guardarGestionProspecto(e) {
     prospectos[idx] = p;
     DB.set('prospectos', prospectos);
     logAction(`Seguimiento prospecto: ${p.nombreCompleto} → ${nuevoEstatus}`);
+
+    const listoParaAdmin = nuevoEstatus === RH_ESTATUS_PROSPECTO.INTERESADO &&
+        !p.enviadoAdministradora &&
+        validarProspectoParaInteresado(p).length === 0;
+    if (listoParaAdmin && confirm('Seguimiento guardado.\n\n¿Deseas enviar este expediente a administradora ahora?')) {
+        p.estatus = RH_ESTATUS_PROSPECTO.EN_ADMIN;
+        p.enviadoAdministradora = true;
+        agregarEventoProspecto(p, 'Envío administradora', 'Expediente enviado tras guardar seguimiento');
+        notificarProspectoInteresado(p);
+        prospectos[idx] = p;
+        DB.set('prospectos', prospectos);
+        logAction(`Enviado a administradora: ${p.nombreCompleto}`);
+    }
+
     closeModal('modal-gestion-prospecto');
     refreshActiveModule();
 }
@@ -218,6 +231,10 @@ function guardarExpedienteAdmin(e) {
     p.adeudoPredial = normalizarAdeudo(document.getElementById('exp-adeudo-predial')?.value);
     p.propuestaFinal = document.getElementById('exp-propuesta').value.trim();
     p.montoAdquisicion = normalizarAdeudo(document.getElementById('exp-monto-adquisicion')?.value);
+    if (!p.montoAdquisicion) {
+        alert('Indica el precio de compra a la familia (monto numérico).');
+        return;
+    }
     p.estatus = RH_ESTATUS_PROSPECTO.PROPUESTA_LISTA;
     p.enviadoAdministradora = true;
 

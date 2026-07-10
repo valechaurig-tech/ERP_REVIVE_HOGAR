@@ -208,6 +208,7 @@ function renderDetalleResumen(caso, p, vend) {
                 <div class="detalle-kv"><span>Propietario</span><strong>${escapeHtml(caso.nombreCompleto)}</strong></div>
 
                 <div class="detalle-kv"><span>Dirección</span><strong>${escapeHtml(caso.direccionPropiedad)}</strong></div>
+                ${typeof getHtmlMapaDireccion === 'function' && caso.direccionPropiedad ? `<div class="detalle-kv detalle-kv--wide detalle-map-wrap">${getHtmlMapaDireccion(caso.direccionPropiedad)}</div>` : ''}
 
                 <div class="detalle-kv"><span>Teléfono</span><strong>${escapeHtml(p?.telefono || '—')}</strong></div>
 
@@ -221,7 +222,7 @@ function renderDetalleResumen(caso, p, vend) {
 
                 <div class="detalle-kv"><span>Fecha de firma</span><strong>${caso.fechaFirma ? new Date(caso.fechaFirma).toLocaleDateString() : '—'}</strong></div>
 
-                <div class="detalle-kv detalle-kv--wide"><span>Propuesta final</span><strong>${escapeHtml(caso.propuestaFinal || p?.propuestaFinal || '—')}</strong></div>
+                <div class="detalle-kv detalle-kv--wide"><span>Propuesta comercial</span><strong>${escapeHtml(caso.propuestaFinal || p?.propuestaFinal || '—')}</strong></div>
 
             </div>
 
@@ -240,6 +241,7 @@ function renderDetalleResumen(caso, p, vend) {
                 <div class="detalle-kv"><span>Prospecto</span><strong>${escapeHtml(caso.nombreCompleto)}</strong></div>
 
                 <div class="detalle-kv"><span>Dirección</span><strong>${escapeHtml(caso.direccionPropiedad)}</strong></div>
+                ${typeof getHtmlMapaDireccion === 'function' && caso.direccionPropiedad ? `<div class="detalle-kv detalle-kv--wide detalle-map-wrap">${getHtmlMapaDireccion(caso.direccionPropiedad)}</div>` : ''}
 
                 <div class="detalle-kv"><span>Teléfono</span><strong>${escapeHtml(caso.telefono || '—')}</strong></div>
 
@@ -249,7 +251,7 @@ function renderDetalleResumen(caso, p, vend) {
 
                 <div class="detalle-kv"><span>Captura</span><strong>${escapeHtml(caso.fechaCaptura || '—')}</strong></div>
 
-                <div class="detalle-kv detalle-kv--wide"><span>Propuesta</span><strong>${escapeHtml(caso.propuestaFinal || 'Pendiente')}</strong></div>
+                <div class="detalle-kv detalle-kv--wide"><span>Propuesta comercial</span><strong>${escapeHtml(caso.propuestaFinal || 'Pendiente')}</strong></div>
 
             </div>
 

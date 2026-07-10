@@ -7,7 +7,7 @@ function cargarSelects() {
     if (campSel) {
         const activas = getCampanasActivas();
         campSel.innerHTML = '<option value="OTRO">Otro (sin campaña)</option>' +
-            activas.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.identificador)} — ${escapeHtml(c.nombre)}</option>`).join('');
+            activas.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.nombre || c.identificador)}${c.canal ? ' · ' + escapeHtml(c.canal) : ''}</option>`).join('');
     }
     const vendSel = document.getElementById('pros-vendedor');
     if (vendSel) {
@@ -64,7 +64,8 @@ function renderMarketing() {
             : campanas.map(c => {
                 const st = estadisticasCampana(c.id, prospectos);
                 return `<tr>
-                    <td><strong class="folio-tag">${escapeHtml(c.identificador)}</strong><br><small>${escapeHtml(c.nombre)}</small></td>
+                    <td><strong class="folio-tag">${escapeHtml(c.nombre || c.identificador)}</strong></td>
+                    <td><span class="badge-mkt badge-mkt-primary">${escapeHtml(c.canal || '—')}</span></td>
                     <td>${escapeHtml(c.fechaInicio || '—')}</td>
                     <td>${escapeHtml(c.diasDuracion)} días</td>
                     <td class="mkt-celda-monto">${formatearMoneda(c.costo)}</td>
@@ -210,6 +211,11 @@ function abrirGestionProspecto(id) {
     if (locked) {
         locked.innerHTML = camposContactoBloqueadosHtml(p, 'ges', true);
     }
+    const gesDir = document.getElementById('ges-dir');
+    if (gesDir) gesDir.value = p.direccionPropiedad || '';
+    if (typeof bindMapaDireccionInput === 'function') {
+        bindMapaDireccionInput('ges-dir', 'ges-map-preview');
+    }
 
     const cierreWrap = document.getElementById('ges-cierre-wrap');
     const enviarAdmin = document.getElementById('ges-enviar-admin-wrap');
@@ -282,6 +288,10 @@ function abrirExpedienteAdmin(id) {
 
     const docs = document.getElementById('exp-documentos-preview');
     if (docs) docs.innerHTML = generarVistaDocumentos(p);
+
+    if (typeof actualizarMapaDireccion === 'function') {
+        actualizarMapaDireccion(p.direccionPropiedad || '', 'exp-map-preview');
+    }
 
     document.getElementById('modal-expediente-admin')?.classList.add('active');
 }

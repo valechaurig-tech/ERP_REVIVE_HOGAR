@@ -2,7 +2,24 @@
  * Revive Hogar — datos semilla, alertas, auditoría
  */
 
+const RH_DATA_RESET_VERSION = '2026-04-v1';
+
+function limpiarDatosOperativos() {
+    ['campanas', 'prospectos', 'casas', 'alertas', 'historial', 'auditoria', 'tareas'].forEach(k => {
+        DB.set(k, []);
+    });
+}
+
 function initSeedData() {
+    const resetKey = RH_STORAGE_PREFIX + 'data_reset_version';
+    const prevReset = typeof localStorage !== 'undefined' ? localStorage.getItem(resetKey) : '';
+    if (prevReset !== RH_DATA_RESET_VERSION) {
+        limpiarDatosOperativos();
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(resetKey, RH_DATA_RESET_VERSION);
+        }
+    }
+
     DB_KEYS.forEach(k => {
         if (!Array.isArray(DB.get(k))) DB.set(k, []);
     });
@@ -21,20 +38,6 @@ function initSeedData() {
         }
     });
     DB.set('usuariosLogin', usuarios);
-
-    if (DB.get('campanas').length === 0) {
-        DB.set('campanas', [{
-            id: DB.getId(),
-            identificador: 'RH-DEMO-01',
-            nombre: 'Campaña demo Facebook',
-            costo: 5000,
-            fechaInicio: hoyISO(),
-            diasDuracion: 30,
-            estatus: 'Activa',
-            creadoPor: 'Sistema',
-            fechaCreacion: new Date().toISOString()
-        }]);
-    }
 }
 
 function logAction(accion) {
