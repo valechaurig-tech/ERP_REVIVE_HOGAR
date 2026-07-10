@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Revive Hogar</title>
     <link rel="stylesheet" href="css/app.css">
@@ -59,6 +59,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary btn-login-submit">Entrar al sistema</button>
                 </form>
+                <p class="login-luna-hint">Al entrar, <strong>Luna</strong> — tu guía IA — te ayudará paso a paso en cada módulo.</p>
                 <footer class="login-powered-by" id="login-echauri-brand" aria-label="Desarrollado por EchauriApps"></footer>
             </div>
         </div>
@@ -67,15 +68,23 @@
     <div id="app-screen">
         <div id="echauri-brand-badge" class="echauri-brand-badge" aria-label="Desarrollado por EchauriApps"></div>
         <header class="topbar">
-            <div class="topbar-left" id="topbar-brand"></div>
+            <div class="topbar-left">
+                <button type="button" id="mobile-nav-toggle" class="mobile-nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
+                    <span class="mobile-nav-toggle-bar"></span>
+                    <span class="mobile-nav-toggle-bar"></span>
+                    <span class="mobile-nav-toggle-bar"></span>
+                </button>
+                <div id="topbar-brand" class="topbar-brand-wrap"></div>
+            </div>
             <div class="topbar-right">
-                <span id="db-status-badge" class="db-status-pill db-status-local">Solo este navegador</span>
-                <span id="reloj" class="topbar-chip">00:00:00</span>
+                <span id="db-status-badge" class="db-status-pill db-status-local topbar-chip--hide-mobile">Solo este navegador</span>
+                <span id="reloj" class="topbar-chip topbar-chip--hide-mobile">00:00:00</span>
                 <span id="user-role-display" class="topbar-chip topbar-user">Usuario</span>
-                <button class="btn-logout" type="button" onclick="logout()">Cerrar sesión</button>
+                <button class="btn-logout" type="button" onclick="logout()">Salir</button>
             </div>
         </header>
 
+        <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
         <div class="main-container">
             <nav class="sidebar" id="sidebar" aria-label="Navegación"></nav>
             <main class="content-area">
@@ -190,6 +199,7 @@
                             <p class="module-desc">Seguimiento comercial y registro de prospectos en campo.</p>
                         </div>
                         <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaGuiaModulo()">Guía con Luna</button>
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalProspectoVendedor()">+ Registrar prospecto</button>
                         </div>
                     </div>
@@ -217,6 +227,9 @@
                         <div class="module-toolbar-text">
                             <h3>Bandeja Administradora</h3>
                             <p class="module-desc">Investigación, propuesta final y generación de documentos.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaGuiaModulo()">Guía con Luna</button>
                         </div>
                     </div>
                     <div class="mkt-analytics-grid" style="max-width:420px">
@@ -584,6 +597,7 @@
     <script src="js/planner.js"></script>
     <script src="js/caso-detalle.js"></script>
     <script src="js/luna.js"></script>
+    <script src="js/luna-knowledge.js"></script>
     <script src="js/ia-features.js"></script>
     <script src="js/ia-assistant.js"></script>
     <script src="js/render.js"></script>

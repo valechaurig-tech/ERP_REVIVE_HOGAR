@@ -124,6 +124,11 @@ function renderPanelLunaCaso() {
                 <strong>Pregúntame</strong>
                 <small>Chat libre con Luna</small>
             </button>
+            <button type="button" class="luna-action-card" onclick="lunaGuiaModulo()">
+                <span class="luna-action-icon">🗺️</span>
+                <strong>Guía del módulo</strong>
+                <small>Pasos en este pantallazo</small>
+            </button>
         </div>`;
 }
 
@@ -186,6 +191,29 @@ function lunaSimularEscenario() {
     const n = prompt('¿Cuántos firmados adicionales simular este mes?', '3');
     if (!n) return;
     lunaAbrirConMensaje(`Impacto de cerrar ${n} firmados más: pipeline, conversión y carga.`, 'simulacion');
+}
+
+function lunaGuiaSistema() {
+    const rol = currentUser?.rol || 'Direccion';
+    lunaAbrirConMensaje(
+        `Soy nuevo en Revive Hogar. Dame un tour completo del sistema para mi rol (${rol}): qué módulos veo, flujo de trabajo paso a paso, y los primeros 3 pasos para empezar hoy.`,
+        'onboarding'
+    );
+}
+
+function lunaGuiaModulo() {
+    const mod = RH_MODULE_LABELS[activeModuleId] || activeModuleId || 'el sistema';
+    lunaAbrirConMensaje(
+        `Explícame paso a paso cómo usar el módulo "${mod}": qué botones presionar, qué formularios llenar y en qué orden. Adaptado a mi rol.`,
+        'guia_sistema'
+    );
+}
+
+function lunaAyudaFlujo() {
+    lunaAbrirConMensaje(
+        'Explícame el flujo completo de Revive Hogar desde campaña hasta cierre de propiedad, con los estatus de prospecto y pipeline.',
+        'guia_sistema'
+    );
 }
 
 function lunaScoreProspecto(id) {

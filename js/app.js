@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         setLoginMode('general');
         bindAllForms();
         bindLoginForm();
+        bindMobileNav();
         bindAuditoriaEvents();
         if (typeof initIAAssistant === 'function') initIAAssistant();
         const pipeFilter = document.getElementById('pipeline-filter');

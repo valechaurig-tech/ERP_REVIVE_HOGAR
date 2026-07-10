@@ -8,41 +8,42 @@ let iaAbierto = false;
 let iaEnviando = false;
 
 const IA_SALUDOS = {
-    Direccion: 'Puedo mostrarte el pulso del negocio, detectar cuellos de botella y ayudarte a decidir con datos reales.',
-    Marketing: 'Analizo tus campañas, el costo por prospecto y te digo dónde conviene invertir más.',
-    Vendedor: 'Te ayudo a priorizar a quién llamar hoy, qué decir y cómo avanzar cada prospecto.',
-    Administradora: 'Reviso expedientes, el pipeline y te armo checklists para que nada se quede pendiente.'
+    Direccion: 'Puedo mostrarte el pulso del negocio, detectar cuellos de botella y **guiarte paso a paso** en cualquier módulo del sistema.',
+    Marketing: 'Analizo tus campañas y te explico **cómo asignar prospectos**, registrar campañas y medir costos.',
+    Vendedor: 'Te ayudo a priorizar contactos, avanzar prospectos y te guío en **cada botón y formulario** de tu módulo.',
+    Administradora: 'Reviso expedientes, el pipeline y te explico **cómo completar propuestas**, costos y cambios de estatus.'
 };
 
 const IA_QUICK = {
     Direccion: [
+        { label: '🗺️ Guía del sistema', action: 'lunaGuiaSistema' },
         { label: '☀️ Briefing de hoy', msg: 'Dame mi briefing de hoy con prioridades claras.', tipo: 'briefing' },
         { label: '📊 Resumen ejecutivo', msg: 'Resumen del negocio: prospectos, conversión, pipeline y alertas.', tipo: 'reporte_semanal' },
         { label: '⚠️ Cuellos de botella', msg: '¿Dónde se atora el flujo? Sé específico con los datos.', tipo: 'chat' },
         { label: '🔮 Simular escenario', action: 'lunaSimularEscenario' },
-        { label: '🗺️ Mapa de riesgos', msg: 'Lista casos con mayor riesgo operativo según adeudos, escrituras e invasión.', tipo: 'riesgos' },
-        { label: '💡 3 acciones clave', msg: 'Con los datos actuales, ¿qué 3 acciones estratégicas recomiendas?', tipo: 'chat' }
+        { label: '🗺️ Mapa de riesgos', msg: 'Lista casos con mayor riesgo operativo según adeudos, escrituras e invasión.', tipo: 'riesgos' }
     ],
     Marketing: [
+        { label: '🗺️ ¿Cómo usar Marketing?', action: 'lunaGuiaModulo' },
         { label: '☀️ Briefing de hoy', msg: 'Briefing de campañas y prioridades de hoy.', tipo: 'briefing' },
         { label: '📢 ROI campañas', msg: 'Analiza ROI de cada campaña: costo/prospecto y costo/firmado.', tipo: 'resumen_campana' },
-        { label: '📉 Campañas débiles', msg: '¿Qué campañas están rindiendo mal y deberían pausarse o ajustarse?', tipo: 'resumen_campana' },
-        { label: '💰 Costo/prospecto', msg: '¿El costo por prospecto es sostenible? Explica con números.', tipo: 'chat' },
+        { label: '➕ Asignar prospecto', msg: 'Explícame paso a paso cómo crear una campaña y asignar un prospecto a un vendedor.', tipo: 'guia_sistema' },
         { label: '🎯 Dónde invertir', msg: '¿Dónde enfocar el presupuesto según los datos?', tipo: 'chat' }
     ],
     Vendedor: [
+        { label: '🗺️ ¿Cómo usar mi módulo?', action: 'lunaGuiaModulo' },
         { label: '☀️ Briefing de hoy', msg: '¿A quién contacto primero hoy y por qué?', tipo: 'briefing' },
         { label: '🔥 Priorizar hoy', msg: 'Ordena mis prospectos por urgencia de contacto.', tipo: 'prioridad_kanban' },
-        { label: '📞 Guión de llamada', msg: 'Dame un guión general para mis prospectos en seguimiento.', tipo: 'guion_llamada' },
-        { label: '🏠 Mis propiedades', msg: 'Resume mis propiedades en pipeline y qué dar seguimiento.', tipo: 'chat' },
-        { label: '📈 Score de cierre', msg: '¿Cuáles prospectos tienen mejor probabilidad de firmar?', tipo: 'score_cierre' }
+        { label: '📋 Enviar a admin', msg: 'Explícame paso a paso cómo llevar un prospecto de Interesado hasta enviarlo a administradora.', tipo: 'guia_sistema' },
+        { label: '✍️ Cerrar venta', msg: '¿Cómo cierro Firmado o Declinado cuando la propuesta está lista?', tipo: 'guia_sistema' },
+        { label: '📞 Guión de llamada', msg: 'Dame un guión general para mis prospectos en seguimiento.', tipo: 'guion_llamada' }
     ],
     Administradora: [
+        { label: '🗺️ ¿Cómo usar mi bandeja?', action: 'lunaGuiaModulo' },
         { label: '☀️ Briefing de hoy', msg: 'Checklist del día: expedientes, pipeline y alertas.', tipo: 'briefing' },
         { label: '📁 Expedientes urgentes', msg: '¿Qué expedientes están más urgentes y qué les falta?', tipo: 'caso_checklist' },
-        { label: '🏠 Pipeline crítico', msg: 'Propiedades que requieren atención inmediata.', tipo: 'chat' },
-        { label: '✅ Checklist del día', msg: 'Lista todo lo que debo revisar hoy.', tipo: 'caso_checklist' },
-        { label: '📋 Priorizar tareas', msg: '¿Cómo ordenar el kanban según urgencia real?', tipo: 'prioridad_kanban' }
+        { label: '🏠 Pipeline y costos', msg: 'Explícame cómo cambiar estatus en pipeline y registrar costos de remodelación.', tipo: 'guia_sistema' },
+        { label: '✅ Checklist del día', msg: 'Lista todo lo que debo revisar hoy.', tipo: 'caso_checklist' }
     ]
 };
 
@@ -95,7 +96,7 @@ function iniciarSesionIA() {
     const rol = currentUser?.rol || 'Direccion';
     const saludo = IA_SALUDOS[rol] || IA_SALUDOS.Direccion;
     agregarMensajeIA('assistant',
-        `¡Hola, **${nombre}**! Soy **Luna**, tu guía inteligente en Revive Hogar. ✨\n\n${saludo}\n\nEscríbeme o elige un acceso rápido — estoy contigo.`
+        `¡Hola, **${nombre}**! Soy **Luna**, tu guía inteligente en Revive Hogar. ✨\n\n${saludo}\n\nPregúntame *"¿cómo hago…?"* o usa los accesos rápidos — conozco todo el flujo del sistema.`
     );
     renderIAQuickActions();
     setIAEstado('En línea · lista para ayudarte');
@@ -236,6 +237,10 @@ function construirContextoIA() {
             estado: t.estado
         }))
     };
+
+    if (typeof getLunaKnowledgeForRole === 'function') {
+        ctx.guiaSistema = getLunaKnowledgeForRole(currentUser?.rol);
+    }
 
     if (typeof detalleActivoId !== 'undefined' && detalleActivoId) {
         if (typeof detalleModo !== 'undefined' && detalleModo === 'casa') {
