@@ -26,6 +26,8 @@ const ctx=vm.createContext({
     window:{},Date,Map,Set,Number,String
 });
 vm.runInContext(forms + '\n'+render,ctx);
+// En estas pruebas de formulario no se monta el DOM completo de la tabla de usuarios.
+vm.runInContext('renderUsuarios = () => {};', ctx);
 const call=(f)=>vm.runInContext(f+'({preventDefault(){}})',ctx);
 let checks=0;
 const ok=label=>{checks++;console.log('PASS '+label)};
