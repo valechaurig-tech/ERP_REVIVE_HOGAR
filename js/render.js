@@ -513,6 +513,7 @@ function renderPipeline() {
             <td class="celda-acciones">
                 <button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}')">Abrir ficha</button>
                 ${puedeEditarPipeline() ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirCambioPipeline('${escapeHtml(c.id)}')">Estatus</button>` : ''}
+                ${(currentUser?.rol === 'Direccion' || currentUser?.rol === 'Administradora') ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirModalTitulares('${escapeHtml(c.id)}')">Copropietarios</button>` : ''}
             </td>
         </tr>`;
         }).join('');

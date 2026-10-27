@@ -3867,3 +3867,8 @@ body.tour-publico { background: #f4f7f8; margin: 0; }
 .rh-buyer-due { display:inline-block; font-weight:700; padding:4px 8px; border-radius:8px; white-space:nowrap; }
 .rh-buyer-due-overdue { background:#fff0ef; color:#9f2720; }
 .rh-buyer-due-today { background:#fff7e6; color:#965b02; }
+
+#modal-titulares .modal-content { max-width: 730px; }
+#modal-titulares .table-responsive { margin: 14px 0; }
+#modal-titulares .module-desc { margin: 7px 0; }
+#modal-titulares details summary { cursor: pointer; font-weight:600; color:var(--primary); }

@@ -1001,6 +1001,45 @@
         </div>
     </div>
 
+    <div id="modal-titulares" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Propietario y copropietarios</h3>
+                <button type="button" class="btn-close" onclick="cerrarModalTitulares()" aria-label="Cerrar">&times;</button>
+            </div>
+            <p class="module-desc">Propietario principal del expediente: <strong id="tit-propietario-principal">—</strong></p>
+            <p class="module-desc">Datos declarativos para control interno. Verificar titulares y porcentajes con las escrituras; no generan pagos ni cambios en contratos.</p>
+            <div class="table-responsive table-clean">
+                <table id="table-titulares">
+                    <thead><tr><th>Copropietario</th><th>Participación declarada</th><th>Acciones</th></tr></thead>
+                    <tbody><tr><td colspan="3">Sin registros.</td></tr></tbody>
+                </table>
+            </div>
+            <form id="form-copropietario" class="form-grid" style="margin-top:16px">
+                <input type="hidden" id="tit-casa-id">
+                <input type="hidden" id="tit-id">
+                <div class="form-group full-width">
+                    <label>Nombre completo del copropietario *</label>
+                    <input id="tit-nombre" class="form-control" required maxlength="160">
+                </div>
+                <details class="full-width">
+                    <summary>Datos opcionales</summary>
+                    <div class="form-grid" style="margin-top:12px">
+                        <div class="form-group"><label>Teléfono</label><input id="tit-telefono" class="form-control" type="tel" maxlength="35"></div>
+                        <div class="form-group">
+                            <label>Participación declarada (%)</label>
+                            <input id="tit-participacion" class="form-control" type="number" min="0.01" max="100" step="0.01">
+                        </div>
+                    </div>
+                </details>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="cerrarModalTitulares()">Cerrar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar copropietario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="modal-nuevo-vendedor" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h3>Nuevo vendedor</h3><button type="button" class="btn-close" onclick="closeModal('modal-nuevo-vendedor')">&times;</button></div>
@@ -1071,7 +1110,8 @@
     <script src="js/recorrido.js?v=20261004c"></script>
     <script src="js/render.js?v=20261004c"></script>
     <script src="js/forms.js?v=20261004c"></script>
-    <script src="js/compradores.js?v=20261027a"></script>
+    <script src="js/compradores.js?v=20261027b"></script>
+    <script src="js/titulares.js?v=20261027a"></script>
     <script src="js/usage-metrics.js?v=20261027a"></script>
     <script src="js/auth.js?v=20261004c"></script>
     <script src="js/app.js?v=20261004c"></script>
