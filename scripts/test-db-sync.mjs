@@ -10,17 +10,19 @@ import { fileURLToPath } from 'node:url';
 
 const source = readFileSync(fileURLToPath(new URL('../js/db.js', import.meta.url)), 'utf8');
 
-async function createHarness() {
+async function createHarness(initialRecords = null) {
     const badge = { textContent: '', className: '' };
     let failDeletes = false;
     let failUpserts = false;
     const remote = new Map();
     const timers = [];
-    const calls = { delete: 0, upsert: 0 };
-    remote.set('prospectos', new Map([
-        ['rh_a', { id: 'rh_a', nombreCompleto: 'Ejemplo uno' }],
-        ['rh_b', { id: 'rh_b', nombreCompleto: 'Ejemplo dos' }]
-    ]));
+    const calls = { delete: 0, upsert: 0, pages: 0 };
+    remote.set('prospectos', new Map(initialRecords
+        ? initialRecords.map(item => [item.id, item])
+        : [
+            ['rh_a', { id: 'rh_a', nombreCompleto: 'Ejemplo uno' }],
+            ['rh_b', { id: 'rh_b', nombreCompleto: 'Ejemplo dos' }]
+        ]));
     function coll(key) {
         if (!remote.has(key)) remote.set(key, new Map());
         return remote.get(key);
@@ -32,13 +34,24 @@ async function createHarness() {
             return {
                 select(column, options) {
                     if (options?.count === 'exact') return Promise.resolve({ count: 2, error: null });
+                    let selectedKey;
                     return {
                         limit() { return Promise.resolve({ data: [], error: null }); },
-                        eq(_field, key) {
-                            return Promise.resolve({
-                                data: [...coll(key).values()].map(data => ({ data })),
-                                error: null
-                            });
+                        eq(field, key) {
+                            assert.equal(field, 'collection');
+                            selectedKey = key;
+                            return this;
+                        },
+                        order(field) {
+                            assert.equal(field, 'record_id');
+                            return this;
+                        },
+                        range(first, last) {
+                            calls.pages++;
+                            const values = [...coll(selectedKey).values()]
+                                .sort((a, b) => a.id.localeCompare(b.id))
+                                .slice(first, last + 1);
+                            return Promise.resolve({ data: values.map(data => ({ data })), error: null });
                         }
                     };
                 },
@@ -89,7 +102,7 @@ async function createHarness() {
         clearTimeout: () => {},
         Date, Math, Set, JSON
     });
-    vm.runInContext(source + '\n;globalThis.__qa={DB,DB_CACHE,pendingDeletes,flushPendientesEliminacion,persistirColeccionNube};', context, {
+    vm.runInContext(source + '\n;globalThis.__qa={DB,DB_CACHE,pendingDeletes,flushPendientesEliminacion,persistirColeccionNube,cargarColeccionNube,DB_PENDING_WRITES};', context, {
         filename: 'js/db.js'
     });
     const h = context.__qa;
@@ -140,5 +153,45 @@ function ok(name) { tests++; console.log('PASS ' + name); }
     assert.equal(h.DB.get('prospectos').some(i => i.id === 'rh_a'), true);
     assert.match(h.badge.textContent, /Error de nube/);
     ok('fallo de remove restaura registro visible y avisa');
+}
+{
+    const rows = Array.from({ length: 1005 }, (_, i) => ({
+        id: 'rh_' + String(i).padStart(5, '0'),
+        nombreCompleto: 'Demo ' + i
+    }));
+    const h = await createHarness(rows);
+    assert.equal(h.DB.get('prospectos').length, 1005);
+    assert.equal(h.DB.get('prospectos').at(-1).id, 'rh_01004');
+    assert.ok(h.calls.pages >= 2);
+    ok('lectura paginada incluye todos los registros después del límite de 1000');
+}
+{
+    const h = await createHarness();
+    const list = h.DB.get('prospectos');
+    list[0].nombreCompleto = 'Cambio pendiente';
+    h.DB.set('prospectos', list);
+    h.remote.get('prospectos').get('rh_a').nombreCompleto = 'Cambio externo';
+    const updated = await h.cargarColeccionNube('prospectos');
+    assert.equal(updated, false);
+    assert.equal(h.DB.get('prospectos')[0].nombreCompleto, 'Cambio pendiente');
+    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
+    ok('realtime no pisa borrador local no confirmado');
+    await h.persistirColeccionNube('prospectos', true);
+    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), false);
+    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Cambio pendiente');
+    ok('tras guardar se confirma estado y se habilita recarga');
+}
+{
+    const h = await createHarness();
+    h.DB.set('prospectos', h.DB.get('prospectos').filter(item => item.id !== 'rh_a'));
+    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), true);
+    h.DB.set('prospectos', [
+        ...h.DB.get('prospectos'),
+        { id: 'rh_a', nombreCompleto: 'Restaurado antes del borrado' }
+    ]);
+    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), false);
+    await h.persistirColeccionNube('prospectos', true);
+    assert.equal(h.remote.get('prospectos').has('rh_a'), true);
+    ok('registro restaurado antes del envío cancela eliminación pendiente');
 }
 console.log(JSON.stringify({ tests, passed: tests, mode: 'isolated-mock-no-production-data' }));
