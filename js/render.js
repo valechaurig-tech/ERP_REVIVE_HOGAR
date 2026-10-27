@@ -561,6 +561,27 @@ function renderAuditoria() {
         <td>${escapeHtml(l.usuario)}</td>
         <td>${escapeHtml(l.accion)}</td>
     </tr>`).join('') || '<tr><td colspan="3" class="celda-vacia">Sin registros.</td></tr>';
+
+    const metricsBody = document.querySelector('#table-uso-local tbody');
+    if (!metricsBody) return;
+    const datos = window.RH_USAGE?.report() || [];
+    const agregados = new Map();
+    datos.forEach(({ event, role, target, count }) => {
+        const key = [event, role, target].join('|');
+        agregados.set(key, (agregados.get(key) || 0) + count);
+    });
+    const filas = [...agregados].map(([key, total]) => {
+        const [event, role, target] = key.split('|');
+        const etiqueta = event === 'module_open' ? (RH_MODULE_LABELS[target] || target) : target;
+        const accion = event === 'module_open' ? 'Apertura de módulo' : 'Intento de formulario';
+        return { etiqueta, accion, role, total };
+    }).sort((a, b) => b.total - a.total).slice(0, 50);
+    metricsBody.innerHTML = filas.map(r => `<tr>
+        <td>${escapeHtml(r.etiqueta)}</td>
+        <td>${escapeHtml(r.accion)}</td>
+        <td>${escapeHtml(r.role)}</td>
+        <td>${r.total}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="celda-vacia">Aún sin registros en este navegador.</td></tr>';
 }
 
 /* —— Usuarios —— */
