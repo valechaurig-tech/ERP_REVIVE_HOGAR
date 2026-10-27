@@ -93,3 +93,12 @@ Los resultados anteriores demuestran progreso real, no que el ERP esté terminad
 - Se añadió aviso `beforeunload` cuando existen borradores de nube pendientes, sujeto a límites del navegador.
 - Se amplió compradores para **vincular opcionalmente un inmueble existente por ID**, sin cambiar propietarios, contratos ni montos. Todavía no implementa cierre transaccional ni comisiones.
 - 13 pruebas de sincronización, 10 de compradores y 10 aserciones de cierre de sesión aprobadas en Sandbox; pruebas existentes de privacidad y formularios también satisfactorias.
+
+
+### Seguimiento comercial, financiamiento y copropietarios
+- Compradores: fecha de próximo contacto, clasificación hoy/vencido, filtro de pendientes, bitácora de actividades con notas opcionales y fechas validadas; edición no duplica eventos.
+- Compradores: tipo de financiamiento (contado, hipotecario, Infonavit, Fovissste, otro, por definir) y banco/institución como datos opcionales **informativos**. No crean movimientos de bancos ni autorizan financiamiento.
+- Propiedades: nuevo apartado **Copropietarios** desde el Pipeline, con propietario principal existente visible en solo lectura. Captura, edición, archivo y restauración de declaraciones, suma de porcentajes declarados limitada a 100%, duplicados impedidos y acceso en la interfaz limitado a Dirección/Administradora.
+- La colección `copropietarios` es independiente: estos cambios **no actualizan pagos, utilidades, contratos, escrituras ni la identidad del propietario principal**.
+- Pruebas unitarias sintéticas: 16 escenarios de compradores y 12 de copropiedad, aprobados. Roles solo UI hasta disponer de backend/RLS seguro.
+- Las participaciones son declaraciones internas que necesitan verificación documental; su suma no implica que el porcentaje restante del propietario principal sea legalmente correcto.

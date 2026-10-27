@@ -55,3 +55,19 @@ El registro nuevo solo exige nombre y teléfono; los demás datos quedan opciona
 | `RH-DB-006` | No se confirmó el guardado al cerrar sesión | Permanece la sesión abierta, se debe recuperar conexión y volver a intentar |
 
 La aplicación advierte ante intento de cerrar la pestaña cuando mantiene escrituras en memoria sin confirmar. **La advertencia no es un respaldo** y el navegador puede no mostrarla en todos los dispositivos.
+
+
+## Compradores — seguimiento
+| Código | Motivo | Campo |
+|---|---|---|
+| `RH-BUY-004` | Fecha de próximo contacto inválida o imposible | `comprador-proximo-contacto` |
+
+## Copropietarios declarativos
+| Código | Motivo | Campo |
+|---|---|---|
+| `RH-OWN-001` | Nombre incompleto | `tit-nombre` |
+| `RH-OWN-002` | Participación individual fuera de rango 0–100% | `tit-participacion` |
+| `RH-OWN-003` | Copropietario activo duplicado | `tit-nombre` |
+| `RH-OWN-004` | Suma de participaciones declaradas mayor de 100% | `tit-participacion` |
+
+Las participaciones declaradas no son evidencia de dominio ni modifican pagos, utilidades o expedientes contractuales.
