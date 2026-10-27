@@ -5,7 +5,9 @@
 
 const DB_KEYS = [
     'campanas', 'prospectos', 'casas', 'usuariosLogin',
-    'alertas', 'historial', 'auditoria', 'tareas'
+    'alertas', 'historial', 'auditoria', 'tareas',
+    'presupuestos', 'archivos', 'configuracion', 'gastosEmpresa', 'presupuestoEmpresa',
+    'cuentasBancarias'
 ];
 
 const DB_LIMITS = {
@@ -23,6 +25,8 @@ let dbMode = 'local';
 let supabaseClient = null;
 let dbReady = false;
 const persistTimers = {};
+const deleteTimers = {};
+const pendingDeletes = {};
 let realtimeChannel = null;
 
 function sanitizarValorImportacion(valor, profundidad = 0) {
@@ -105,18 +109,30 @@ async function migrarLocalANubeSiVacio() {
     return true;
 }
 
+async function eliminarIdsNube(key, ids) {
+    if (!supabaseClient || dbMode !== 'cloud' || !ids?.length) return;
+    for (let i = 0; i < ids.length; i += 200) {
+        const lote = ids.slice(i, i + 200);
+        const { error } = await supabaseClient.from(RH_TABLE)
+            .delete().eq('collection', key).in('record_id', lote);
+        if (error) console.error(`Error eliminando ${key}:`, error);
+    }
+}
+
+async function flushPendientesEliminacion(key) {
+    const ids = [...(pendingDeletes[key] || [])];
+    pendingDeletes[key] = new Set();
+    await eliminarIdsNube(key, ids);
+}
+
 async function persistirColeccionNube(key, inmediato = false) {
     if (!supabaseClient || dbMode !== 'cloud') return;
+    await flushPendientesEliminacion(key);
     const items = DB_CACHE[key] || [];
-    const ids = new Set(items.map(i => i.id).filter(Boolean));
-    const { data: existentes, error: errSel } = await supabaseClient
-        .from(RH_TABLE).select('record_id').eq('collection', key);
-    if (errSel) { console.error(errSel); return; }
-    const aBorrar = (existentes || []).map(r => r.record_id).filter(id => !ids.has(id));
-    if (aBorrar.length > 0) {
-        await supabaseClient.from(RH_TABLE).delete().eq('collection', key).in('record_id', aBorrar);
+    if (items.length === 0) {
+        if (inmediato) actualizarIndicadorNube('ok');
+        return;
     }
-    if (items.length === 0) return;
     const filas = items.filter(i => i.id).map(item => ({
         collection: key,
         record_id: item.id,
@@ -135,6 +151,14 @@ function programarPersistencia(key) {
     if (dbMode !== 'cloud') return;
     clearTimeout(persistTimers[key]);
     persistTimers[key] = setTimeout(() => persistirColeccionNube(key), 600);
+}
+
+function programarEliminaciones(key, ids) {
+    if (dbMode !== 'cloud' || !ids?.length) return;
+    if (!pendingDeletes[key]) pendingDeletes[key] = new Set();
+    ids.forEach(id => pendingDeletes[key].add(id));
+    clearTimeout(deleteTimers[key]);
+    deleteTimers[key] = setTimeout(() => flushPendientesEliminacion(key), 600);
 }
 
 function actualizarIndicadorNube(estado) {
@@ -219,9 +243,32 @@ const DB = {
     set(key, data) {
         if (!DB_KEYS.includes(key)) throw new Error(`Colección no permitida: ${key}`);
         if (!Array.isArray(data)) throw new Error(`${key} debe ser un arreglo`);
+        const prevIds = new Set((DB_CACHE[key] || []).map(item => item?.id).filter(Boolean));
+        const nextIds = new Set((data || []).map(item => item?.id).filter(Boolean));
+        const eliminados = [...prevIds].filter(id => !nextIds.has(id));
         DB_CACHE[key] = data;
         if (dbMode === 'local') escribirLocalStorage(key, data);
-        else programarPersistencia(key);
+        else {
+            if (eliminados.length) programarEliminaciones(key, eliminados);
+            programarPersistencia(key);
+        }
+    },
+
+    async remove(key, id) {
+        if (!DB_KEYS.includes(key) || !id) return false;
+        DB_CACHE[key] = (DB_CACHE[key] || []).filter(item => item.id !== id);
+        if (dbMode === 'local') {
+            escribirLocalStorage(key, DB_CACHE[key]);
+            return true;
+        }
+        if (pendingDeletes[key]) pendingDeletes[key].delete(id);
+        const { error } = await supabaseClient.from(RH_TABLE)
+            .delete().eq('collection', key).eq('record_id', id);
+        if (error) {
+            console.error(`Error eliminando ${key}/${id}:`, error);
+            return false;
+        }
+        return true;
     },
 
     getId() {

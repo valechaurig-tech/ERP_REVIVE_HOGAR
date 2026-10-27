@@ -12,6 +12,10 @@ const MODULE_RENDERERS = {
     'mod-vendedor': () => renderVendedor(),
     'mod-administradora': () => renderAdministradora(),
     'mod-pipeline': () => renderPipeline(),
+    'mod-gastos': () => renderGastos(),
+    'mod-gastos-empresa': () => renderGastosEmpresa(),
+    'mod-referidos': () => renderReferidosComisiones(),
+    'mod-configuracion': () => renderConfiguracionRequisitos(),
     'mod-auditoria': () => renderAuditoria(),
     'mod-usuarios': () => renderUsuarios()
 };
@@ -84,6 +88,44 @@ function createNavItemButton(menu, isActive) {
     return btn;
 }
 
+function createNavGroup(group, initialId) {
+    const wrapper = document.createElement('div');
+    const hasActiveChild = group.items.some(item => item.id === initialId);
+    wrapper.className = `nav-group${hasActiveChild ? ' is-open' : ''}`;
+    wrapper.dataset.groupId = group.id;
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = `nav-group-toggle${hasActiveChild ? ' has-active-child' : ''}`;
+    toggle.setAttribute('aria-expanded', hasActiveChild ? 'true' : 'false');
+    toggle.innerHTML = `
+        <span class="nav-group-toggle-leading">
+            <span class="nav-group-icon">${rhGetNavIconSvg(group.icon || group.items[0]?.id)}</span>
+            <span class="nav-group-toggle-label">${escapeHtml(group.name)}</span>
+        </span>
+        <span class="nav-group-count">${group.items.length}</span>
+        <span class="nav-group-chevron" aria-hidden="true"></span>`;
+    toggle.addEventListener('click', () => {
+        const open = wrapper.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    const panel = document.createElement('div');
+    panel.className = 'nav-group-panel';
+    const items = document.createElement('div');
+    items.className = 'nav-group-items';
+
+    group.items.forEach(menu => {
+        const btn = createNavItemButton(menu, menu.id === initialId);
+        btn.classList.add('nav-item-nested');
+        items.appendChild(btn);
+    });
+
+    panel.appendChild(items);
+    wrapper.append(toggle, panel);
+    return wrapper;
+}
+
 function buildSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar || !currentUser) return;
@@ -105,14 +147,22 @@ function buildSidebar() {
         <div class="sidebar-nav" id="sidebar-nav"></div>`;
 
     const nav = document.getElementById('sidebar-nav');
+    const groups = rhGetSidebarGroupsForUser(currentUser);
     const initialId = rhResolveInitialModuleId(menus);
     let firstBtn = null;
-    menus.forEach((menu, i) => {
-        const isActive = menu.id === initialId || (!initialId && i === 0);
-        const btn = createNavItemButton(menu, isActive);
-        nav.appendChild(btn);
-        if (!firstBtn) firstBtn = btn;
-    });
+    const renderGrouped = rhEsDireccion(currentUser) && groups.length > 1;
+    nav.classList.toggle('sidebar-nav--grouped', renderGrouped);
+    if (renderGrouped) {
+        groups.forEach(group => nav.appendChild(createNavGroup(group, initialId)));
+        firstBtn = nav.querySelector(`.nav-item[data-module-id="${initialId}"]`);
+    } else {
+        menus.forEach((menu, i) => {
+            const isActive = menu.id === initialId || (!initialId && i === 0);
+            const btn = createNavItemButton(menu, isActive);
+            nav.appendChild(btn);
+            if (!firstBtn) firstBtn = btn;
+        });
+    }
 
     const sidebarLogo = document.getElementById('sidebar-brand-logo');
     if (sidebarLogo) sidebarLogo.innerHTML = getReviveLogoImg('sidebar');
@@ -137,14 +187,28 @@ function showModule(modId, navElement, bypass = false) {
     if (!bypass && navElement) {
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
         navElement.classList.add('active');
+        actualizarEstadoGruposNav(modId);
     } else if (bypass) {
         const match = document.querySelector(`.sidebar-nav .nav-item[data-module-id="${modId}"]`);
         if (match) {
             document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
             match.classList.add('active');
+            actualizarEstadoGruposNav(modId);
         }
     }
     refreshActiveModule(true);
+}
+
+function actualizarEstadoGruposNav(modId) {
+    document.querySelectorAll('.nav-group').forEach(group => {
+        const hasActive = !!group.querySelector(`.nav-item[data-module-id="${modId}"]`);
+        group.classList.toggle('is-open', hasActive || group.classList.contains('is-open'));
+        const toggle = group.querySelector('.nav-group-toggle');
+        if (toggle) {
+            toggle.classList.toggle('has-active-child', hasActive);
+            if (hasActive) toggle.setAttribute('aria-expanded', 'true');
+        }
+    });
 }
 
 function updateClock() {
@@ -157,7 +221,6 @@ function refreshActiveModule(incluirSelects = false) {
     if (incluirSelects) cargarSelects();
     const fn = MODULE_RENDERERS[activeModuleId];
     if (fn) fn();
-    if (typeof marcarBadgeLuna === 'function') marcarBadgeLuna();
 }
 
 function logout() {
