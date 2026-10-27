@@ -51,7 +51,7 @@ async function createHarness(initialRecords = null) {
                             const values = [...coll(selectedKey).values()]
                                 .sort((a, b) => a.id.localeCompare(b.id))
                                 .slice(first, last + 1);
-                            return Promise.resolve({ data: values.map(data => ({ data })), error: null });
+                            return Promise.resolve({ data: values.map(data => ({ data: structuredClone(data) })), error: null });
                         }
                     };
                 },
@@ -82,7 +82,7 @@ async function createHarness(initialRecords = null) {
                 upsert(rows) {
                     calls.upsert++;
                     if (failUpserts) return Promise.resolve({ error: { message: 'Escritura rechazada' } });
-                    for (const r of rows) coll(r.collection).set(r.record_id, r.data);
+                    for (const r of rows) coll(r.collection).set(r.record_id, structuredClone(r.data));
                     return Promise.resolve({ error: null });
                 }
             };
