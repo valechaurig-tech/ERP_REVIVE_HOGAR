@@ -36,6 +36,7 @@ function normalizarCompradorCaptura(datos, anterior = null, usuario = null) {
         interes: String(datos.interes || '').trim().slice(0, 180),
         presupuestoMax: presupuesto,
         asesorId,
+        propiedadInteresId: String(datos.propiedadInteresId || '').trim().slice(0, 70),
         notas: String(datos.notas || '').trim().slice(0, 2000),
         estatus,
         fechaCreacion: anterior?.fechaCreacion || new Date().toISOString(),
@@ -57,6 +58,12 @@ function compradorAbrirFormulario(id = '') {
     document.getElementById('comprador-correo').value = registro?.correo || '';
     document.getElementById('comprador-interes').value = registro?.interes || '';
     document.getElementById('comprador-presupuesto').value = registro?.presupuestoMax ?? '';
+    const propiedad = document.getElementById('comprador-propiedad');
+    if (propiedad) {
+        const disponibles = DB.get('casas');
+        propiedad.innerHTML = '<option value="">Sin propiedad seleccionada</option>' + disponibles.map(c => '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.direccionPropiedad || c.nombreCompleto || c.id) + '</option>').join('');
+        propiedad.value = registro?.propiedadInteresId || '';
+    }
     document.getElementById('comprador-notas').value = registro?.notas || '';
     document.getElementById('comprador-estatus').value = registro?.estatus || 'Nuevo';
     const asesor = document.getElementById('comprador-asesor');
@@ -98,7 +105,7 @@ function guardarComprador(e) {
         registro = normalizarCompradorCaptura({
             nombreCompleto: val('nombre'), telefono: val('telefono'),
             correo: val('correo'), interes: val('interes'),
-            presupuestoMax: val('presupuesto'), notas: val('notas'),
+            presupuestoMax: val('presupuesto'), propiedadInteresId: val('propiedad'), notas: val('notas'),
             estatus: val('estatus'), asesorId: val('asesor')
         }, anterior, currentUser);
     } catch (error) {
@@ -137,6 +144,7 @@ function renderCompradores() {
     const total = document.getElementById('comprador-total');
     if (total) total.textContent = String(registros.filter(r => r.estatus !== 'Archivado').length);
     const vendedores = new Map(DB.get('usuariosLogin').map(u => [u.id, u.displayName]));
+    const casas = new Map(DB.get('casas').map(c => [c.id, c.direccionPropiedad || c.nombreCompleto || c.id]));
     const tbody = document.querySelector('#table-compradores tbody');
     if (!tbody) return;
     tbody.innerHTML = filtrados.map(c => {
@@ -146,10 +154,11 @@ function renderCompradores() {
         return '<tr><td><strong>' + escapeHtml(c.nombreCompleto) + '</strong></td>'
             + '<td>' + escapeHtml(c.telefono) + '</td>'
             + '<td>' + escapeHtml(c.interes || '—') + '</td>'
+            + '<td>' + escapeHtml(c.propiedadInteresId ? (casas.get(c.propiedadInteresId) || 'Propiedad no disponible') : '—') + '</td>'
             + '<td>' + escapeHtml(c.estatus) + '</td>'
             + '<td>' + escapeHtml(vendedores.get(c.asesorId) || 'Sin asignar') + '</td>'
             + '<td><button type="button" class="btn btn-primary btn-sm" data-accion="editar" data-comprador-id="' + escapeHtml(c.id) + '">Editar</button> ' + accion + '</td></tr>';
-    }).join('') || '<tr><td colspan="6" class="celda-vacia">No hay compradores con estos filtros.</td></tr>';
+    }).join('') || '<tr><td colspan="7" class="celda-vacia">No hay compradores con estos filtros.</td></tr>';
 }
 
 function inicializarCompradores() {

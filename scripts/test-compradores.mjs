@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const source = readFileSync(fileURLToPath(new URL('../js/compradores.js', import.meta.url)), 'utf8');
 let seq = 0, writes = 0;
-const collections = { compradores: [], usuariosLogin: [
+const collections = { compradores: [], casas: [ { id: 'house1', direccionPropiedad: 'Calle Demo' } ], usuariosLogin: [
     { id: 'seller1', rol: 'Vendedor', displayName: 'Asesor Uno', activo: true },
     { id: 'seller2', rol: 'Vendedor', displayName: 'Asesor Dos', activo: true }
 ] };
@@ -17,7 +17,7 @@ const field = (id, value = '') => {
 };
 [
     'comprador-id', 'comprador-nombre', 'comprador-telefono', 'comprador-correo',
-    'comprador-interes', 'comprador-presupuesto', 'comprador-notas', 'comprador-estatus',
+    'comprador-interes', 'comprador-presupuesto', 'comprador-propiedad', 'comprador-notas', 'comprador-estatus',
     'comprador-asesor', 'comprador-editor', 'comprador-editor-titulo', 'comprador-total',
     'comprador-buscar', 'comprador-mostrar-archivados'
 ].forEach(id => field(id));
@@ -56,10 +56,11 @@ assert.equal(api.compradorVisibleParaRol({asesorId:'seller2'}, {rol:'Direccion',
 fields.get('comprador-nombre').value='Comprador Prueba';
 fields.get('comprador-telefono').value='333 123 4567';
 fields.get('comprador-asesor').value='seller2';
+fields.get('comprador-propiedad').value='house1';
 const event={preventDefault(){}};
 api.guardarComprador(event);
 assert.equal(collections.compradores.length,1);assert.equal(collections.compradores[0].asesorId,'seller1');
-assert.equal(writes,1);ok('registro nuevo independiente en colección compradores');
+assert.equal(writes,1);assert.equal(collections.compradores[0].propiedadInteresId,'house1');ok('registro nuevo independiente en colección compradores y propiedad vinculada');
 const id=collections.compradores[0].id;
 fields.get('comprador-id').value=id;
 fields.get('comprador-nombre').value='Comprador Editado';
