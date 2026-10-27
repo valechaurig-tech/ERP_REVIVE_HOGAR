@@ -257,6 +257,19 @@
                                     <label>Presupuesto máximo (MXN)
                                         <input id="comprador-presupuesto" class="form-control" type="number" min="0" max="1000000000000" step="0.01">
                                     </label>
+                                    <label>Forma de compra
+                                        <select id="comprador-financiamiento" class="form-control">
+                                            <option>Por definir</option>
+                                            <option>Contado</option>
+                                            <option>Crédito hipotecario bancario</option>
+                                            <option>Infonavit</option>
+                                            <option>Fovissste</option>
+                                            <option>Otro</option>
+                                        </select>
+                                    </label>
+                                    <label>Banco o institución (opcional)
+                                        <input id="comprador-institucion" class="form-control" type="text" maxlength="100" placeholder="Ej. Banco / Infonavit">
+                                    </label>
                                     <label>Propiedad de interés
                                         <select id="comprador-propiedad" class="form-control"><option value="">Sin propiedad seleccionada</option></select>
                                     </label>

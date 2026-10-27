@@ -4,6 +4,7 @@
  * Formulario corto con campos adicionales opcionales.
  */
 const RH_COMPRADOR_ESTADOS = ['Nuevo', 'En seguimiento', 'Interesado', 'Apartado', 'Concretado', 'Archivado'];
+const RH_COMPRADOR_FINANCIAMIENTOS = ['Por definir', 'Contado', 'Crédito hipotecario bancario', 'Infonavit', 'Fovissste', 'Otro'];
 
 function compradorHoyLocal() {
     const hoy = new Date();
@@ -44,6 +45,9 @@ function normalizarCompradorCaptura(datos, anterior = null, usuario = null) {
     if (fechaContacto && !compradorFechaValida(fechaContacto)) {
         throw Object.assign(new Error('Revisa la fecha del próximo contacto.'), { campo: 'comprador-proximo-contacto', codigo: 'RH-BUY-004' });
     }
+    const tipoFinanciamiento = RH_COMPRADOR_FINANCIAMIENTOS.includes(datos.tipoFinanciamiento)
+        ? datos.tipoFinanciamiento : (anterior?.tipoFinanciamiento || 'Por definir');
+    const bancoOInstitucion = String(datos.bancoOInstitucion || '').trim().slice(0, 100);
     const rolVendedor = usuario?.rol === 'Vendedor';
     // Un vendedor nunca puede reasignar sus compradores desde el cliente.
     const asesorId = rolVendedor ? usuario.id : String(datos.asesorId || '').trim();
@@ -56,6 +60,8 @@ function normalizarCompradorCaptura(datos, anterior = null, usuario = null) {
         telefono: telefono.slice(0, 35),
         correo: String(datos.correo || '').trim().slice(0, 150),
         interes: String(datos.interes || '').trim().slice(0, 180),
+        tipoFinanciamiento,
+        bancoOInstitucion,
         presupuestoMax: presupuesto,
         asesorId,
         propiedadInteresId: String(datos.propiedadInteresId || '').trim().slice(0, 70),
@@ -81,6 +87,8 @@ function compradorAbrirFormulario(id = '') {
     document.getElementById('comprador-telefono').value = registro?.telefono || '';
     document.getElementById('comprador-correo').value = registro?.correo || '';
     document.getElementById('comprador-interes').value = registro?.interes || '';
+    document.getElementById('comprador-financiamiento').value = registro?.tipoFinanciamiento || 'Por definir';
+    document.getElementById('comprador-institucion').value = registro?.bancoOInstitucion || '';
     document.getElementById('comprador-presupuesto').value = registro?.presupuestoMax ?? '';
     const propiedad = document.getElementById('comprador-propiedad');
     if (propiedad) {
@@ -138,6 +146,7 @@ function guardarComprador(e) {
         registro = normalizarCompradorCaptura({
             nombreCompleto: val('nombre'), telefono: val('telefono'),
             correo: val('correo'), interes: val('interes'),
+            tipoFinanciamiento: val('financiamiento'), bancoOInstitucion: val('institucion'),
             presupuestoMax: val('presupuesto'), propiedadInteresId: val('propiedad'), notas: val('notas'),
             proximoContacto: val('proximo-contacto'),
             estatus: val('estatus'), asesorId: val('asesor')
