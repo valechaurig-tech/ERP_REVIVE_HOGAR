@@ -5,6 +5,24 @@
  */
 const RH_COMPRADOR_ESTADOS = ['Nuevo', 'En seguimiento', 'Interesado', 'Apartado', 'Concretado', 'Archivado'];
 
+function compradorHoyLocal() {
+    const hoy = new Date();
+    return [hoy.getFullYear(), String(hoy.getMonth() + 1).padStart(2, '0'), String(hoy.getDate()).padStart(2, '0')].join('-');
+}
+
+function compradorFechaValida(fecha) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return false;
+    const d = new Date(fecha + 'T12:00:00Z');
+    return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === fecha;
+}
+
+function compradorEstadoContacto(comprador, hoy = compradorHoyLocal()) {
+    if (comprador.estatus === 'Archivado' || comprador.estatus === 'Concretado') return 'cerrado';
+    const f = comprador.proximoContacto || '';
+    if (!compradorFechaValida(f)) return 'sin_fecha';
+    return f < hoy ? 'vencido' : (f === hoy ? 'hoy' : 'programado');
+}
+
 function compradorVisibleParaRol(comprador, usuario) {
     if (!usuario) return false;
     return usuario.rol === 'Direccion' || usuario.rol === 'Administradora' || usuario.rol === 'Marketing'
@@ -22,6 +40,10 @@ function normalizarCompradorCaptura(datos, anterior = null, usuario = null) {
     if (presupuestoRaw && (!Number.isFinite(presupuesto) || presupuesto < 0 || presupuesto > 1e12)) {
         throw Object.assign(new Error('Revisa el presupuesto máximo.'), { campo: 'comprador-presupuesto', codigo: 'RH-BUY-003' });
     }
+    const fechaContacto = String(datos.proximoContacto || '').trim();
+    if (fechaContacto && !compradorFechaValida(fechaContacto)) {
+        throw Object.assign(new Error('Revisa la fecha del próximo contacto.'), { campo: 'comprador-proximo-contacto', codigo: 'RH-BUY-004' });
+    }
     const rolVendedor = usuario?.rol === 'Vendedor';
     // Un vendedor nunca puede reasignar sus compradores desde el cliente.
     const asesorId = rolVendedor ? usuario.id : String(datos.asesorId || '').trim();
@@ -38,6 +60,8 @@ function normalizarCompradorCaptura(datos, anterior = null, usuario = null) {
         asesorId,
         propiedadInteresId: String(datos.propiedadInteresId || '').trim().slice(0, 70),
         notas: String(datos.notas || '').trim().slice(0, 2000),
+        proximoContacto: fechaContacto,
+        seguimientos: Array.isArray(anterior?.seguimientos) ? anterior.seguimientos.slice(0, 100) : [],
         estatus,
         fechaCreacion: anterior?.fechaCreacion || new Date().toISOString(),
         fechaActualizacion: new Date().toISOString(),
@@ -65,6 +89,15 @@ function compradorAbrirFormulario(id = '') {
         propiedad.value = registro?.propiedadInteresId || '';
     }
     document.getElementById('comprador-notas').value = registro?.notas || '';
+    document.getElementById('comprador-proximo-contacto').value = registro?.proximoContacto || '';
+    document.getElementById('comprador-seguimiento-nota').value = '';
+    const historial = document.getElementById('comprador-historial');
+    if (historial) {
+        const items = Array.isArray(registro?.seguimientos) ? registro.seguimientos : [];
+        historial.innerHTML = items.length ? items.slice(0, 25).map(s =>
+            '<li><time>' + escapeHtml((s.fecha || '').slice(0, 10)) + '</time> · ' + escapeHtml(s.nota || '') + '</li>'
+        ).join('') : '<li>Aún no hay actividades registradas.</li>';
+    }
     document.getElementById('comprador-estatus').value = registro?.estatus || 'Nuevo';
     const asesor = document.getElementById('comprador-asesor');
     if (asesor) {
@@ -106,11 +139,21 @@ function guardarComprador(e) {
             nombreCompleto: val('nombre'), telefono: val('telefono'),
             correo: val('correo'), interes: val('interes'),
             presupuestoMax: val('presupuesto'), propiedadInteresId: val('propiedad'), notas: val('notas'),
+            proximoContacto: val('proximo-contacto'),
             estatus: val('estatus'), asesorId: val('asesor')
         }, anterior, currentUser);
     } catch (error) {
         informarErrorCaptura(error.campo || 'comprador-nombre', error.message, error.codigo || 'RH-BUY-000');
         return;
+    }
+    const notaActividad = val('seguimiento-nota').trim();
+    if (notaActividad) {
+        registro.seguimientos = [{
+            id: DB.getId(),
+            fecha: new Date().toISOString(),
+            nota: notaActividad.slice(0, 500),
+            responsableId: currentUser.id
+        }, ...registro.seguimientos].slice(0, 100);
     }
     const nuevos = anterior
         ? registros.map(r => r.id === id ? registro : r)
@@ -139,15 +182,30 @@ function renderCompradores() {
     const registros = DB.get('compradores').filter(r => compradorVisibleParaRol(r, currentUser));
     const filtro = (document.getElementById('comprador-buscar')?.value || '').trim().toLocaleLowerCase('es');
     const mostrarArchivo = !!document.getElementById('comprador-mostrar-archivados')?.checked;
+    const soloPendientes = !!document.getElementById('comprador-solo-pendientes')?.checked;
+    const hoy = compradorHoyLocal();
     const filtrados = registros.filter(r => (mostrarArchivo || r.estatus !== 'Archivado')
-        && (!filtro || [r.nombreCompleto, r.telefono, r.interes].some(s => String(s || '').toLocaleLowerCase('es').includes(filtro))));
+        && (!soloPendientes || ['vencido', 'hoy'].includes(compradorEstadoContacto(r, hoy)))
+        && (!filtro || [r.nombreCompleto, r.telefono, r.interes].some(s => String(s || '').toLocaleLowerCase('es').includes(filtro))))
+        .sort((a, b) => {
+            const prioridad = x => compradorEstadoContacto(x, hoy) === 'vencido' ? 0 : compradorEstadoContacto(x, hoy) === 'hoy' ? 1 : compradorEstadoContacto(x, hoy) === 'programado' ? 2 : 3;
+            return prioridad(a) - prioridad(b) || (a.proximoContacto || '9999').localeCompare(b.proximoContacto || '9999');
+        });
     const total = document.getElementById('comprador-total');
     if (total) total.textContent = String(registros.filter(r => r.estatus !== 'Archivado').length);
+    const pendientes = document.getElementById('comprador-pendientes');
+    if (pendientes) pendientes.textContent = String(registros.filter(r => ['vencido', 'hoy'].includes(compradorEstadoContacto(r, hoy))).length);
     const vendedores = new Map(DB.get('usuariosLogin').map(u => [u.id, u.displayName]));
     const casas = new Map(DB.get('casas').map(c => [c.id, c.direccionPropiedad || c.nombreCompleto || c.id]));
     const tbody = document.querySelector('#table-compradores tbody');
     if (!tbody) return;
     tbody.innerHTML = filtrados.map(c => {
+        const estadoContacto = compradorEstadoContacto(c, hoy);
+        const contactoHtml = estadoContacto === 'vencido'
+            ? '<span class="rh-buyer-due rh-buyer-due-overdue">Vencido · ' + escapeHtml(c.proximoContacto) + '</span>'
+            : estadoContacto === 'hoy'
+                ? '<span class="rh-buyer-due rh-buyer-due-today">Hoy · ' + escapeHtml(c.proximoContacto) + '</span>'
+                : estadoContacto === 'programado' ? escapeHtml(c.proximoContacto) : '—';
         const accion = c.estatus === 'Archivado'
             ? '<button type="button" class="btn btn-secondary btn-sm" data-accion="restaurar" data-comprador-id="' + escapeHtml(c.id) + '">Restaurar</button>'
             : '<button type="button" class="btn btn-secondary btn-sm" data-accion="archivar" data-comprador-id="' + escapeHtml(c.id) + '">Archivar</button>';
@@ -156,9 +214,10 @@ function renderCompradores() {
             + '<td>' + escapeHtml(c.interes || '—') + '</td>'
             + '<td>' + escapeHtml(c.propiedadInteresId ? (casas.get(c.propiedadInteresId) || 'Propiedad no disponible') : '—') + '</td>'
             + '<td>' + escapeHtml(c.estatus) + '</td>'
+            + '<td>' + contactoHtml + '</td>'
             + '<td>' + escapeHtml(vendedores.get(c.asesorId) || 'Sin asignar') + '</td>'
             + '<td><button type="button" class="btn btn-primary btn-sm" data-accion="editar" data-comprador-id="' + escapeHtml(c.id) + '">Editar</button> ' + accion + '</td></tr>';
-    }).join('') || '<tr><td colspan="7" class="celda-vacia">No hay compradores con estos filtros.</td></tr>';
+    }).join('') || '<tr><td colspan="8" class="celda-vacia">No hay compradores con estos filtros.</td></tr>';
 }
 
 function inicializarCompradores() {
@@ -166,6 +225,7 @@ function inicializarCompradores() {
     form?.addEventListener('submit', guardarComprador);
     document.getElementById('comprador-buscar')?.addEventListener('input', renderCompradores);
     document.getElementById('comprador-mostrar-archivados')?.addEventListener('change', renderCompradores);
+    document.getElementById('comprador-solo-pendientes')?.addEventListener('change', renderCompradores);
     document.getElementById('comprador-nuevo')?.addEventListener('click', () => compradorAbrirFormulario());
     document.getElementById('comprador-cancelar')?.addEventListener('click', compradorCerrarFormulario);
     document.querySelector('#table-compradores tbody')?.addEventListener('click', event => {

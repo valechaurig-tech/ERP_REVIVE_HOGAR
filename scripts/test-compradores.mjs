@@ -18,6 +18,7 @@ const field = (id, value = '') => {
 [
     'comprador-id', 'comprador-nombre', 'comprador-telefono', 'comprador-correo',
     'comprador-interes', 'comprador-presupuesto', 'comprador-propiedad', 'comprador-notas', 'comprador-estatus',
+    'comprador-proximo-contacto', 'comprador-seguimiento-nota', 'comprador-historial', 'comprador-pendientes', 'comprador-solo-pendientes',
     'comprador-asesor', 'comprador-editor', 'comprador-editor-titulo', 'comprador-total',
     'comprador-buscar', 'comprador-mostrar-archivados'
 ].forEach(id => field(id));
@@ -42,7 +43,7 @@ const context = vm.createContext({
     },
     Date, Map, Set, Object, String, Number
 });
-vm.runInContext(source + '\n;globalThis.__buyer={normalizarCompradorCaptura,compradorVisibleParaRol,guardarComprador,compradorCambiarArchivo,renderCompradores};',context);
+vm.runInContext(source + '\n;globalThis.__buyer={normalizarCompradorCaptura,compradorVisibleParaRol,guardarComprador,compradorCambiarArchivo,renderCompradores,compradorEstadoContacto,compradorFechaValida};',context);
 const api = context.__buyer;
 let passed = 0;const ok = label => {passed++;console.log('PASS '+label);};
 assert.throws(()=>api.normalizarCompradorCaptura({nombreCompleto:'X',telefono:'3331234567'},null,user),e=>e.codigo==='RH-BUY-001');ok('nombre obligatorio validado');
@@ -57,16 +58,24 @@ fields.get('comprador-nombre').value='Comprador Prueba';
 fields.get('comprador-telefono').value='333 123 4567';
 fields.get('comprador-asesor').value='seller2';
 fields.get('comprador-propiedad').value='house1';
+fields.get('comprador-proximo-contacto').value='2026-12-02';
+fields.get('comprador-seguimiento-nota').value='Llamada inicial de prueba';
 const event={preventDefault(){}};
 api.guardarComprador(event);
 assert.equal(collections.compradores.length,1);assert.equal(collections.compradores[0].asesorId,'seller1');
 assert.equal(writes,1);assert.equal(collections.compradores[0].propiedadInteresId,'house1');ok('registro nuevo independiente en colección compradores y propiedad vinculada');
+assert.equal(collections.compradores[0].proximoContacto,'2026-12-02');
+assert.equal(collections.compradores[0].seguimientos.length,1);
+assert.equal(collections.compradores[0].seguimientos[0].nota,'Llamada inicial de prueba');
+ok('seguimiento registra fecha y actividad sin alterar propiedad');
 const id=collections.compradores[0].id;
 fields.get('comprador-id').value=id;
 fields.get('comprador-nombre').value='Comprador Editado';
+fields.get('comprador-seguimiento-nota').value='';
 api.guardarComprador(event);
 assert.equal(collections.compradores.length,1);assert.equal(collections.compradores[0].nombreCompleto,'Comprador Editado');
 assert.equal(collections.compradores[0].id,id);ok('edición mantiene identidad sin duplicar');
+assert.equal(collections.compradores[0].seguimientos.length,1);ok('editar sin nota no duplica actividades');
 api.compradorCambiarArchivo(id);
 assert.equal(collections.compradores.length,1);assert.equal(collections.compradores[0].estatus,'Archivado');ok('archivo conserva expediente');
 api.compradorCambiarArchivo(id,true);
@@ -75,4 +84,12 @@ collections.compradores.push({id:'rh_ajeno',asesorId:'seller2',nombreCompleto:'O
 api.renderCompradores();
 assert.ok(tbody.innerHTML.includes('Comprador Editado'));
 assert.ok(!tbody.innerHTML.includes('Otro vendedor'));ok('la lista de vendedor no muestra carteras ajenas');
+assert.equal(api.compradorFechaValida('2026-02-29'), false);
+assert.equal(api.compradorFechaValida('2028-02-29'), true);
+assert.equal(api.compradorEstadoContacto({estatus:'Nuevo',proximoContacto:'2026-01-01'},'2026-10-27'),'vencido');
+assert.equal(api.compradorEstadoContacto({estatus:'Nuevo',proximoContacto:'2026-10-27'},'2026-10-27'),'hoy');
+assert.equal(api.compradorEstadoContacto({estatus:'Archivado',proximoContacto:'2026-01-01'},'2026-10-27'),'cerrado');
+ok('contactos vencidos/hoy y fechas bisiestas se clasifican correctamente');
+assert.throws(()=>api.normalizarCompradorCaptura({nombreCompleto:'Demo Completa',telefono:'3331234567',proximoContacto:'2026-02-31'},null,user),e=>e.codigo==='RH-BUY-004');
+ok('fecha imposible rechazada con código de soporte');
 console.log(JSON.stringify({passed,scope:'pure-and-mocked-no-real-data'}));

@@ -232,7 +232,7 @@
                         </div>
                         <button id="comprador-nuevo" type="button" class="btn btn-primary">+ Nuevo comprador</button>
                     </div>
-                    <div class="rh-buyer-summary">Compradores activos: <strong id="comprador-total">0</strong></div>
+                    <div class="rh-buyer-summary">Compradores activos: <strong id="comprador-total">0</strong> · Contactos pendientes (hoy/vencidos): <strong id="comprador-pendientes">0</strong></div>
                     <div id="comprador-editor" class="rh-buyer-editor hidden">
                         <h4 id="comprador-editor-titulo">Nuevo comprador</h4>
                         <form id="form-comprador">
@@ -269,10 +269,19 @@
                                     <label class="rh-buyer-asesor-field">Asesor responsable
                                         <select id="comprador-asesor" class="form-control"><option value="">Sin asignar</option></select>
                                     </label>
+                                    <label>Próximo contacto
+                                        <input id="comprador-proximo-contacto" class="form-control" type="date">
+                                    </label>
                                     <label class="rh-buyer-notes">Notas internas
                                         <textarea id="comprador-notas" class="form-control" rows="3" maxlength="2000"></textarea>
                                     </label>
                                 </div>
+                                <label class="rh-buyer-activity-label">Registrar actividad (opcional; se agrega al historial al guardar)
+                                    <textarea id="comprador-seguimiento-nota" class="form-control" maxlength="500" rows="2" placeholder="Ej.: Se llamó, pidió visitar la propiedad el viernes"></textarea>
+                                </label>
+                                <details class="rh-buyer-history"><summary>Historial de seguimiento</summary>
+                                    <ol id="comprador-historial"><li>Aún no hay actividades registradas.</li></ol>
+                                </details>
                             </details>
                             <div class="rh-buyer-actions">
                                 <button type="submit" class="btn btn-primary">Guardar comprador</button>
@@ -284,12 +293,13 @@
                         <label class="rh-buyer-search">Buscar comprador
                             <input id="comprador-buscar" type="search" class="form-control" placeholder="Nombre, teléfono o interés">
                         </label>
+                        <label class="rh-buyer-checkbox"><input type="checkbox" id="comprador-solo-pendientes"> Solo contactos vencidos o de hoy</label>
                         <label class="rh-buyer-checkbox"><input type="checkbox" id="comprador-mostrar-archivados"> Incluir archivados</label>
                     </div>
                     <div class="table-responsive table-clean table-mkt">
                         <table id="table-compradores"><thead><tr>
-                            <th>Comprador</th><th>Teléfono</th><th>Interés</th><th>Propiedad</th><th>Etapa</th><th>Asesor</th><th>Acciones</th>
-                        </tr></thead><tbody><tr><td colspan="7" class="celda-vacia">Sin compradores registrados.</td></tr></tbody></table>
+                            <th>Comprador</th><th>Teléfono</th><th>Interés</th><th>Propiedad</th><th>Etapa</th><th>Próximo contacto</th><th>Asesor</th><th>Acciones</th>
+                        </tr></thead><tbody><tr><td colspan="8" class="celda-vacia">Sin compradores registrados.</td></tr></tbody></table>
                     </div>
                 </div>
 
