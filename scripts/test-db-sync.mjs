@@ -141,6 +141,9 @@ function ok(name) { tests++; console.log('PASS ' + name); }
 }
 {
     const h = await createHarness();
+    const registros = h.DB.get('prospectos');
+    registros[0].nombreCompleto = 'Edición pendiente';
+    h.DB.set('prospectos', registros);
     h.setUpsertFailure(true);
     await assert.rejects(h.persistirColeccionNube('prospectos', true), /RH-DB-001/);
     assert.match(h.badge.textContent, /Error de nube/);
