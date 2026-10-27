@@ -32,6 +32,9 @@ let dbReady = false;
 const persistTimers = {};
 const deleteTimers = {};
 const pendingDeletes = {};
+// No descargar datos ajenos encima de cambios locales pendientes de confirmación.
+const DB_PENDING_WRITES = new Set();
+const DB_REVISIONS = {};
 let realtimeChannel = null;
 
 function sanitizarValorImportacion(valor, profundidad = 0) {
@@ -94,10 +97,26 @@ async function verificarTablaNube() {
 }
 
 async function cargarColeccionNube(key) {
-    const { data, error } = await supabaseClient.from(RH_TABLE).select('data').eq('collection', key);
-    if (error) throw new Error(`Error al cargar ${key}: ${error.message}`);
-    DB_CACHE[key] = (data || []).map(row => row.data).filter(Boolean);
+    // PostgREST/Supabase entrega por defecto como máximo 1.000 filas;
+    // paginar y ordenar por clave estable impide ocultar expedientes posteriores.
+    const tamano = 1000;
+    const rows = [];
+    for (let desde = 0; desde <= DB_LIMITS.MAX_ITEMS_PER_COLLECTION; desde += tamano) {
+        const { data, error } = await supabaseClient.from(RH_TABLE)
+            .select('data').eq('collection', key)
+            .order('record_id', { ascending: true }).range(desde, desde + tamano - 1);
+        if (error) throw new Error(`RH-DB-004: No se pudo leer ${key}: ${error.message || error}`);
+        rows.push(...(data || []));
+        if (rows.length > DB_LIMITS.MAX_ITEMS_PER_COLLECTION) {
+            throw new Error(`RH-DB-005: ${key} supera el máximo de ${DB_LIMITS.MAX_ITEMS_PER_COLLECTION} registros`);
+        }
+        if (!data || data.length < tamano) break;
+    }
+    // Nunca reemplazar un borrador editado mientras se consultaba la red.
+    if (DB_PENDING_WRITES.has(key) || pendingDeletes[key]?.size) return false;
+    DB_CACHE[key] = rows.map(row => row.data).filter(Boolean);
     registrarIdsCache(key);
+    return true;
 }
 
 async function cargarTodoDesdeNube() {
@@ -138,10 +157,12 @@ async function flushPendientesEliminacion(key) {
 
 async function persistirColeccionNube(key, inmediato = false) {
     if (!supabaseClient || dbMode !== 'cloud') return;
+    const revision = DB_REVISIONS[key] || 0;
     await flushPendientesEliminacion(key);
     const items = DB_CACHE[key] || [];
     if (items.length === 0) {
-        if (inmediato) actualizarIndicadorNube('ok');
+        if ((DB_REVISIONS[key] || 0) === revision) DB_PENDING_WRITES.delete(key);
+        if (inmediato) actualizarIndicadorNube(DB_PENDING_WRITES.size ? 'sync' : 'ok');
         return;
     }
     const filas = items.filter(i => i.id).map(item => ({
@@ -158,7 +179,9 @@ async function persistirColeccionNube(key, inmediato = false) {
             throw new Error(`RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
         }
     }
-    if (inmediato) actualizarIndicadorNube('ok');
+    if ((DB_REVISIONS[key] || 0) === revision) DB_PENDING_WRITES.delete(key);
+    else programarPersistencia(key);
+    if (inmediato || !DB_PENDING_WRITES.size) actualizarIndicadorNube(DB_PENDING_WRITES.size ? 'sync' : 'ok');
 }
 
 function programarPersistencia(key) {
@@ -199,8 +222,9 @@ async function recargarColeccionDesdeNube(key) {
     if (!recargarColeccionDesdeNube._t) recargarColeccionDesdeNube._t = {};
     recargarColeccionDesdeNube._t[key] = setTimeout(async () => {
         try {
-            await cargarColeccionNube(key);
-            if (activeModuleId) refreshActiveModule(false);
+            if (DB_PENDING_WRITES.has(key) || pendingDeletes[key]?.size) return;
+            const actualizado = await cargarColeccionNube(key);
+            if (actualizado && activeModuleId) refreshActiveModule(false);
         } catch (e) { console.warn(e); }
     }, 900);
 }
@@ -268,7 +292,12 @@ const DB = {
         registrarIdsCache(key);
         if (dbMode === 'local') escribirLocalStorage(key, data);
         else {
+            DB_REVISIONS[key] = (DB_REVISIONS[key] || 0) + 1;
+            DB_PENDING_WRITES.add(key);
+            // Si el registro reapareció antes de despachar el borrado, no eliminarlo.
+            nextIds.forEach(id => pendingDeletes[key]?.delete(id));
             if (eliminados.length) programarEliminaciones(key, eliminados);
+            actualizarIndicadorNube('sync');
             programarPersistencia(key);
         }
     },
