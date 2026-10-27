@@ -907,7 +907,7 @@
                     <label>Rol</label>
                     <input type="text" id="usr-edit-rol" class="form-control field-locked" readonly>
                 </div>
-                <div class="form-group full-width"><label>Contraseña *</label><input type="password" id="usr-edit-password" class="form-control" required autocomplete="new-password"></div>
+                <div class="form-group full-width"><label>Contraseña nueva (opcional)</label><input type="password" id="usr-edit-password" class="form-control" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Dejar vacío para conservar la actual"></div>
                 <div class="form-group full-width" id="usr-edit-activo-wrap"><label><input type="checkbox" id="usr-edit-activo" checked> Usuario activo</label></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-usuario')">Cancelar</button>
@@ -932,7 +932,7 @@
                     <label>Rol en el sistema</label>
                     <input type="text" id="perfil-rol" class="form-control field-locked" readonly>
                 </div>
-                <div class="form-group full-width"><label>Contraseña *</label><input type="password" id="perfil-password" class="form-control" required autocomplete="new-password"></div>
+                <div class="form-group full-width"><label>Contraseña nueva (opcional)</label><input type="password" id="perfil-password" class="form-control" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Dejar vacío para conservar la actual"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-mi-perfil')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Guardar cambios</button>
@@ -1052,7 +1052,7 @@
                 </div>
                 <div class="form-group"><label>Correo</label><input type="email" id="nv-correo" class="form-control" placeholder="Opcional"></div>
                 <div class="form-group"><label>Teléfono</label><input type="tel" id="nv-telefono" class="form-control" placeholder="Opcional"></div>
-                <div class="form-group full-width"><label>Contraseña</label><input type="password" id="nv-password" class="form-control" value="1234" autocomplete="new-password"></div>
+                <div class="form-group full-width"><label>Contraseña inicial individual *</label><input type="password" id="nv-password" class="form-control" required minlength="10" maxlength="128" autocomplete="new-password" placeholder="Mínimo 10 caracteres, letra y número"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-nuevo-vendedor')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Crear vendedor</button>

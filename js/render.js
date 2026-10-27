@@ -621,7 +621,8 @@ function abrirEditorUsuario(id) {
     document.getElementById('usr-edit-correo').value = u.correo || '';
     document.getElementById('usr-edit-telefono').value = u.telefono || '';
     document.getElementById('usr-edit-rol').value = rhEtiquetaRol(u.rol);
-    document.getElementById('usr-edit-password').value = u.password || '1234';
+    // No mostrar ni precargar credenciales existentes en el formulario.
+    document.getElementById('usr-edit-password').value = '';
     document.getElementById('usr-edit-activo').checked = u.activo !== false;
     document.getElementById('modal-usuario')?.classList.add('active');
 }
@@ -633,7 +634,7 @@ function abrirMiPerfil() {
     document.getElementById('perfil-correo').value = u.correo || '';
     document.getElementById('perfil-telefono').value = u.telefono || '';
     document.getElementById('perfil-rol').value = rhEtiquetaRol(u.rol);
-    document.getElementById('perfil-password').value = u.password || '1234';
+    document.getElementById('perfil-password').value = '';
     document.getElementById('modal-mi-perfil')?.classList.add('active');
 }
 

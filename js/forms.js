@@ -552,12 +552,29 @@ function eliminarCostoRemodelacion(casaId, costoId) {
     refreshActiveModule();
 }
 
+// Mitigación temporal en la interfaz; la seguridad real requiere Supabase Auth + RLS.
+function validarNuevaClaveAcceso(clave) {
+    const texto = String(clave || '');
+    return texto.length >= 10 && texto.length <= 128 && /\p{L}/u.test(texto) && /\d/.test(texto)
+        && !['1234', 'password1234', 'contrasena1234'].includes(texto.toLocaleLowerCase('es'));
+}
+function claveAccesoCaptura(id, obligatoria = false) {
+    const campo = document.getElementById(id);
+    const clave = campo?.value || '';
+    if (!clave && !obligatoria) return { valido: true, cambiar: false, valor: '' };
+    if (!validarNuevaClaveAcceso(clave)) {
+        informarErrorCaptura(id, 'Utiliza entre 10 y 128 caracteres, incluyendo al menos una letra y un número. No uses la contraseña inicial de demostración.', 'RH-AUTH-101');
+        return { valido: false, cambiar: false, valor: '' };
+    }
+    return { valido: true, cambiar: true, valor: clave };
+}
 function aplicarDatosUsuarioFormulario(u, datos) {
     u.displayName = datos.nombre;
     u.nombreLuna = datos.nombre;
     u.correo = datos.correo || '';
     u.telefono = datos.telefono || '';
-    u.password = datos.password;
+    // Una edición de nombre/correo jamás altera la contraseña actual.
+    if (datos.password) u.password = datos.password;
 }
 
 function guardarNuevoVendedor(e) {
@@ -567,6 +584,8 @@ function guardarNuevoVendedor(e) {
     if (vendedores.length >= 5) { alert('Máximo 5 vendedores.'); return; }
     const nombre = document.getElementById('nv-nombre').value.trim();
     if (nombre.length < 2) { alert('Indica el nombre del vendedor.'); return; }
+    const nuevaClave = claveAccesoCaptura('nv-password', true);
+    if (!nuevaClave.valido) return;
     const usuarios = DB.get('usuariosLogin');
     usuarios.push({
         id: DB.getId(),
@@ -576,7 +595,7 @@ function guardarNuevoVendedor(e) {
         correo: document.getElementById('nv-correo')?.value.trim() || '',
         telefono: document.getElementById('nv-telefono')?.value.trim() || '',
         rol: 'Vendedor',
-        password: document.getElementById('nv-password').value.trim() || '1234',
+        password: nuevaClave.valor,
         activo: true
     });
     DB.set('usuariosLogin', usuarios);
@@ -595,11 +614,13 @@ function guardarUsuarioEditado(e) {
     if (idx < 0) return;
     const nombre = document.getElementById('usr-edit-nombre').value.trim();
     if (nombre.length < 2) { alert('El nombre es obligatorio.'); return; }
+    const nuevaClave = claveAccesoCaptura('usr-edit-password');
+    if (!nuevaClave.valido) return;
     aplicarDatosUsuarioFormulario(usuarios[idx], {
         nombre,
         correo: document.getElementById('usr-edit-correo')?.value.trim(),
         telefono: document.getElementById('usr-edit-telefono')?.value.trim(),
-        password: document.getElementById('usr-edit-password').value.trim() || '1234'
+        password: nuevaClave.cambiar ? nuevaClave.valor : ''
     });
     usuarios[idx].activo = document.getElementById('usr-edit-activo').checked;
     DB.set('usuariosLogin', usuarios);
@@ -618,11 +639,13 @@ function guardarMiPerfil(e) {
     const usuarios = DB.get('usuariosLogin');
     const idx = usuarios.findIndex(u => u.id === currentUser.id);
     if (idx < 0) return;
+    const nuevaClave = claveAccesoCaptura('perfil-password');
+    if (!nuevaClave.valido) return;
     aplicarDatosUsuarioFormulario(usuarios[idx], {
         nombre,
         correo: document.getElementById('perfil-correo')?.value.trim(),
         telefono: document.getElementById('perfil-telefono')?.value.trim(),
-        password: document.getElementById('perfil-password').value.trim() || '1234'
+        password: nuevaClave.cambiar ? nuevaClave.valor : ''
     });
     DB.set('usuariosLogin', usuarios);
     sincronizarUsuarioSesion(currentUser.id);
