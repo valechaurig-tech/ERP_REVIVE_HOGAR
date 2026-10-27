@@ -42,13 +42,16 @@ function renderTitularesCasa() {
     if (titular) titular.textContent = casa.nombreCompleto || 'Sin nombre';
     const tbody = document.querySelector('#table-titulares tbody');
     if (!tbody) return;
-    const items = listarCopropietarios(casa.id);
+    const incluirArchivados = !!document.getElementById('tit-mostrar-archivados')?.checked;
+    const items = listarCopropietarios(casa.id, incluirArchivados);
     tbody.innerHTML = items.map(t => '<tr>'
-        + '<td>' + escapeHtml(t.nombreCompleto) + '</td>'
+        + '<td>' + escapeHtml(t.nombreCompleto) + (t.archivado ? ' <em>(Archivado)</em>' : '') + '</td>'
         + '<td>' + (t.participacionDeclarada === null ? 'Sin especificar' : escapeHtml(String(t.participacionDeclarada)) + '%') + '</td>'
-        + '<td><button class="btn btn-outline btn-small" type="button" data-tit-action="editar" data-tit-id="' + escapeHtml(t.id) + '">Editar</button> '
-        + '<button class="btn btn-outline btn-small" type="button" data-tit-action="archivar" data-tit-id="' + escapeHtml(t.id) + '">Archivar</button></td>'
-        + '</tr>').join('') || '<tr><td colspan="3" class="celda-vacia">No hay copropietarios declarados.</td></tr>';
+        + '<td>' + (t.archivado
+            ? '<button class="btn btn-outline btn-small" type="button" data-tit-action="restaurar" data-tit-id="' + escapeHtml(t.id) + '">Restaurar</button>'
+            : '<button class="btn btn-outline btn-small" type="button" data-tit-action="editar" data-tit-id="' + escapeHtml(t.id) + '">Editar</button> '
+              + '<button class="btn btn-outline btn-small" type="button" data-tit-action="archivar" data-tit-id="' + escapeHtml(t.id) + '">Archivar</button>') + '</td>'
+        + '</tr>').join('') || '<tr><td colspan="3" class="celda-vacia">No hay copropietarios declarados con estos filtros.</td></tr>';
 }
 
 function abrirModalTitulares(casaId) {
@@ -56,6 +59,7 @@ function abrirModalTitulares(casaId) {
     if (!DB.get('casas').some(c => c.id === casaId)) return;
     rhTitularesCasaId = casaId;
     document.getElementById('tit-casa-id').value = casaId;
+    document.getElementById('tit-mostrar-archivados').checked = false;
     document.getElementById('form-copropietario')?.reset();
     document.getElementById('tit-id').value = '';
     renderTitularesCasa();
@@ -129,12 +133,34 @@ function archivarCopropietario(id) {
     renderTitularesCasa();
 }
 
+function restaurarCopropietario(id) {
+    if (!puedeGestionarTitulares() || !rhTitularesCasaId) return false;
+    const todos = DB.get('copropietarios');
+    const t = todos.find(t => t.id === id && t.casaId === rhTitularesCasaId && t.archivado);
+    if (!t) return false;
+    const actuales = listarCopropietarios(rhTitularesCasaId);
+    if (actuales.some(x => x.nombreCompleto.toLocaleLowerCase('es') === t.nombreCompleto.toLocaleLowerCase('es'))) {
+        informarErrorCaptura('tit-nombre', 'Ya existe un copropietario activo con el mismo nombre.', 'RH-OWN-003');
+        return false;
+    }
+    const suma = actuales.reduce((acc, x) => acc + Number(x.participacionDeclarada || 0), 0);
+    if (suma + Number(t.participacionDeclarada || 0) > 100.000001) {
+        informarErrorCaptura('tit-participacion', 'Las participaciones declaradas superarían el 100%.', 'RH-OWN-004');
+        return false;
+    }
+    DB.set('copropietarios', todos.map(x => x.id === id ? { ...x, archivado: false, fechaActualizacion: new Date().toISOString() } : x));
+    renderTitularesCasa();
+    return true;
+}
+
 function inicializarTitulares() {
     document.getElementById('form-copropietario')?.addEventListener('submit', guardarCopropietario);
+    document.getElementById('tit-mostrar-archivados')?.addEventListener('change', renderTitularesCasa);
     document.querySelector('#table-titulares tbody')?.addEventListener('click', event => {
         const btn = event.target.closest('button[data-tit-id]');
         if (!btn) return;
         if (btn.dataset.titAction === 'editar') editarCopropietario(btn.dataset.titId);
         if (btn.dataset.titAction === 'archivar') archivarCopropietario(btn.dataset.titId);
+        if (btn.dataset.titAction === 'restaurar') restaurarCopropietario(btn.dataset.titId);
     });
 }

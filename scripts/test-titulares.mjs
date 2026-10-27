@@ -13,7 +13,7 @@ const item = key => {
     classList: { add(){}, remove(){} }, focus(){}, reset(){}, addEventListener(){} };
   elementos.set(key, el); return el;
 };
-for(const id of ['tit-casa-id','tit-id','tit-nombre','tit-telefono','tit-participacion','tit-propietario-principal','form-copropietario','modal-titulares']) item(id);
+for(const id of ['tit-casa-id','tit-id','tit-nombre','tit-telefono','tit-participacion','tit-propietario-principal','form-copropietario','modal-titulares','tit-mostrar-archivados']) item(id);
 const body={ innerHTML: '', addEventListener(){} };
 const context=vm.createContext({
     DB: {
@@ -28,7 +28,7 @@ const context=vm.createContext({
     confirmAction:()=>true,logAction:()=>{},
     Date, Number, Array, Object, Map, Set
 });
-vm.runInContext(src + '\n;globalThis.__owner={normalizarCopropietario,abrirModalTitulares,guardarCopropietario,editarCopropietario,archivarCopropietario,listarCopropietarios,renderTitularesCasa};',context);
+vm.runInContext(src + '\n;globalThis.__owner={normalizarCopropietario,abrirModalTitulares,guardarCopropietario,editarCopropietario,archivarCopropietario,restaurarCopropietario,listarCopropietarios,renderTitularesCasa};',context);
 const a=context.__owner;
 let passed=0;const ok=s=>{passed++;console.log('PASS '+s)};
 assert.throws(()=>a.normalizarCopropietario({casaId:'house1',nombreCompleto:'X'}), e=>e.codigo==='RH-OWN-001');ok('nombre completo obligatorio');
@@ -62,7 +62,11 @@ assert.equal(state.copropietarios.length,2);
 assert.equal(state.copropietarios[1].nombreCompleto,'Copropietario Actualizado');ok('editar preserva identidad sin duplicar');
 a.archivarCopropietario(id);
 assert.equal(a.listarCopropietarios('house1').length,1);
-assert.equal(state.copropietarios.length,2);ok('archivar es reversible a nivel de datos y no borra');
+assert.equal(state.copropietarios.length,2);ok('archivar conserva registro sin borrar');
+assert.equal(a.restaurarCopropietario(id),true);
+assert.equal(a.listarCopropietarios('house1').length,2);
+ok('restaurar desde la interfaz devuelve al registro activo');
+a.archivarCopropietario(id);
 assert.equal(state.casas[0].nombreCompleto,'Propietario principal DEMO');
 assert.equal(state.casas[0].precioVenta,3000000);
 assert.equal(state.presupuestos[0].pagosComprador[0].monto,1000);
