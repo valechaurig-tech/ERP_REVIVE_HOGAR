@@ -12,6 +12,7 @@ const source = readFileSync(fileURLToPath(new URL('../js/db.js', import.meta.url
 
 async function createHarness(initialRecords = null) {
     const badge = { textContent: '', className: '' };
+    const events = {};
     let failDeletes = false;
     let failUpserts = false;
     const remote = new Map();
@@ -92,7 +93,8 @@ async function createHarness(initialRecords = null) {
     const storage = new Map();
     const context = vm.createContext({
         window: { RH_CONFIG: { SUPABASE_URL: 'https://test.invalid', SUPABASE_ANON_KEY: 'test' },
-            supabase: { createClient: () => client } },
+            supabase: { createClient: () => client },
+            addEventListener: (event, fn) => { events[event] = fn; } },
         localStorage: {
             getItem: k => storage.get(k) ?? null,
             setItem: (k, v) => storage.set(k, v)
@@ -110,7 +112,7 @@ async function createHarness(initialRecords = null) {
     await h.DB.init();
     assert.equal(h.DB.mode(), 'cloud');
     return {
-        ...h, badge, calls, remote,
+        ...h, badge, calls, remote, events,
         setDeleteFailure: v => { failDeletes = v; },
         setUpsertFailure: v => { failUpserts = v; }
     };
@@ -223,5 +225,22 @@ function ok(name) { tests++; console.log('PASS ' + name); }
     assert.equal(h.calls.upsert, 0);
     assert.equal(h.calls.delete, 0);
     ok('flush de colección intacta evita sobrescribir datos ajenos');
+}
+{
+    const h = await createHarness();
+    let cancelados = 0;
+    const event = { returnValue: null, preventDefault() { cancelados++; } };
+    h.events.beforeunload(event);
+    assert.equal(cancelados, 0);
+    const rows = h.DB.get('prospectos');
+    rows[0].nombreCompleto = 'Edición a confirmar';
+    h.DB.set('prospectos', rows);
+    h.events.beforeunload(event);
+    assert.equal(cancelados, 1);
+    assert.equal(event.returnValue, '');
+    await h.persistirColeccionNube('prospectos', true);
+    h.events.beforeunload(event);
+    assert.equal(cancelados, 1);
+    ok('advertencia de cierre aparece únicamente con cambios pendientes');
 }
 console.log(JSON.stringify({ tests, passed: tests, mode: 'isolated-mock-no-production-data' }));
