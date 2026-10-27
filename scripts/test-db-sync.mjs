@@ -147,7 +147,13 @@ function ok(name) { tests++; console.log('PASS ' + name); }
     h.setUpsertFailure(true);
     await assert.rejects(h.persistirColeccionNube('prospectos', true), /RH-DB-001/);
     assert.match(h.badge.textContent, /Error de nube/);
+    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
     ok('rechazo de upsert no declara nube sincronizada');
+    h.setUpsertFailure(false);
+    await h.persistirColeccionNube('prospectos', true);
+    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), false);
+    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Edición pendiente');
+    ok('un reintento tras recuperar conexión confirma el borrador');
 }
 {
     const h = await createHarness();
