@@ -73,6 +73,8 @@ function badgeEstatusPipeline(estatus) {
         'Espera remodelación': 'badge-mkt-warning',
         'En remodelación': 'badge-mkt-primary',
         'En venta': 'badge-mkt-success',
+        'Apartada': 'badge-mkt-warning',
+        'Vendida': 'badge-mkt-success',
         'Cerrada': 'badge-mkt-neutral'
     };
     const cls = map[estatus] || 'badge-mkt-neutral';
@@ -165,12 +167,34 @@ function getMontoAdquisicionCasa(casa, prospecto) {
 
 function calcularEconomiaCasa(casa, prospecto) {
     const adquisicion = getMontoAdquisicionCasa(casa, prospecto);
-    const remodelacion = sumarCostosRemodelacion(casa);
-    const inversion = adquisicion + remodelacion;
-    const precioVenta = Number(casa?.precioVenta) || 0;
-    const utilidad = precioVenta > 0 ? precioVenta - inversion : null;
+    const presupuesto = DB.get('presupuestos').find(x =>
+        x.casaId === casa?.id || x.prospectoId === casa?.prospectoId
+    );
+    const resumen = presupuesto && typeof calcularResumenPresupuesto === 'function'
+        ? calcularResumenPresupuesto(presupuesto) : null;
+    const partidaRemodelacionId = presupuesto?.partidas?.find(x => x.concepto === 'REMODELACIÓN')?.id;
+    const remodelacionTrazada = presupuesto?.egresos?.filter(x =>
+        x.partidaId === partidaRemodelacionId ||
+        x.origenSistema === 'pipeline_remodelacion' ||
+        ['Remodelación', 'Pagos a Tío Fabio (remodelación)'].includes(x.categoria)
+    ).reduce((s, x) => s + Number(x.monto || 0), 0) || 0;
+    const remodelacion = presupuesto ? remodelacionTrazada : sumarCostosRemodelacion(casa);
+    const presupuestoTotal = presupuesto?.partidas?.reduce((s, x) => s + Number(x.monto || 0), 0) || 0;
+    const egresosReales = presupuesto?.egresos?.reduce((s, x) => s + Number(x.monto || 0), 0) || 0;
+    const adquisicionPresupuestada = Number(presupuesto?.partidas?.find(x => x.concepto === 'PROPIETARIO')?.monto || adquisicion);
+    const partidaPropietarioId = presupuesto?.partidas?.find(x => x.concepto === 'PROPIETARIO')?.id;
+    const pagosPropietario = presupuesto?.egresos?.filter(x =>
+        x.partidaId === partidaPropietarioId || x.categoria === 'Propietario'
+    )
+        .reduce((s, x) => s + Number(x.monto || 0), 0) || 0;
+    const costoRealReconocido = resumen?.costoRealReconocido ??
+        (egresosReales + Math.max(0, adquisicionPresupuestada - pagosPropietario));
+    const inversion = presupuestoTotal || (adquisicion + remodelacion);
+    const precioVenta = Number(resumen?.venta ?? presupuesto?.ventaPropiedad ?? casa?.precioVenta) || 0;
+    const utilidad = resumen?.utilidadProyectada ?? (precioVenta > 0 ? precioVenta - inversion : null);
+    const utilidadReal = resumen?.utilidad ?? (precioVenta > 0 && costoRealReconocido > 0 ? precioVenta - costoRealReconocido : null);
     const margen = precioVenta > 0 && utilidad != null ? Math.round((utilidad / precioVenta) * 100) : null;
-    return { adquisicion, remodelacion, inversion, precioVenta, utilidad, margen };
+    return { adquisicion, remodelacion, inversion, presupuestoTotal, egresosReales, costoRealReconocido, precioVenta, utilidad, utilidadReal, margen };
 }
 
 function calcularIndicadoresFinancieros() {
@@ -187,9 +211,9 @@ function calcularIndicadoresFinancieros() {
         costosRemodelacion += eco.remodelacion;
         inversionPropiedades += eco.inversion;
         if (eco.utilidad != null) {
-            if (c.estatusPipeline === RH_ESTATUS_PIPELINE.CERRADA) {
-                utilidadRealizada += eco.utilidad;
-            } else if (c.estatusPipeline === RH_ESTATUS_PIPELINE.VENTA) {
+            if (c.estatusPipeline === RH_ESTATUS_PIPELINE.CERRADA || c.estatusPipeline === RH_ESTATUS_PIPELINE.VENDIDA) {
+                utilidadRealizada += eco.utilidadReal ?? eco.utilidad;
+            } else if (c.estatusPipeline === RH_ESTATUS_PIPELINE.VENTA || c.estatusPipeline === RH_ESTATUS_PIPELINE.APARTADA) {
                 utilidadProyectada += eco.utilidad;
             }
         }
@@ -220,9 +244,80 @@ function validarProspectoParaInteresado(p) {
     if (!p.nombreCompleto || p.nombreCompleto.trim().length < 3) faltantes.push('Nombre completo');
     if (!p.direccionPropiedad || p.direccionPropiedad.trim().length < 5) faltantes.push('Dirección de la propiedad');
     if (!p.tieneEscrituras) faltantes.push('¿Tiene escrituras?');
-    if (!p.invadida) faltantes.push('¿Está invadida?');
+    if (!p.estatusPropiedad && !p.invadida) faltantes.push('Estatus actual de la propiedad');
     if (!p.tipoCredito) faltantes.push('Tipo de crédito');
     return faltantes;
+}
+
+function validarDocumentacionAsesor(p) {
+    if (p && typeof getReglasRequisitos === 'function' &&
+        typeof condicionReglaAplica === 'function' && typeof valorReglaCapturado === 'function') {
+        return getReglasRequisitos()
+            .filter(regla => regla.grupo === 'asesor' && !regla.obligatorio && condicionReglaAplica(p, regla))
+            .filter(regla => !valorReglaCapturado(p, regla))
+            .map(regla => regla.nombre);
+    }
+    const faltantes = [];
+    if (!p) return ['Prospecto'];
+    if (typeof getArchivoProspecto === 'function') {
+        if (!getArchivoProspecto(p.id, 'ine_frente')) faltantes.push('INE por el frente');
+        if (!getArchivoProspecto(p.id, 'ine_reverso')) faltantes.push('INE por el reverso');
+        if (p.cfeNombreYDomicilio === 'Si' && !getArchivoProspecto(p.id, 'cfe_asesor')) faltantes.push('Recibo CFE');
+        if (p.tieneEscrituras === 'Si' && !getArchivoProspecto(p.id, 'escrituras_asesor')) faltantes.push('Foto o PDF de escrituras');
+    }
+    if (!p.ineDomicilioPropiedad) faltantes.push('Indicar si la INE tiene el domicilio de la propiedad');
+    if (!p.cfeNombreYDomicilio) faltantes.push('Indicar si cuenta con CFE a su nombre y domicilio');
+    if (p.tieneEscrituras === 'No' && !p.existeNotariaEscritura) faltantes.push('Indicar si existe la notaría de la escritura');
+    return faltantes;
+}
+
+let rhAutorizacionPendiente = null;
+
+function confirmarAccionFinancieraProtegida(accion) {
+    const candidatos = (DB.get('usuariosLogin') || []).filter(u =>
+        u.activo !== false &&
+        u.id !== currentUser?.id &&
+        (u.rol === 'Direccion' || u.rol === 'Administradora')
+    );
+    if (!candidatos.length) {
+        alert('Hace falta otro usuario Dirección o Administradora para autorizar este cambio.');
+        return Promise.resolve(false);
+    }
+    return new Promise(resolve => {
+        rhAutorizacionPendiente = resolve;
+        const texto = document.getElementById('autorizacion-texto');
+        const select = document.getElementById('autorizacion-usuario');
+        const clave = document.getElementById('autorizacion-clave');
+        if (texto) texto.textContent = `Para ${accion} elige a otra persona y escribe su contraseña. La tuya no autoriza este cambio.`;
+        if (select) {
+            select.innerHTML = candidatos.map(u => `<option value="${escapeHtml(u.id)}">${escapeHtml(u.displayName)} · ${escapeHtml(rhEtiquetaRol(u.rol))}</option>`).join('');
+        }
+        if (clave) clave.value = '';
+        document.getElementById('modal-autorizacion')?.classList.add('active');
+        clave?.focus();
+    });
+}
+
+function cerrarAutorizacionFinanciera(ok) {
+    document.getElementById('modal-autorizacion')?.classList.remove('active');
+    const resolve = rhAutorizacionPendiente;
+    rhAutorizacionPendiente = null;
+    if (resolve) resolve(!!ok);
+}
+
+function validarAutorizacionFinanciera(e) {
+    e.preventDefault();
+    const id = document.getElementById('autorizacion-usuario')?.value;
+    const clave = document.getElementById('autorizacion-clave')?.value || '';
+    const autoriza = (DB.get('usuariosLogin') || []).find(u => u.id === id);
+    if (!autoriza || autoriza.id === currentUser?.id || String(autoriza.password || '') !== String(clave)) {
+        alert('Contraseña incorrecta. No se realizó el cambio.');
+        return;
+    }
+    if (typeof logAction === 'function') {
+        logAction(`Autorización financiera de ${autoriza.displayName || autoriza.rol}`);
+    }
+    cerrarAutorizacionFinanciera(true);
 }
 
 function normalizarAdeudo(val) {

@@ -20,7 +20,7 @@ const LUNA_KNOWLEDGE = {
     ],
     roles: {
         Direccion: {
-            modulos: ['Resumen Ejecutivo', 'Tareas y Alertas', 'Marketing', 'Mis Prospectos', 'Bandeja Administradora', 'Propiedades', 'Bitácora', 'Usuarios'],
+            modulos: ['Resumen Ejecutivo', 'Tareas y Alertas', 'Gestor de proyectos', 'Marketing', 'Mis Prospectos', 'Bandeja Administradora', 'Propiedades', 'Gastos y Presupuestos', 'Gastos de Empresa', 'Referidos y Comisiones', 'Configuración', 'Bitácora', 'Usuarios'],
             responsabilidades: 'Visión global, KPIs, conversión, finanzas, auditoría y gestión de usuarios.',
             pasosDiarios: ['Revisar Resumen Ejecutivo', 'Leer briefing de Luna', 'Revisar alertas en Planner', 'Identificar cuellos de botella en pipeline']
         },
@@ -35,9 +35,9 @@ const LUNA_KNOWLEDGE = {
             pasosDiarios: ['Ver prospectos sin contactar', 'Actualizar estatus', 'Completar datos antes de Interesado', 'Enviar a administradora cuando esté listo', 'Cerrar Firmado/Declinado cuando admin termine propuesta']
         },
         Administradora: {
-            modulos: ['Bandeja Administradora', 'Propiedades', 'Usuarios', 'Tareas y Alertas'],
-            responsabilidades: 'Expedientes, propuestas, documentos, pipeline y costos de remodelación.',
-            pasosDiarios: ['Revisar expedientes pendientes', 'Completar propuesta y monto adquisición', 'Cambiar estatus en pipeline', 'Registrar costos de remodelación']
+            modulos: ['Bandeja Administradora', 'Propiedades', 'Gastos y Presupuestos', 'Usuarios', 'Tareas y Alertas'],
+            responsabilidades: 'Expedientes, checklist documental, kit de apertura, propuestas, pipeline y control financiero por propiedad.',
+            pasosDiarios: ['Revisar expedientes pendientes', 'Validar documentos del propietario', 'Completar ficha legal y kit', 'Actualizar presupuesto y egresos', 'Cambiar estatus en pipeline']
         }
     },
     estatusProspecto: {
@@ -63,23 +63,27 @@ const LUNA_KNOWLEDGE = {
         'mod-vendedor': 'Vendedor: + Registrar prospecto (campo), tabla con Gestionar. Mis propiedades muestra casas firmadas.',
         'mod-administradora': 'Admin: expedientes pendientes, botón Expediente para propuesta y documentos.',
         'mod-pipeline': 'Pipeline: filtrar por estatus, Ver registro, Costos, Cambiar estatus (solo admin/dirección).',
+        'mod-gastos': 'Gastos y Presupuestos: control por propiedad de presupuesto previsto, egresos reales, inversiones Revive/socios, retornos, pagos del comprador y utilidad.',
+        'mod-gastos-empresa': 'Gastos de Empresa (solo Dirección): ingresos y egresos corporativos, presupuesto mensual por categoría, balance neto e integración con egresos de propiedades.',
+        'mod-referidos': 'Referidos y Comisiones (solo Dirección): muestra a quién se le debe comisión, total pactado, pagos realizados y saldo pendiente por propiedad.',
+        'mod-configuracion': 'Configuración (solo Dirección): ordena documentos y campos, y define cuáles bloquean el avance por ser obligatorios o cuáles solo generan aviso.',
         'mod-usuarios': 'Usuarios: alta de vendedores (máx 5), editar contraseña y estado.',
         'mod-auditoria': 'Bitácora: quién hizo qué; solo Dirección.'
     },
     formularios: {
         'form-campana': 'Campaña: nombre libre, canal (Facebook/Instagram/Google/Otros), costo, fecha inicio, días duración.',
         'form-prospecto': 'Prospecto: nombre, teléfono, dirección, campaña, vendedor (marketing) o auto-asignación (vendedor).',
-        'form-gestion-prospecto': 'Gestión: estatus, tipo crédito, escrituras, invasión, adeudos. Botón Enviar a administradora cuando Interesado.',
-        'form-expediente-admin': 'Expediente: precio de compra a la familia, documentos. Marca Propuesta lista.',
+        'form-gestion-prospecto': 'Gestión desde En contacto: INE ambos lados, validación de domicilio, CFE, escrituras, invasión y adeudos. Botón Enviar a administradora cuando Interesado.',
+        'form-expediente-admin': 'Expediente de Regi: datos personales, ficha legal/económica, checklist de archivos y kit documental. Marca Propuesta lista.',
         'form-pipeline': 'Pipeline: nuevo estatus; precio venta al pasar a En venta o Cerrada.',
         'form-costo-remodelacion': 'Costo remodelación: concepto, categoría, monto, nota (tab Remodelación en detalle de propiedad).',
         'form-tarea': 'Tarea: título, descripción, asignado, prioridad, fecha límite.',
         'form-mensaje-caso': 'Comunicación interna vendedor ↔ administradora por caso.'
     },
     finanzas: {
-        formulaUtilidad: 'Utilidad = Precio de venta − (Monto adquisición + Costos de remodelación)',
-        indicadores: ['Inversión campañas', 'Costos remodelación total', 'Inversión propiedades', 'Utilidad realizada (cerradas)', 'Utilidad proyectada (en venta)'],
-        dondeRegistrarCostos: 'Detalle de propiedad → tab Remodelación → Agregar costo'
+        formulaUtilidad: 'Utilidad proyectada = venta − presupuesto maestro. Utilidad sobre egresos = venta − egresos reales registrados.',
+        indicadores: ['Presupuesto maestro', 'Egresos reales', 'Inversión Revive y socios', 'Retornos', 'Saldo de caja', 'Utilidad proyectada', 'Utilidad sobre egresos', 'Balance corporativo', 'Presupuesto empresa'],
+        dondeRegistrarCostos: 'Por propiedad: Gastos y Presupuestos. Corporativos: Gastos de Empresa (solo Dirección).'
     },
     faq: [
         { p: '¿Contraseña demo?', r: '1234 para todos los usuarios demo (Dirección, Marketing, Administradora, Vendedor 1 y 2).' },
