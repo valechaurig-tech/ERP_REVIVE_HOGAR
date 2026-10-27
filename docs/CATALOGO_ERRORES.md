@@ -1,0 +1,41 @@
+# Catálogo de errores — Revive Hogar ERP
+
+Fecha: 27/10/2026. Solo códigos **implementados** o detectados por el comprobador. No incluye identidad ni datos de clientes.
+
+## Sincronización
+| Código | Situación | Acción del usuario | Tratamiento técnico |
+|---|---|---|---|
+| `RH-DB-001` | Supabase rechazó la escritura de una colección | No asumir guardado; verificar conexión y contactar soporte | Se conserva el estado en memoria durante la sesión; el indicador pasa a error. Es necesario reintentar y verificar confirmación. |
+| `RH-DB-002` | Supabase rechazó un lote de eliminaciones | No repetir manualmente sin revisar el registro | El ID queda en la cola; se puede reintentar sin perder la baja pendiente. |
+| `RH-DB-003` | Falló la eliminación de un registro individual | No considerar completada la eliminación | El registro se restaura en la vista local y se muestra error de nube. |
+
+## Captura
+| Código | Situación | Campo |
+|---|---|---|
+| `RH-FORM-101` | Falta nombre de campaña | `camp-nombre` |
+| `RH-FORM-102` | Falta canal de campaña | `camp-canal` |
+| `RH-FORM-201` | Falta nombre completo o tiene menos de tres caracteres | `pros-nombre` |
+| `RH-FORM-202` | Falta teléfono de contacto | `pros-tel` |
+| `RH-FORM-203` | Falta asignar vendedor | `pros-vendedor` |
+| `RH-FORM-204` | Vendedor no existe o no está activo | `pros-vendedor` |
+
+La validación enfoca el campo, lo marca temporalmente como inválido y muestra el código. **No se flexibilizaron requisitos financieros, legales o de seguridad.**
+
+## Comprobador previo a liberación
+| Código | Situación |
+|---|---|
+| `REV-REL-001` | Falta código fuente crítico de funciones o herramientas |
+| `REV-REL-002` | Referencia a JavaScript inexistente |
+| `REV-REL-003` | Colección avanzada ausente |
+| `REV-REL-004` | Fotografía de recorrido faltante |
+| `REV-REL-005` | JPEG incompleto o corrupto |
+| `REV-REL-006` | JavaScript con error de sintaxis |
+| `REV-SEC-001` | SQL mantiene política anónima permisiva `rh_anon_all` |
+| `REV-SEC-002` | Se utiliza una contraseña inicial de demostración |
+
+## Limitaciones antes de producción
+- La sincronización todavía **no resuelve conflictos concurrentes** entre empleados ni reemplaza un respaldo; pendiente control de versión por registro.
+- No se ha verificado todavía que el esquema SQL que figura en GitHub coincida con el esquema **activo** de producción.
+- Autenticación y autorización de API/RLS requieren migración segura **después** del respaldo y de recuperar el backend exacto.
+- Los contadores `RH_USAGE` son **locales** al navegador, solo agregados de siete días; no son un panel empresarial consolidado.
+- Este catálogo no autoriza fusionar ni desplegar el PR mientras `verify-release.mjs` tenga bloqueos.
