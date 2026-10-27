@@ -225,17 +225,30 @@ function refreshActiveModule(incluirSelects = false) {
     if (fn) fn();
 }
 
-function logout() {
-    DB.flush();
-    logAction(`Cierre de sesión: ${currentUser ? currentUser.displayName : 'Sistema'}`);
-    document.getElementById('app-screen').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'flex';
-    currentUser = null;
-    activeModuleId = null;
-    allowedModuleIds = [];
-    vendedorVistaId = null;
-    if (typeof mostrarIAWidget === 'function') mostrarIAWidget(false);
-    if (clockInterval) clearInterval(clockInterval);
+let rhLogoutEnCurso = false;
+async function logout() {
+    if (rhLogoutEnCurso) return false;
+    rhLogoutEnCurso = true;
+    try {
+        // Registrar la salida antes de sincronizar, para no perder la auditoría.
+        logAction(`Cierre de sesión: ${currentUser ? currentUser.displayName : 'Sistema'}`);
+        await DB.flush();
+        document.getElementById('app-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+        currentUser = null;
+        activeModuleId = null;
+        allowedModuleIds = [];
+        vendedorVistaId = null;
+        if (typeof mostrarIAWidget === 'function') mostrarIAWidget(false);
+        if (clockInterval) clearInterval(clockInterval);
+        return true;
+    } catch (error) {
+        console.error('RH-DB-006: No se confirmó el guardado al salir:', error);
+        alert('[RH-DB-006] La nube no confirmó el guardado. Se mantuvo la sesión abierta. Revisa la conexión e intenta salir nuevamente; no cierres esta pestaña mientras tengas cambios pendientes.');
+        return false;
+    } finally {
+        rhLogoutEnCurso = false;
+    }
 }
 
 function closeModal(id) {
