@@ -30,5 +30,14 @@ jobs:
         run: node scripts/test-form-errors.mjs
       - name: Aislamiento de Preview frente a producción
         run: node scripts/test-preview-isolation.mjs
-      - name: Puerta de seguridad de liberación
+  puerta-produccion:
+    needs: qa-sin-datos-reales
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout solo lectura
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Confirmar elegibilidad de producción (bloqueante)
         run: node scripts/verify-release.mjs
