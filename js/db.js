@@ -377,5 +377,14 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
             }
         });
     });
+    window.addEventListener('beforeunload', event => {
+        if (dbMode !== 'cloud') return;
+        const pendientes = DB_PENDING_WRITES.size > 0
+            || Object.values(pendingDeletes).some(set => set?.size > 0);
+        if (pendientes) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
 }
 
