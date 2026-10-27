@@ -7,7 +7,7 @@ const serviceSource = readFileSync(fileURLToPath(new URL('../js/services.js', im
 
 let passed = 0;
 const ok = label => { passed++; console.log('PASS '+label); };
-function createDB({errorOnConnect = false} = {}) {
+function createDB({errorOnConnect = false, missingSdk = false, missingKey = false} = {}) {
     let reads = 0, upserts = 0, selects = 0;
     const rows = new Map();
     const supabase = {
@@ -33,8 +33,8 @@ function createDB({errorOnConnect = false} = {}) {
     };
     const store = new Map([['revive_hogar_usuariosLogin',JSON.stringify([{id:'local-demo',password:'1234'}])]]);
     const context=vm.createContext({
-        window:{RH_CONFIG:{SUPABASE_URL:'https://corp.invalid',SUPABASE_ANON_KEY:'fake',LOGIN_REQUIERE_PASSWORD:true},
-            supabase:{createClient:()=>supabase},addEventListener(){}},
+        window:{RH_CONFIG:{SUPABASE_URL:'https://corp.invalid',SUPABASE_ANON_KEY:missingKey ? '' : 'fake',LOGIN_REQUIERE_PASSWORD:true},
+            supabase:missingSdk ? undefined : {createClient:()=>supabase},addEventListener(){}},
         document:{getElementById:()=>({textContent:'',className:''})},
         localStorage:{getItem:key=>{reads++;return store.get(key)||null;},setItem:(key,value)=>store.set(key,value)},
         setTimeout:()=>1,clearTimeout(){},console:{log(){},warn(){},error(){}},
@@ -59,6 +59,20 @@ function createDB({errorOnConnect = false} = {}) {
     assert.equal(h.upserts,0);
     assert.equal(h.reads,0);
     ok('nube vacía no importa automáticamente información de navegador');
+}
+{
+    const h=createDB({missingSdk:true});
+    await assert.rejects(h.DB.init(),/RH-DB-007/);
+    assert.equal(h.DB.mode(),'unavailable');
+    assert.equal(h.reads,0);
+    ok('sin biblioteca Supabase tampoco se entra a datos locales');
+}
+{
+    const h=createDB({missingKey:true});
+    await assert.rejects(h.DB.init(),/RH-DB-007/);
+    assert.equal(h.DB.mode(),'unavailable');
+    assert.equal(h.reads,0);
+    ok('configuración parcial de nube se bloquea en vez de degradarse a local');
 }
 function seed(mode) {
     let users=[],writes=0;
