@@ -85,4 +85,8 @@ ok('formularios de perfil/usuario nunca precargan contraseña');
 assert.equal(records[0].activo,true);
 assert.ok(writes>=4);
 ok('operaciones conservan otras propiedades del usuario');
+const auth = readFileSync(fileURLToPath(new URL('../js/auth.js', import.meta.url)), 'utf8');
+assert.equal(auth.includes("user.password || cfg.PASSWORD_INICIAL || '1234'"),false);
+assert.ok(auth.includes('const esperada = user.password;'));
+ok('login no permite fallback global de credenciales sin clave');
 console.log(JSON.stringify({checks,scope:'synthetic-no-production-auth'}));

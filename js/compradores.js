@@ -75,6 +75,40 @@ function normalizarCompradorCaptura(datos, anterior = null, usuario = null) {
     };
 }
 
+/**
+ * Coherencia comercial preventiva en interfaz; NO reemplaza restricciones
+ * transaccionales de base de datos contra apartados simultáneos.
+ */
+function validarVinculoPropiedadComprador(registro, existentes, casas) {
+    const casaId = registro.propiedadInteresId || '';
+    const casa = casaId ? casas.find(c => c.id === casaId) : null;
+    if (casaId && !casa) {
+        throw Object.assign(new Error('La propiedad seleccionada ya no existe. Actualiza la referencia.'), {
+            codigo: 'RH-BUY-005', campo: 'comprador-propiedad'
+        });
+    }
+    if (!['Apartado', 'Concretado'].includes(registro.estatus)) return true;
+    if (!casa) {
+        throw Object.assign(new Error('Para marcar apartado o concretado, primero vincula una propiedad válida.'), {
+            codigo: 'RH-BUY-007', campo: 'comprador-propiedad'
+        });
+    }
+    if (registro.estatus === 'Apartado' && ['Vendida', 'Cerrada'].includes(casa.estatusPipeline)) {
+        throw Object.assign(new Error('La propiedad ya está vendida o cerrada. Revisa el expediente.'), {
+            codigo: 'RH-BUY-008', campo: 'comprador-propiedad'
+        });
+    }
+    const conflicto = existentes.find(x => x.id !== registro.id
+        && x.propiedadInteresId === casaId
+        && ['Apartado', 'Concretado'].includes(x.estatus));
+    if (conflicto) {
+        throw Object.assign(new Error('La propiedad está vinculada a otro comprador apartado o concretado. Revisa antes de continuar.'), {
+            codigo: 'RH-BUY-006', campo: 'comprador-propiedad'
+        });
+    }
+    return true;
+}
+
 function compradorAbrirFormulario(id = '') {
     if (!currentUser || !rhUserCanAccessModule(currentUser, 'mod-compradores')) return;
     const registro = id ? DB.get('compradores').find(x => x.id === id) : null;
@@ -94,6 +128,10 @@ function compradorAbrirFormulario(id = '') {
     if (propiedad) {
         const disponibles = DB.get('casas');
         propiedad.innerHTML = '<option value="">Sin propiedad seleccionada</option>' + disponibles.map(c => '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.direccionPropiedad || c.nombreCompleto || c.id) + '</option>').join('');
+        // Preservar referencia histórica si se quitó el inmueble; nunca descartarla en silencio.
+        if (registro?.propiedadInteresId && !disponibles.some(c => c.id === registro.propiedadInteresId)) {
+            propiedad.innerHTML += '<option value="' + escapeHtml(registro.propiedadInteresId) + '">Referencia histórica · inmueble no disponible</option>';
+        }
         propiedad.value = registro?.propiedadInteresId || '';
     }
     document.getElementById('comprador-notas').value = registro?.notas || '';
@@ -151,6 +189,7 @@ function guardarComprador(e) {
             proximoContacto: val('proximo-contacto'),
             estatus: val('estatus'), asesorId: val('asesor')
         }, anterior, currentUser);
+        validarVinculoPropiedadComprador(registro, registros, DB.get('casas'));
     } catch (error) {
         informarErrorCaptura(error.campo || 'comprador-nombre', error.message, error.codigo || 'RH-BUY-000');
         return;

@@ -44,7 +44,7 @@ const context = vm.createContext({
     },
     Date, Map, Set, Object, String, Number
 });
-vm.runInContext(source + '\n;globalThis.__buyer={normalizarCompradorCaptura,compradorVisibleParaRol,guardarComprador,compradorCambiarArchivo,renderCompradores,compradorEstadoContacto,compradorFechaValida};',context);
+vm.runInContext(source + '\n;globalThis.__buyer={normalizarCompradorCaptura,compradorVisibleParaRol,guardarComprador,compradorCambiarArchivo,renderCompradores,compradorEstadoContacto,compradorFechaValida,validarVinculoPropiedadComprador};',context);
 const api = context.__buyer;
 let passed = 0;const ok = label => {passed++;console.log('PASS '+label);};
 assert.throws(()=>api.normalizarCompradorCaptura({nombreCompleto:'X',telefono:'3331234567'},null,user),e=>e.codigo==='RH-BUY-001');ok('nombre obligatorio validado');
@@ -100,4 +100,18 @@ assert.equal(api.compradorEstadoContacto({estatus:'Archivado',proximoContacto:'2
 ok('contactos vencidos/hoy y fechas bisiestas se clasifican correctamente');
 assert.throws(()=>api.normalizarCompradorCaptura({nombreCompleto:'Demo Completa',telefono:'3331234567',proximoContacto:'2026-02-31'},null,user),e=>e.codigo==='RH-BUY-004');
 ok('fecha imposible rechazada con código de soporte');
+const create = (id,estatus,propiedadInteresId) => ({id,estatus,propiedadInteresId,nombreCompleto:'Prueba'});
+const casa = [{id:'house1',estatusPipeline:'En venta'}];
+assert.throws(()=>api.validarVinculoPropiedadComprador(create('a','Apartado',''),[],casa),e=>e.codigo==='RH-BUY-007');
+ok('no admite apartado sin inmueble');
+assert.throws(()=>api.validarVinculoPropiedadComprador(create('a','Interesado','missing'),[],casa),e=>e.codigo==='RH-BUY-005');
+ok('referencia de inmueble inexistente no se guarda silenciosamente');
+assert.throws(()=>api.validarVinculoPropiedadComprador(create('a','Apartado','house1'),[create('b','Concretado','house1')],casa),e=>e.codigo==='RH-BUY-006');
+ok('impide doble apartado con comprador diferente en el estado local');
+assert.equal(api.validarVinculoPropiedadComprador(create('a','Apartado','house1'),[create('a','Apartado','house1')],casa),true);
+ok('permite editar mismo comprador apartado');
+assert.equal(api.validarVinculoPropiedadComprador(create('a','Interesado','house1'),[create('b','Apartado','house1')],casa),true);
+ok('permite varios interesados sin reservar inmueble');
+assert.throws(()=>api.validarVinculoPropiedadComprador(create('a','Apartado','house1'),[],[{id:'house1',estatusPipeline:'Vendida'}]),e=>e.codigo==='RH-BUY-008');
+ok('impide apartar de nuevo casa vendida');
 console.log(JSON.stringify({passed,scope:'pure-and-mocked-no-real-data'}));
