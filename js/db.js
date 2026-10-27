@@ -38,6 +38,7 @@ let supabaseClient = null;
 let dbReady = false;
 const persistTimers = {};
 const deleteTimers = {};
+const retryCounts = {};
 const pendingDeletes = {};
 // No descargar datos ajenos encima de cambios locales pendientes de confirmación.
 const DB_PENDING_WRITES = new Set();
@@ -208,12 +209,21 @@ async function persistirColeccionNube(key, inmediato = false) {
     if (inmediato || !DB_PENDING_WRITES.size) actualizarIndicadorNube(DB_PENDING_WRITES.size ? 'sync' : 'ok');
 }
 
-function programarPersistencia(key) {
+function programarPersistencia(key, demora = 600) {
     if (dbMode !== 'cloud') return;
     clearTimeout(persistTimers[key]);
     persistTimers[key] = setTimeout(() => {
-        persistirColeccionNube(key).catch(error => console.error('RH-DB-001:', error));
-    }, 600);
+        persistirColeccionNube(key).then(() => {
+            retryCounts[key] = 0;
+        }).catch(error => {
+            console.error('RH-DB-001:', error);
+            // Máximo tres reintentos; no insistir indefinidamente contra permisos rechazados.
+            if (DB_PENDING_WRITES.has(key) && (retryCounts[key] || 0) < 3) {
+                retryCounts[key] = (retryCounts[key] || 0) + 1;
+                programarPersistencia(key, 1000 * 2 ** retryCounts[key]);
+            }
+        });
+    }, demora);
 }
 
 function programarEliminaciones(key, ids) {
@@ -318,6 +328,7 @@ const DB = {
         else {
             DB_REVISIONS[key] = (DB_REVISIONS[key] || 0) + 1;
             DB_PENDING_WRITES.add(key);
+            retryCounts[key] = 0;
             // Si el registro reapareció antes de despachar el borrado, no eliminarlo.
             nextIds.forEach(id => pendingDeletes[key]?.delete(id));
             if (eliminados.length) programarEliminaciones(key, eliminados);
@@ -354,3 +365,17 @@ const DB = {
         return 'rh_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     }
 };
+
+// Una conexión recuperada permite reintentar borradores aún no confirmados.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('online', () => {
+        if (dbMode !== 'cloud') return;
+        DB_KEYS.forEach(key => {
+            if (DB_PENDING_WRITES.has(key) || pendingDeletes[key]?.size) {
+                retryCounts[key] = 0;
+                programarPersistencia(key);
+            }
+        });
+    });
+}
+
