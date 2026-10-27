@@ -286,8 +286,12 @@ function bindLoginForm() {
         const cfg = window.RH_CONFIG || {};
         if (cfg.LOGIN_REQUIERE_PASSWORD !== false) {
             const ingresada = document.getElementById('login-password').value;
-            const esperada = user.password || cfg.PASSWORD_INICIAL || '1234';
-            if (ingresada !== esperada) { alert('Contraseña incorrecta.'); return; }
+            // No admitir contraseñas de respaldo ni credenciales inexistentes.
+            const esperada = user.password;
+            if (!esperada || ingresada !== esperada) {
+                alert(!esperada ? 'Esta cuenta no tiene acceso configurado. Contacta a Dirección.' : 'Contraseña incorrecta.');
+                return;
+            }
         }
 
         currentUser = user;
