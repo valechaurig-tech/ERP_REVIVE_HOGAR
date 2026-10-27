@@ -24,6 +24,23 @@ function confirmAction(msg) {
     return window.confirm(msg);
 }
 
+/**
+ * Error recuperable de captura. Apunta al campo específico y añade código para soporte.
+ * No se registra ni transmite el valor del campo.
+ */
+function informarErrorCaptura(campoId, mensaje, codigo = 'RH-FORM-000') {
+    const campo = document.getElementById(campoId);
+    if (campo) {
+        campo.setAttribute('aria-invalid', 'true');
+        if (typeof campo.focus === 'function') campo.focus();
+        if (typeof campo.scrollIntoView === 'function') campo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        campo.addEventListener('input', () => campo.removeAttribute('aria-invalid'), { once: true });
+        campo.addEventListener('change', () => campo.removeAttribute('aria-invalid'), { once: true });
+    }
+    window.alert(`[${codigo}] ${mensaje}`);
+    return false;
+}
+
 function getUsuarioActual() {
     return currentUser ? `${currentUser.displayName} (${rhEtiquetaRol(currentUser.rol)})` : 'Sistema';
 }

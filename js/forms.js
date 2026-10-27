@@ -24,8 +24,8 @@ function guardarCampana(e) {
     e.preventDefault();
     const nombre = document.getElementById('camp-nombre').value.trim();
     const canal = document.getElementById('camp-canal').value;
-    if (!nombre) { alert('El nombre de la campaña es obligatorio.'); return; }
-    if (!canal) { alert('Selecciona el canal de la campaña.'); return; }
+    if (!nombre) { informarErrorCaptura('camp-nombre', 'El nombre de la campaña es obligatorio.', 'RH-FORM-101'); return; }
+    if (!canal) { informarErrorCaptura('camp-canal', 'Selecciona el canal de la campaña.', 'RH-FORM-102'); return; }
     const campanas = DB.get('campanas');
     const nueva = {
         id: DB.getId(),
@@ -52,8 +52,8 @@ function guardarProspecto(e) {
     e.preventDefault();
     const nombre = document.getElementById('pros-nombre').value.trim();
     const tel = document.getElementById('pros-tel').value.trim();
-    if (nombre.length < 3) { alert('Nombre completo obligatorio.'); return; }
-    if (!tel) { alert('Teléfono obligatorio.'); return; }
+    if (nombre.length < 3) { informarErrorCaptura('pros-nombre', 'Captura el nombre completo (mínimo 3 caracteres).', 'RH-FORM-201'); return; }
+    if (!tel) { informarErrorCaptura('pros-tel', 'Captura el teléfono de contacto.', 'RH-FORM-202'); return; }
 
     const campVal = document.getElementById('pros-campana').value;
     const origenRol = document.getElementById('pros-origen-rol').value;
@@ -62,9 +62,9 @@ function guardarProspecto(e) {
     if (origenRol === 'vendedor' && currentUser?.rol === 'Vendedor') {
         vendedorId = currentUser.id;
     }
-    if (!vendedorId) { alert('Selecciona un vendedor.'); return; }
+    if (!vendedorId) { informarErrorCaptura('pros-vendedor', 'Selecciona el vendedor responsable.', 'RH-FORM-203'); return; }
     const vendedorAsignado = getVendedoresActivos().find(v => v.id === vendedorId);
-    if (!vendedorAsignado) { alert('Vendedor no válido o inactivo.'); return; }
+    if (!vendedorAsignado) { informarErrorCaptura('pros-vendedor', 'El vendedor seleccionado está inactivo o no existe.', 'RH-FORM-204'); return; }
 
     const prospectos = DB.get('prospectos');
     const nuevo = {
