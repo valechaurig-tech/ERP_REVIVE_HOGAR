@@ -21,6 +21,11 @@ const RH_TABLE = 'rh_records';
 const RH_STORAGE_PREFIX = 'revive_hogar_';
 
 const DB_CACHE = {};
+// Registro independiente para detectar bajas aunque DB.get() se modifique in-place.
+const DB_IDS_SNAPSHOT = {};
+function registrarIdsCache(key) {
+    DB_IDS_SNAPSHOT[key] = new Set((DB_CACHE[key] || []).map(item => item?.id).filter(Boolean));
+}
 let dbMode = 'local';
 let supabaseClient = null;
 let dbReady = false;
@@ -76,7 +81,7 @@ function escribirLocalStorage(key, data) {
 }
 
 function cargarCacheLocal() {
-    DB_KEYS.forEach(key => { DB_CACHE[key] = leerLocalStorage(key); });
+    DB_KEYS.forEach(key => { DB_CACHE[key] = leerLocalStorage(key); registrarIdsCache(key); });
 }
 
 async function verificarTablaNube() {
@@ -92,6 +97,7 @@ async function cargarColeccionNube(key) {
     const { data, error } = await supabaseClient.from(RH_TABLE).select('data').eq('collection', key);
     if (error) throw new Error(`Error al cargar ${key}: ${error.message}`);
     DB_CACHE[key] = (data || []).map(row => row.data).filter(Boolean);
+    registrarIdsCache(key);
 }
 
 async function cargarTodoDesdeNube() {
@@ -115,14 +121,19 @@ async function eliminarIdsNube(key, ids) {
         const lote = ids.slice(i, i + 200);
         const { error } = await supabaseClient.from(RH_TABLE)
             .delete().eq('collection', key).in('record_id', lote);
-        if (error) console.error(`Error eliminando ${key}:`, error);
+        if (error) {
+            actualizarIndicadorNube('error');
+            throw new Error(`RH-DB-002: Falló la eliminación en ${key}: ${error.message || error}`);
+        }
     }
 }
 
 async function flushPendientesEliminacion(key) {
     const ids = [...(pendingDeletes[key] || [])];
-    pendingDeletes[key] = new Set();
+    if (!ids.length) return;
+    // Los IDs no salen de la cola hasta recibir confirmación remota.
     await eliminarIdsNube(key, ids);
+    ids.forEach(id => pendingDeletes[key]?.delete(id));
 }
 
 async function persistirColeccionNube(key, inmediato = false) {
@@ -142,7 +153,10 @@ async function persistirColeccionNube(key, inmediato = false) {
     for (let i = 0; i < filas.length; i += 200) {
         const lote = filas.slice(i, i + 200);
         const { error } = await supabaseClient.from(RH_TABLE).upsert(lote, { onConflict: 'collection,record_id' });
-        if (error) console.error(`Error sincronizando ${key}:`, error);
+        if (error) {
+            actualizarIndicadorNube('error');
+            throw new Error(`RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
+        }
     }
     if (inmediato) actualizarIndicadorNube('ok');
 }
@@ -150,7 +164,9 @@ async function persistirColeccionNube(key, inmediato = false) {
 function programarPersistencia(key) {
     if (dbMode !== 'cloud') return;
     clearTimeout(persistTimers[key]);
-    persistTimers[key] = setTimeout(() => persistirColeccionNube(key), 600);
+    persistTimers[key] = setTimeout(() => {
+        persistirColeccionNube(key).catch(error => console.error('RH-DB-001:', error));
+    }, 600);
 }
 
 function programarEliminaciones(key, ids) {
@@ -158,7 +174,9 @@ function programarEliminaciones(key, ids) {
     if (!pendingDeletes[key]) pendingDeletes[key] = new Set();
     ids.forEach(id => pendingDeletes[key].add(id));
     clearTimeout(deleteTimers[key]);
-    deleteTimers[key] = setTimeout(() => flushPendientesEliminacion(key), 600);
+    deleteTimers[key] = setTimeout(() => {
+        flushPendientesEliminacion(key).catch(error => console.error('RH-DB-002:', error));
+    }, 600);
 }
 
 function actualizarIndicadorNube(estado) {
@@ -243,10 +261,11 @@ const DB = {
     set(key, data) {
         if (!DB_KEYS.includes(key)) throw new Error(`Colección no permitida: ${key}`);
         if (!Array.isArray(data)) throw new Error(`${key} debe ser un arreglo`);
-        const prevIds = new Set((DB_CACHE[key] || []).map(item => item?.id).filter(Boolean));
+        const prevIds = DB_IDS_SNAPSHOT[key] || new Set((DB_CACHE[key] || []).map(item => item?.id).filter(Boolean));
         const nextIds = new Set((data || []).map(item => item?.id).filter(Boolean));
         const eliminados = [...prevIds].filter(id => !nextIds.has(id));
         DB_CACHE[key] = data;
+        registrarIdsCache(key);
         if (dbMode === 'local') escribirLocalStorage(key, data);
         else {
             if (eliminados.length) programarEliminaciones(key, eliminados);
@@ -256,18 +275,24 @@ const DB = {
 
     async remove(key, id) {
         if (!DB_KEYS.includes(key) || !id) return false;
-        DB_CACHE[key] = (DB_CACHE[key] || []).filter(item => item.id !== id);
+        const anteriores = DB_CACHE[key] || [];
+        DB_CACHE[key] = anteriores.filter(item => item.id !== id);
         if (dbMode === 'local') {
             escribirLocalStorage(key, DB_CACHE[key]);
+            registrarIdsCache(key);
             return true;
         }
         if (pendingDeletes[key]) pendingDeletes[key].delete(id);
         const { error } = await supabaseClient.from(RH_TABLE)
             .delete().eq('collection', key).eq('record_id', id);
         if (error) {
-            console.error(`Error eliminando ${key}/${id}:`, error);
+            DB_CACHE[key] = anteriores;
+            registrarIdsCache(key);
+            actualizarIndicadorNube('error');
+            console.error(`RH-DB-003: Error eliminando ${key}/${id}:`, error);
             return false;
         }
+        registrarIdsCache(key);
         return true;
     },
 
