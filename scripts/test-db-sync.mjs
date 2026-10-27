@@ -16,7 +16,7 @@ async function createHarness(initialRecords = null) {
     let failUpserts = false;
     const remote = new Map();
     const timers = [];
-    const calls = { delete: 0, upsert: 0, pages: 0 };
+    const calls = { delete: 0, upsert: 0, upsertRows: 0, pages: 0 };
     remote.set('prospectos', new Map(initialRecords
         ? initialRecords.map(item => [item.id, item])
         : [
@@ -81,6 +81,7 @@ async function createHarness(initialRecords = null) {
                 },
                 upsert(rows) {
                     calls.upsert++;
+                    calls.upsertRows += rows.length;
                     if (failUpserts) return Promise.resolve({ error: { message: 'Escritura rechazada' } });
                     for (const r of rows) coll(r.collection).set(r.record_id, structuredClone(r.data));
                     return Promise.resolve({ error: null });
@@ -193,5 +194,25 @@ function ok(name) { tests++; console.log('PASS ' + name); }
     await h.persistirColeccionNube('prospectos', true);
     assert.equal(h.remote.get('prospectos').has('rh_a'), true);
     ok('registro restaurado antes del envío cancela eliminación pendiente');
+}
+{
+    const h = await createHarness();
+    // Supabase externo cambia otro registro después de la lectura inicial.
+    h.remote.get('prospectos').get('rh_b').nombreCompleto = 'Edición de compañera';
+    const registros = h.DB.get('prospectos');
+    registros[0].nombreCompleto = 'Actualizado localmente';
+    h.DB.set('prospectos', registros);
+    await h.persistirColeccionNube('prospectos', true);
+    assert.equal(h.calls.upsertRows, 1);
+    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Actualizado localmente');
+    assert.equal(h.remote.get('prospectos').get('rh_b').nombreCompleto, 'Edición de compañera');
+    ok('upsert solo actualiza registro cambiado sin pisar modificaciones ajenas');
+}
+{
+    const h = await createHarness();
+    await h.DB.flush();
+    assert.equal(h.calls.upsert, 0);
+    assert.equal(h.calls.delete, 0);
+    ok('flush de colección intacta evita sobrescribir datos ajenos');
 }
 console.log(JSON.stringify({ tests, passed: tests, mode: 'isolated-mock-no-production-data' }));
