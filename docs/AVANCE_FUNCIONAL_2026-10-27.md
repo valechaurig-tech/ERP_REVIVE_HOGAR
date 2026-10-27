@@ -86,3 +86,10 @@ Los resultados anteriores demuestran progreso real, no que el ERP esté terminad
 ### CI
 - Trabajo `qa-sin-datos-reales` comprueba que los cambios no rompen los módulos; trabajo separado `puerta-produccion` permanece bloqueante mientras falten las fuentes privadas y la migración de Auth/RLS.
 - Un check QA verde es distinto de un permiso de publicar: **NO MERGE mientras la puerta de producción esté fallando**.
+
+
+### Protección posterior de datos y compradores
+- El cierre de sesión ahora espera `DB.flush()`. Ante fallo de la nube, muestra `RH-DB-006` y mantiene abierta la sesión en vez de perder cambios silenciosamente. La salida pasa a la auditoría antes de sincronizarse.
+- Se añadió aviso `beforeunload` cuando existen borradores de nube pendientes, sujeto a límites del navegador.
+- Se amplió compradores para **vincular opcionalmente un inmueble existente por ID**, sin cambiar propietarios, contratos ni montos. Todavía no implementa cierre transaccional ni comisiones.
+- 13 pruebas de sincronización, 10 de compradores y 10 aserciones de cierre de sesión aprobadas en Sandbox; pruebas existentes de privacidad y formularios también satisfactorias.

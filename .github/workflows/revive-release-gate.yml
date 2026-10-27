@@ -26,6 +26,8 @@ jobs:
         run: node scripts/test-db-sync.mjs
       - name: Módulo compradores independiente (mocks)
         run: node scripts/test-compradores.mjs
+      - name: Cierre de sesión espera confirmación de guardado
+        run: node scripts/test-logout-sync.mjs
       - name: Privacidad y retención de métricas (mocks)
         run: node scripts/test-usage-metrics.mjs
       - name: Errores de captura (mocks)

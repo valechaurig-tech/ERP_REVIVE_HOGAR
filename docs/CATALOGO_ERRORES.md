@@ -49,3 +49,9 @@ La validación enfoca el campo, lo marca temporalmente como inválido y muestra 
 | `RH-BUY-003` | Presupuesto máximo numérico inválido, negativo o excesivo | `comprador-presupuesto` |
 
 El registro nuevo solo exige nombre y teléfono; los demás datos quedan opcionales. `compradores` es una colección distinta a `prospectos` y `casas`; archivar no elimina registros. Los controles de rol actuales son de interfaz y **no sustituyen la autorización del servidor**.
+
+| `RH-DB-004` | Falló lectura paginada de una colección | Mantener vista sin confirmar; consultar conectividad y permisos |
+| `RH-DB-005` | Una colección excede el máximo configurable de 10,000 registros | No reemplazar caché por un resultado truncado |
+| `RH-DB-006` | No se confirmó el guardado al cerrar sesión | Permanece la sesión abierta, se debe recuperar conexión y volver a intentar |
+
+La aplicación advierte ante intento de cerrar la pestaña cuando mantiene escrituras en memoria sin confirmar. **La advertencia no es un respaldo** y el navegador puede no mostrarla en todos los dispositivos.
