@@ -282,7 +282,15 @@ const DB = {
         const cfg = window.RH_CONFIG || {};
         const url = (cfg.SUPABASE_URL || '').trim();
         const key = (cfg.SUPABASE_ANON_KEY || '').trim();
-        if (url && key && typeof window.supabase !== 'undefined') {
+        if (url || key) {
+            // Si hay intención de nube, una configuración incompleta o la CDN caída
+            // JAMÁS deben permitir pasar a almacenamiento local.
+            if (!url || !key || typeof window.supabase === 'undefined') {
+                dbMode = 'unavailable';
+                dbReady = false;
+                actualizarIndicadorNube('error');
+                throw new Error('RH-DB-007: La configuración empresarial de Supabase está incompleta o su librería no cargó. Se bloqueó el acceso.');
+            }
             try {
                 supabaseClient = window.supabase.createClient(url, key);
                 dbMode = 'cloud';
