@@ -1,0 +1,4 @@
+.vercel
+secrets.revive.env
+.env
+.env.*

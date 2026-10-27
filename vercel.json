@@ -2,6 +2,8 @@
   "version": 2,
   "name": "revive-hogar",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/tour", "destination": "/tour.html" },
+    { "source": "/captura", "destination": "/captura.html" },
+    { "source": "/((?!api/|tour|captura|demo-visita).*)", "destination": "/index.html" }
   ]
 }
