@@ -71,3 +71,23 @@ La aplicación advierte ante intento de cerrar la pestaña cuando mantiene escri
 | `RH-OWN-004` | Suma de participaciones declaradas mayor de 100% | `tit-participacion` |
 
 Las participaciones declaradas no son evidencia de dominio ni modifican pagos, utilidades o expedientes contractuales.
+
+
+## Seguridad de acceso y continuidad
+| Código | Motivo | Acción |
+|---|---|---|
+| `RH-AUTH-101` | Nueva contraseña ausente, demasiado corta o sin letra/número | Elegir contraseña individual de al menos 10 caracteres |
+| `RH-DB-007` | Supabase empresarial configurado pero no disponible | Bloquear inicio; no abrir base local ni importar datos sin respaldo |
+| `REV-SEC-003` | Regresó fallback global de contraseña en inicio de sesión | Bloquear liberación |
+| `REV-SEC-004` | Regresó el valor automático `1234` al guardar usuario | Bloquear liberación |
+| `REV-SEC-005` | El editor precarga una contraseña débil predeterminada | Bloquear liberación |
+
+## Coherencia de comprador y propiedad
+| Código | Motivo | Acción |
+|---|---|---|
+| `RH-BUY-005` | Inmueble referenciado no existe | Revisar asociación; no descartar referencias históricas en silencio |
+| `RH-BUY-006` | Otro comprador ya figura como apartado/concretado en el mismo inmueble | Revisar estatus antes de continuar |
+| `RH-BUY-007` | Apartado o concretado sin inmueble seleccionado | Vincular propiedad válida |
+| `RH-BUY-008` | Intento de apartar inmueble vendido o cerrado | Revisar expediente vigente |
+
+La lógica de comprador es preventiva y **solo del cliente**: no garantiza integridad entre navegadores ni autoriza escrituración, cobros o comisiones.

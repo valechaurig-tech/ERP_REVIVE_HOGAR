@@ -24,6 +24,10 @@ jobs:
         run: node --version
       - name: Prueba de integridad de sincronización (mocks)
         run: node scripts/test-db-sync.mjs
+      - name: Seguridad de contraseñas y perfiles (mocks)
+        run: node scripts/test-password-handling.mjs
+      - name: Protección de origen de datos empresarial (mocks)
+        run: node scripts/test-storage-safety.mjs
       - name: Módulo compradores independiente (mocks)
         run: node scripts/test-compradores.mjs
       - name: Copropietarios sin afectar finanzas (mocks)

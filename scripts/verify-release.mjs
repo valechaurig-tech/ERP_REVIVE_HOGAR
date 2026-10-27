@@ -75,6 +75,20 @@ if (exists('supabase/schema.sql')) {
     'REV-SEC-001', 'El SQL contiene una política rh_anon_all permisiva: diseñar migración y verificar RLS antes de liberar');
 }
 
+if (exists('js/auth.js')) {
+  const auth = read('js/auth.js');
+  check(!/user\.password\s*\|\|\s*cfg\.PASSWORD_INICIAL/i.test(auth),
+    'REV-SEC-003', 'Inicio de sesión tiene fallback de contraseña global; no admitirlo');
+}
+if (exists('js/forms.js') && exists('js/render.js')) {
+  const forms = read('js/forms.js');
+  const render = read('js/render.js');
+  check(!/\.value\.trim\(\)\s*\|\|\s*['"]1234['"]/.test(forms),
+    'REV-SEC-004', 'Guardar usuarios asigna contraseña de demostración al dejar campo vacío');
+  check(!/password\s*\|\|\s*['"]1234['"]/.test(render),
+    'REV-SEC-005', 'Editor de usuarios precarga contraseña conocida');
+}
+
 if (exists('js/config.js')) {
   const config = read('js/config.js');
   check(!/PASSWORD_INICIAL\s*:\s*['"]1234['"]/i.test(config),

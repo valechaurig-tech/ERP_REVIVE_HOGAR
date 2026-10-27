@@ -102,3 +102,25 @@ Los resultados anteriores demuestran progreso real, no que el ERP esté terminad
 - La colección `copropietarios` es independiente: estos cambios **no actualizan pagos, utilidades, contratos, escrituras ni la identidad del propietario principal**.
 - Pruebas unitarias sintéticas: 16 escenarios de compradores y 12 de copropiedad, aprobados. Roles solo UI hasta disponer de backend/RLS seguro.
 - Las participaciones son declaraciones internas que necesitan verificación documental; su suma no implica que el porcentaje restante del propietario principal sea legalmente correcto.
+
+
+## Refuerzo de seguridad y coherencia comercial (27/oct/2026)
+
+### Contraseñas de usuarios
+- **Se eliminó la asignación automática de contraseña `1234`** al dar de alta vendedores y al guardar ediciones de usuarios/perfil.
+- Crear vendedor exige clave explícita de 10–128 caracteres con letra y número; editar un usuario sin clave nueva **preserva la contraseña almacenada**.
+- Editores ya no muestran ni precargan contraseñas actuales; un inicio de sesión sin contraseña configurada **no usa fallback global**.
+- **Limitación crítica:** siguen existiendo cuentas semilla locales con `1234`, y los usuarios del modelo heredado guardan contraseñas en registros JSON. Esto NO equivale a autenticación segura. No liberar a nube hasta migrar a Supabase Auth/RLS.
+- Se agregaron 10 pruebas sintéticas de flujos de contraseña.
+
+### Integridad de compradores frente a propiedades
+- No se permite vincular un inmueble inexistente ni marcar una operación `Apartado`/`Concretado` sin propiedad.
+- Se impide desde la interfaz apartar una casa vendida o crear dos `Apartado`/`Concretado` activos del mismo inmueble para compradores distintos; otros interesados pueden seguir asociados.
+- La validación local **no es transaccional entre empleados**. Debe haber restricción del servidor para garantía definitiva.
+- Compradores pasa de 16 a **22 escenarios de prueba aprobados**.
+
+### Protección de fuente de datos
+- Supabase configurado y caído provoca error `RH-DB-007` y bloquea inicialización de la app; no se cambia automáticamente a `localStorage`.
+- Se desactivó importar automáticamente desde el navegador hacia un Supabase vacío; cualquier migración exige autorización, respaldos y revisión explícita.
+- Las cinco cuentas semilla `1234` solo se crean en modo local de demostración/Preview, nunca en `cloud`.
+- Cuatro escenarios adicionales probados con nube simulada; no se accedió a datos reales.
