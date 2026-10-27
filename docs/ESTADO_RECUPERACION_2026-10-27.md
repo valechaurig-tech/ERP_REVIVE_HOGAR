@@ -42,3 +42,46 @@
 
 ## Protección
 No se realizó merge a `main`, ni se reasignó `revive-hogar.vercel.app`, ni se ejecutó ninguna operación de Supabase.
+
+
+## Anexo — Contraste completo de archivos públicos y ruta privada (27/oct/2026)
+
+### Evidencia de integridad del frontend
+
+Comparación independiente en Vercel Sandbox por GET de la **producción original** \`https://revive-hogar.vercel.app\` contra los binarios/texto de la rama GitHub:
+- 55/55 archivos web efectivamente desplegados coinciden.
+- 50 coincidencias de hash SHA-256 idénticas byte por byte.
+- 5 diferencias SOLO de saltos de línea (CRLF/LF), pero contenido normalizado idéntico: \`js/config.js\`, \`js/brand.js\`, \`js/config.example.js\`, \`js/ia-features.js\`, \`js/luna.js\`.
+- El chequeo inspeccionó además \`.gitignore\`, que **no existe** en la fuente web de Vercel: esa respuesta fue un fallback al HTML de la SPA, no un archivo distinto. Este caso quedó excluido del 55/55.
+- No se ejecutaron flujos de escritura o tests sobre datos operativos.
+
+### Verificación posterior de fuentes privadas
+
+Se probaron nuevamente el endpoint de lectura de archivos de despliegue de Vercel y la ruta oficial \`/_src\`.
+
+- \`/_src\` redirige al **Source inspector privado** del despliegue correcto:
+  https://vercel.com/deployments/revive-hogar-4sy2ru5kc-echauri-apps.vercel.app/source
+- Para fuentes privadas grandes, el conector devuelve base64 cortado alrededor de 2.014 caracteres, con el indicador literal \`...[truncated]\`. **Vercel conserva el archivo y la API reconoce su UID; la limitación está en esta representación del conector.**
+- Se recuperó por completo \`secrets.revive.env.example\` del despliegue de octubre después de verificar que \`GH_TOKEN\`, \`VERCEL_TOKEN\`, \`GEMINI_API_KEY\`, \`SUPABASE_SERVICE_ROLE_KEY\` y \`SUPABASE_DB_PASSWORD\` estuvieran VACÍOS. No se recuperó ningún valor secreto.
+
+**Restan exactamente seis fuentes de octubre para obtener/cotejar:**
+1. \`api/archivos.js\` — solo Vercel.
+2. \`scripts/setup-storage.js\` — solo Vercel.
+3. \`api/ia.js\` — versión distinta detectada por su prefijo.
+4. \`supabase/schema.sql\` — versión distinta detectada por su prefijo.
+5. \`deploy.ps1\` — versión distinta detectada por su prefijo.
+6. \`PROJECT_LOG.md\` — versión distinta detectada por su prefijo.
+
+### Ruta de recuperación íntegra sin revelar tokens
+
+Se agregó \`scripts/recover-vercel-source.ps1\`, procedimiento **no ejecutado aún** porque necesita una sesión autorizada de Vercel CLI en el equipo del usuario:
+
+- Usa \`vercel api\` con la autenticación local de la sesión y los UID exactos listados en Vercel.
+- **No solicita ni imprime tokens**.
+- Descarga los seis archivos enteros en \`.vercel/recovered-source-2026-10-05/\` (ignorados por Git), calcula SHA-256 y deja un manifiesto.
+- Nunca despliega, escribe en producción, cambia políticas ni hace push.
+- Se deben inspeccionar posibles secretos incrustados antes de versionar esas fuentes.
+
+La vía alternativa es recuperar esos archivos desde el inspector Source privado (sin desactivar Source Protection) o desde el directorio original que se envió mediante Vercel CLI el 5/oct/2026.
+
+**No publicar la rama de recuperación en producción antes de integrar esos archivos y revisar Supabase.** El Preview actual carece del endpoint \`/api/archivos\`, por lo que sería una regresión real al sustituir producción.
