@@ -183,6 +183,7 @@ function showModule(modId, navElement, bypass = false) {
     next.classList.add('module-enter');
     activeModuleId = modId;
     actualizarBreadcrumbs(modId);
+    window.RH_USAGE?.record('module_open', modId, currentUser?.rol);
 
     if (!bypass && navElement) {
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
