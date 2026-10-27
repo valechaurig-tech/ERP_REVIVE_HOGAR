@@ -124,3 +124,5 @@ Los resultados anteriores demuestran progreso real, no que el ERP esté terminad
 - Se desactivó importar automáticamente desde el navegador hacia un Supabase vacío; cualquier migración exige autorización, respaldos y revisión explícita.
 - Las cinco cuentas semilla `1234` solo se crean en modo local de demostración/Preview, nunca en `cloud`.
 - Cuatro escenarios adicionales probados con nube simulada; no se accedió a datos reales.
+
+**Ampliación de pruebas de protección del origen:** se añadieron dos escenarios al test `test-storage-safety.mjs`: librería Supabase ausente y configuración parcial, ambos deben bloquear el acceso empresarial. Total: 6 escenarios aprobados. El control estático impide reintroducir migración silenciosa o fallback causado por SDK ausente (`REV-SEC-006/007`).

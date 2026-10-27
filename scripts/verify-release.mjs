@@ -69,6 +69,14 @@ for (const p of [...jsFiles('js'), ...jsFiles('api'), ...jsFiles('scripts')]) {
   check(result.status === 0, 'REV-REL-006', `Error sintáctico ${p}: ${(result.stderr||'').slice(0,350)}`);
 }
 
+if (exists('js/db.js')) {
+  const db = read('js/db.js');
+  check(!/if\s*\(url\s*&&\s*key\s*&&\s*typeof\s+window\.supabase/.test(db),
+    'REV-SEC-006', 'Si falla el SDK de Supabase no se debe habilitar modo local');
+  check(!/await\s+migrarLocalANubeSiVacio\s*\(\s*\)/.test(db),
+    'REV-SEC-007', 'No permitir importación automática del navegador hacia nube vacía');
+}
+
 if (exists('supabase/schema.sql')) {
   const sql = read('supabase/schema.sql');
   check(!/create\s+policy\s+["']?rh_anon_all["']?/i.test(sql),
