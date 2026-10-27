@@ -130,6 +130,7 @@ function archivarCopropietario(id) {
     const t = todos.find(t => t.id === id && t.casaId === rhTitularesCasaId && !t.archivado);
     if (!t || !confirmAction('¿Archivar esta declaración? El registro se conservará.')) return;
     DB.set('copropietarios', todos.map(x => x.id === id ? { ...x, archivado: true, fechaActualizacion: new Date().toISOString() } : x));
+    if (typeof logAction === 'function') logAction('Declaración de copropietario archivada en propiedad ' + rhTitularesCasaId);
     renderTitularesCasa();
 }
 
@@ -149,6 +150,7 @@ function restaurarCopropietario(id) {
         return false;
     }
     DB.set('copropietarios', todos.map(x => x.id === id ? { ...x, archivado: false, fechaActualizacion: new Date().toISOString() } : x));
+    if (typeof logAction === 'function') logAction('Declaración de copropietario restaurada en propiedad ' + rhTitularesCasaId);
     renderTitularesCasa();
     return true;
 }
