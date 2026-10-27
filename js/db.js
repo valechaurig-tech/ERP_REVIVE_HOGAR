@@ -289,14 +289,17 @@ const DB = {
                 actualizarIndicadorNube('sync');
                 await verificarTablaNube();
                 await cargarTodoDesdeNube();
-                await migrarLocalANubeSiVacio();
+                // Nunca subir datos del navegador automáticamente a una nube vacía.
+                // La migración manual exige respaldos, trazabilidad y autorización.
                 iniciarRealtime();
                 actualizarIndicadorNube('ok');
             } catch (error) {
                 console.error('Supabase Revive Hogar no disponible:', error);
-                dbMode = 'local';
-                cargarCacheLocal();
+                // Seguridad: no hacer fallback silencioso a una base local incompatible.
+                dbMode = 'unavailable';
+                dbReady = false;
                 actualizarIndicadorNube('error');
+                throw new Error('RH-DB-007: No se pudo confirmar la conexión con la base empresarial. Se bloqueó el acceso para evitar mezclas o pérdidas de información.');
             }
         } else {
             dbMode = 'local';

@@ -24,7 +24,9 @@ function initSeedData() {
     });
 
     let usuarios = DB.get('usuariosLogin');
-    const base = [
+    // Cuentas demo únicamente para previews locales aislados. Nunca auto-crear
+    // credenciales conocidas en Supabase empresarial.
+    const base = DB.mode() === 'cloud' ? [] : [
         { tipo: 'general', displayName: 'Dirección', rol: 'Direccion', password: '1234' },
         { tipo: 'general', displayName: 'Marketing', rol: 'Marketing', password: '1234' },
         { tipo: 'general', displayName: 'Administradora', rol: 'Administradora', password: '1234' },
