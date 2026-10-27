@@ -152,6 +152,7 @@ function construirContextoIA() {
     const campanas = DB.get('campanas');
     const alertas = DB.get('alertas').filter(a => typeof alertaVisibleParaUsuario === 'function' && alertaVisibleParaUsuario(a));
     const tareas = DB.get('tareas').filter(t => typeof tareaVisibleParaUsuario === 'function' && tareaVisibleParaUsuario(t));
+    const presupuestosFinancieros = DB.get('presupuestos');
 
     let misProspectos = prospectos;
     let misCasas = casas;
@@ -173,6 +174,9 @@ function construirContextoIA() {
     const firmados = prospectos.filter(p => p.estatus === 'Firmado').length;
     const estancados = typeof prospectosEstancados === 'function' ? prospectosEstancados(misProspectos).length : 0;
     const fin = typeof calcularIndicadoresFinancieros === 'function' ? calcularIndicadoresFinancieros() : {};
+    const resumenesGastos = typeof calcularResumenPresupuesto === 'function'
+        ? presupuestosFinancieros.map(p => ({ presupuesto: p, resumen: calcularResumenPresupuesto(p) }))
+        : [];
 
     const ctx = {
         fecha: new Date().toLocaleString('es-MX'),
@@ -205,7 +209,11 @@ function construirContextoIA() {
             costosRemodelacion: fin.costosRemodelacion || 0,
             inversionPropiedades: fin.inversionPropiedades || 0,
             utilidadRealizada: fin.utilidadRealizada || 0,
-            utilidadProyectada: fin.utilidadProyectada || 0
+            utilidadProyectada: fin.utilidadProyectada || 0,
+            presupuestoMaestroTotal: resumenesGastos.reduce((s, x) => s + x.resumen.presupuesto, 0),
+            egresosRealesTotal: resumenesGastos.reduce((s, x) => s + x.resumen.egresos, 0),
+            inversionRegistradaTotal: resumenesGastos.reduce((s, x) => s + x.resumen.inversionTotal, 0),
+            saldoCajaTotal: resumenesGastos.reduce((s, x) => s + x.resumen.saldoCaja, 0)
         },
         prospectosPorEstatus: porEstatus(misProspectos, 'estatus'),
         pipelinePorEstatus: porEstatus(misCasas, 'estatusPipeline'),
@@ -236,6 +244,16 @@ function construirContextoIA() {
             direccion: c.direccionPropiedad,
             propuesta: c.montoAdquisicion ? formatearMoneda(c.montoAdquisicion) : '—'
         })),
+        gastosPorPropiedad: resumenesGastos.slice(0, 10).map(({ presupuesto: p, resumen: r }) => ({
+            propiedad: p.cabecera?.propiedad || p.casaId || p.prospectoId,
+            presupuesto: r.presupuesto,
+            egresos: r.egresos,
+            inversion: r.inversionTotal,
+            venta: r.venta,
+            utilidadProyectada: r.utilidadProyectada,
+            utilidadSobreEgresos: r.utilidad,
+            saldoCaja: r.saldoCaja
+        })),
         tareasActivasLista: tareas.filter(t => t.estado !== 'Completada').slice(0, 8).map(t => ({
             titulo: t.titulo,
             prioridad: t.priority,
@@ -250,7 +268,16 @@ function construirContextoIA() {
     if (typeof detalleActivoId !== 'undefined' && detalleActivoId) {
         if (typeof detalleModo !== 'undefined' && detalleModo === 'casa') {
             const c = casas.find(x => x.id === detalleActivoId);
-            if (c) ctx.casoAbierto = { tipo: 'propiedad', nombre: c.nombreCompleto, estatus: c.estatusPipeline };
+            if (c) {
+                const presupuestoCaso = presupuestosFinancieros.find(x => x.casaId === c.id || x.prospectoId === c.prospectoId);
+                ctx.casoAbierto = {
+                    tipo: 'propiedad',
+                    nombre: c.nombreCompleto,
+                    estatus: c.estatusPipeline,
+                    finanzas: presupuestoCaso && typeof calcularResumenPresupuesto === 'function'
+                        ? calcularResumenPresupuesto(presupuestoCaso) : calcularEconomiaCasa(c, getProspectoById(c.prospectoId))
+                };
+            }
         } else if (typeof detalleModo !== 'undefined' && detalleModo === 'prospecto') {
             const p = getProspectoById(detalleActivoId);
             if (p) ctx.casoAbierto = { tipo: 'prospecto', nombre: p.nombreCompleto, estatus: p.estatus };

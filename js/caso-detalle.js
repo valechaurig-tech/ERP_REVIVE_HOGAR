@@ -107,8 +107,8 @@ function cambiarTabDetalleCasa(tab) {
         const casoTab = getCasoActivo();
         renderDetalleRemodelacion(casoTab, getProspectoDelCaso(casoTab));
     }
-    if (tab === 'luna' && typeof renderPanelLunaCaso === 'function') renderPanelLunaCaso();
-    if (tab === 'riva' && typeof renderPanelLunaCaso === 'function') renderPanelLunaCaso();
+    if (tab === 'luna' || tab === 'riva') cambiarTabDetalleCasa('resumen');
+    if (tab === 'recorrido' && typeof renderPanelRecorrido === 'function') renderPanelRecorrido();
 }
 
 
@@ -167,7 +167,9 @@ function renderDetalleModal() {
 
     const tabRem = document.getElementById('detalle-tab-remodelacion');
     if (tabRem) tabRem.classList.toggle('hidden', detalleModo !== 'casa');
-    if (detalleModo !== 'casa' && detalleTabActiva === 'remodelacion') detalleTabActiva = 'resumen';
+    const tabTour = document.getElementById('detalle-tab-recorrido');
+    if (tabTour) tabTour.classList.toggle('hidden', detalleModo !== 'casa');
+    if (detalleModo !== 'casa' && (detalleTabActiva === 'remodelacion' || detalleTabActiva === 'recorrido')) detalleTabActiva = 'resumen';
 
 
 
@@ -199,6 +201,8 @@ function renderDetalleResumen(caso, p, vend) {
 
     if (detalleModo === 'casa') {
 
+        const eco = calcularEconomiaCasa(caso, p);
+
         resumen.innerHTML = `
 
             <div class="detalle-grid">
@@ -216,11 +220,12 @@ function renderDetalleResumen(caso, p, vend) {
 
                 <div class="detalle-kv"><span>Escrituras</span><strong>${escapeHtml(p?.tieneEscrituras || '—')}</strong></div>
 
-                <div class="detalle-kv"><span>Invadida</span><strong>${escapeHtml(p?.invadida || '—')}</strong></div>
+                <div class="detalle-kv"><span>Estatus de la propiedad</span><strong>${escapeHtml(p?.estatusPropiedad || (p?.invadida === 'Si' ? 'Invadida' : '—'))}</strong></div>
 
                 <div class="detalle-kv"><span>Vendedor</span><strong>${escapeHtml(vend?.displayName || '—')}</strong></div>
 
                 <div class="detalle-kv"><span>Fecha de firma</span><strong>${caso.fechaFirma ? new Date(caso.fechaFirma).toLocaleDateString() : '—'}</strong></div>
+                <div class="detalle-kv"><span>Precio de venta</span><strong>${eco.precioVenta ? formatearMoneda(eco.precioVenta) : '—'}</strong></div>
                 <div class="detalle-kv"><span>Precio de compra</span><strong>${formatearMoneda(getMontoAdquisicionCasa(caso, p))}</strong></div>
             </div>
 
@@ -423,18 +428,24 @@ function renderAdeudosHtml(p) {
 
             <div class="mkt-analytics-grid detalle-adeudos-grid">
 
-                <div class="mkt-metric-card"><span class="mkt-metric-label">Crédito</span><span class="mkt-metric-value">${formatearMoneda(p.adeudoCredito)}</span></div>
+                ${tarjetaAdeudoDetalle('Crédito', p.adeudoCredito, p.adeudoCreditoEstado)}
 
-                <div class="mkt-metric-card"><span class="mkt-metric-label">Agua</span><span class="mkt-metric-value">${formatearMoneda(p.adeudoAgua)}</span></div>
+                ${tarjetaAdeudoDetalle('Agua', p.adeudoAgua, p.adeudoAguaEstado)}
 
-                <div class="mkt-metric-card"><span class="mkt-metric-label">Luz</span><span class="mkt-metric-value">${formatearMoneda(p.adeudoLuz)}</span></div>
+                ${tarjetaAdeudoDetalle('Luz', p.adeudoLuz, p.adeudoLuzEstado)}
 
-                <div class="mkt-metric-card"><span class="mkt-metric-label">Predial</span><span class="mkt-metric-value">${formatearMoneda(p.adeudoPredial)}</span></div>
+                ${tarjetaAdeudoDetalle('Predial', p.adeudoPredial, p.adeudoPredialEstado)}
 
             </div>
 
         </div>`;
 
+}
+
+function tarjetaAdeudoDetalle(nombre, monto, estado) {
+    const estadoActual = estado || 'Pendiente de revisar';
+    const valor = estadoActual === 'No aplica' ? 'No aplica' : formatearMoneda(monto);
+    return `<div class="mkt-metric-card"><span class="mkt-metric-label">${escapeHtml(nombre)}</span><span class="mkt-metric-value">${valor}</span><small>${escapeHtml(estadoActual)}</small></div>`;
 }
 
 
@@ -504,24 +515,48 @@ function renderDetalleExpediente(caso, p) {
     if (!expPanel) return;
 
     const data = p || caso;
+    const personales = data.datosExpediente || {};
+    const docsAplicables = typeof RH_DOCUMENTOS_EXPEDIENTE !== 'undefined'
+        ? RH_DOCUMENTOS_EXPEDIENTE.filter(doc => documentoAplica(data, doc)) : [];
+    const completos = docsAplicables.filter(doc => getArchivoProspecto(data.id, doc.tipo)).length;
+    const porcentaje = Math.round((completos / Math.max(1, docsAplicables.length)) * 100);
 
     expPanel.innerHTML = `
-
+        <div class="exp-case-summary">
+            <div><span>Expediente documental</span><strong>${completos}/${docsAplicables.length}</strong><small>documentos aplicables</small></div>
+            <div class="exp-progress-bar"><i style="width:${porcentaje}%"></i></div>
+            <b>${porcentaje}%</b>
+        </div>
         <div class="detalle-grid">
-
+            <div class="detalle-kv"><span>Nombre validado</span><strong>${escapeHtml(personales.nombreCompleto || data.nombreCompleto || '—')}</strong></div>
+            <div class="detalle-kv"><span>IDMEX</span><strong>${escapeHtml(personales.idmex || '—')}</strong></div>
+            <div class="detalle-kv"><span>Celular</span><strong>${escapeHtml(personales.celular || data.telefono || '—')}</strong></div>
+            <div class="detalle-kv"><span>Correo</span><strong>${escapeHtml(personales.correo || '—')}</strong></div>
+            <div class="detalle-kv"><span>Estado civil</span><strong>${personales.esCasado === 'Si' ? `Casado · Cónyuge participa: ${escapeHtml(personales.conyugeParticipa || '—')}` : escapeHtml(personales.esCasado || '—')}</strong></div>
+            <div class="detalle-kv"><span>Nacimiento</span><strong>${escapeHtml(personales.fechaNacimiento || '—')} · ${escapeHtml(personales.lugarNacimiento || '—')}</strong></div>
             <div class="detalle-kv"><span>Notas</span><strong>${escapeHtml(data.notas || '—')}</strong></div>
 
             <div class="detalle-kv"><span>Registrado por</span><strong>${escapeHtml(data.registradoPor || '—')}</strong></div>
 
             <div class="detalle-kv"><span>Escrituras</span><strong>${escapeHtml(data.tieneEscrituras || '—')}</strong></div>
 
-            <div class="detalle-kv"><span>Invadida</span><strong>${escapeHtml(data.invadida || '—')}</strong></div>
+            <div class="detalle-kv"><span>Estatus de la propiedad</span><strong>${escapeHtml(data.estatusPropiedad || data.invadida || '—')}</strong></div>
 
             <div class="detalle-kv"><span>Estatus venta</span><strong>${badgeEstatusProspecto(data.estatus || caso.estatus)}</strong></div>
 
             <div class="detalle-kv"><span>Precio de compra</span><strong>${data.montoAdquisicion ? formatearMoneda(data.montoAdquisicion) : '—'}</strong></div>
-
-        </div>`;
+        </div>
+        <div class="exp-case-docs">
+            ${docsAplicables.map(doc => {
+                const archivo = getArchivoProspecto(data.id, doc.tipo);
+                return `<button type="button" class="${archivo ? 'is-complete' : ''}" ${archivo ? `onclick="abrirArchivoExpediente('${archivo.id}')"` : 'disabled'}>
+                    <i>${archivo ? '✓' : '○'}</i><span>${escapeHtml(doc.nombre)}</span>
+                </button>`;
+            }).join('')}
+        </div>
+        ${(rhEsDireccion(currentUser) || currentUser?.rol === 'Administradora') && typeof generarVistaDocumentos === 'function'
+            ? generarVistaDocumentos(data)
+            : ''}`;
 
 }
 

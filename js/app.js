@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         bindAllForms();
         bindLoginForm();
         bindAuditoriaEvents();
-        if (typeof initIAAssistant === 'function') initIAAssistant();
         const pipeFilter = document.getElementById('pipeline-filter');
         if (pipeFilter) pipeFilter.addEventListener('change', renderPipeline);
     } catch (error) {
