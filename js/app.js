@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         cargarUsuariosLogin();
         setLoginMode('general');
         bindAllForms();
+        inicializarCompradores();
         bindLoginForm();
         bindAuditoriaEvents();
         const pipeFilter = document.getElementById('pipeline-filter');

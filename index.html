@@ -224,6 +224,72 @@
                     </section>
                 </div>
 
+                <div id="mod-compradores" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Compradores</h3>
+                            <p class="module-desc">Personas interesadas en comprar. Sus datos permanecen separados de los propietarios y expedientes de inmuebles.</p>
+                        </div>
+                        <button id="comprador-nuevo" type="button" class="btn btn-primary">+ Nuevo comprador</button>
+                    </div>
+                    <div class="rh-buyer-summary">Compradores activos: <strong id="comprador-total">0</strong></div>
+                    <div id="comprador-editor" class="rh-buyer-editor hidden">
+                        <h4 id="comprador-editor-titulo">Nuevo comprador</h4>
+                        <form id="form-comprador">
+                            <input id="comprador-id" type="hidden">
+                            <div class="rh-buyer-fields">
+                                <label>Nombre completo *
+                                    <input id="comprador-nombre" class="form-control" type="text" maxlength="160" autocomplete="name" required>
+                                </label>
+                                <label>Teléfono *
+                                    <input id="comprador-telefono" class="form-control" type="tel" maxlength="35" autocomplete="tel" required>
+                                </label>
+                            </div>
+                            <details class="rh-buyer-advanced">
+                                <summary>Más datos opcionales</summary>
+                                <div class="rh-buyer-fields">
+                                    <label>Correo
+                                        <input id="comprador-correo" type="email" class="form-control" maxlength="150">
+                                    </label>
+                                    <label>Zona o tipo de propiedad que busca
+                                        <input id="comprador-interes" class="form-control" type="text" maxlength="180">
+                                    </label>
+                                    <label>Presupuesto máximo (MXN)
+                                        <input id="comprador-presupuesto" class="form-control" type="number" min="0" max="1000000000000" step="0.01">
+                                    </label>
+                                    <label>Etapa
+                                        <select id="comprador-estatus" class="form-control">
+                                            <option>Nuevo</option><option>En seguimiento</option><option>Interesado</option>
+                                            <option>Apartado</option><option>Concretado</option><option>Archivado</option>
+                                        </select>
+                                    </label>
+                                    <label class="rh-buyer-asesor-field">Asesor responsable
+                                        <select id="comprador-asesor" class="form-control"><option value="">Sin asignar</option></select>
+                                    </label>
+                                    <label class="rh-buyer-notes">Notas internas
+                                        <textarea id="comprador-notas" class="form-control" rows="3" maxlength="2000"></textarea>
+                                    </label>
+                                </div>
+                            </details>
+                            <div class="rh-buyer-actions">
+                                <button type="submit" class="btn btn-primary">Guardar comprador</button>
+                                <button type="button" id="comprador-cancelar" class="btn btn-secondary">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="rh-buyer-filters">
+                        <label class="rh-buyer-search">Buscar comprador
+                            <input id="comprador-buscar" type="search" class="form-control" placeholder="Nombre, teléfono o interés">
+                        </label>
+                        <label class="rh-buyer-checkbox"><input type="checkbox" id="comprador-mostrar-archivados"> Incluir archivados</label>
+                    </div>
+                    <div class="table-responsive table-clean table-mkt">
+                        <table id="table-compradores"><thead><tr>
+                            <th>Comprador</th><th>Teléfono</th><th>Interés</th><th>Etapa</th><th>Asesor</th><th>Acciones</th>
+                        </tr></thead><tbody><tr><td colspan="6" class="celda-vacia">Sin compradores registrados.</td></tr></tbody></table>
+                    </div>
+                </div>
+
                 <div id="mod-vendedor" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
@@ -979,6 +1045,7 @@
     <script src="js/recorrido.js?v=20261004c"></script>
     <script src="js/render.js?v=20261004c"></script>
     <script src="js/forms.js?v=20261004c"></script>
+    <script src="js/compradores.js?v=20261027a"></script>
     <script src="js/usage-metrics.js?v=20261027a"></script>
     <script src="js/auth.js?v=20261004c"></script>
     <script src="js/app.js?v=20261004c"></script>

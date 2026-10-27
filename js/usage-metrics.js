@@ -11,7 +11,7 @@
     const ALLOWED_ROLES = new Set(['Direccion', 'Dirección', 'Marketing', 'Vendedor', 'Administradora']);
     const ALLOWED_MODULES = new Set([
         'mod-planner', 'mod-proyectos', 'mod-dashboard', 'mod-marketing',
-        'mod-vendedor', 'mod-administradora', 'mod-pipeline', 'mod-gastos',
+        'mod-vendedor', 'mod-compradores', 'mod-administradora', 'mod-pipeline', 'mod-gastos',
         'mod-gastos-empresa', 'mod-referidos', 'mod-configuracion',
         'mod-auditoria', 'mod-usuarios'
     ]);
