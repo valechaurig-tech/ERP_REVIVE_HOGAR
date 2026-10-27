@@ -64,3 +64,25 @@ Además, tres archivos del servidor y un log documental difieren de octubre: `ap
 6. Solo entonces fusionar y desplegar la versión **probada** a producción.
 
 Los resultados anteriores demuestran progreso real, no que el ERP esté terminado o que sea seguro cambiar producción hoy.
+
+
+## Anexo de continuidad — 27 octubre, implementación posterior
+
+### Sincronización reforzada
+- Lectura de cada colección en bloques de 1.000 con orden estable para recuperar expedientes por encima del límite de PostgREST.
+- Protección de cambios en memoria frente a eventos Realtime mientras existan escrituras locales pendientes.
+- Envío de **solo los registros modificados**, no de toda la colección cada vez que hay flush, para evitar sobrescrituras ajenas innecesarias.
+- Tres reintentos como máximo ante fallos transitorios y reactivación del envío al recuperar la conexión. No garantiza supervivencia de borradores tras cerrar el navegador.
+- 12 pruebas sintéticas de sincronización aprobadas (subida de 5/5 a 12/12).
+
+### Compradores independientes — primera versión funcional de rama
+- Nueva colección `compradores`, módulo `mod-compradores`, navegación Comercial y permisos de interfaz por rol.
+- Solo nombre y teléfono requeridos; correo, presupuesto, preferencia, asesor y notas en sección opcional.
+- Crear, consultar, editar, buscar, archivar y restaurar sin modificar expedientes de propietarios existentes.
+- Vendedor solo ve compradores asignados a él en la interfaz y no puede reasignar desde el formulario; la seguridad real sigue requiriendo RLS/servidor.
+- **10 pruebas unitarias con datos ficticios aprobadas**, incluidas no duplicación, autorización UI, archivo y restauración.
+- No se ha implementado todavía un vínculo transaccional completo entre comprador, propiedad, cierre de venta, notaría y distribución de comisiones. No declararlo finalizado.
+
+### CI
+- Trabajo `qa-sin-datos-reales` comprueba que los cambios no rompen los módulos; trabajo separado `puerta-produccion` permanece bloqueante mientras falten las fuentes privadas y la migración de Auth/RLS.
+- Un check QA verde es distinto de un permiso de publicar: **NO MERGE mientras la puerta de producción esté fallando**.

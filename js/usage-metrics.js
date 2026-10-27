@@ -20,7 +20,7 @@
         'form-expediente-admin', 'form-pipeline', 'form-costo-remodelacion',
         'form-montos-casa', 'form-nuevo-vendedor', 'form-usuario',
         'form-mi-perfil', 'form-tarea', 'form-mensaje-caso',
-        'form-autorizacion', 'form-pago-referido'
+        'form-autorizacion', 'form-pago-referido', 'form-comprador'
     ]);
     const ALLOWED_EVENTS = new Set(['module_open', 'form_attempt']);
     const localDay = date => [

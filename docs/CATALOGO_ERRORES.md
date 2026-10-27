@@ -39,3 +39,13 @@ La validación enfoca el campo, lo marca temporalmente como inválido y muestra 
 - Autenticación y autorización de API/RLS requieren migración segura **después** del respaldo y de recuperar el backend exacto.
 - Los contadores `RH_USAGE` son **locales** al navegador, solo agregados de siete días; no son un panel empresarial consolidado.
 - Este catálogo no autoriza fusionar ni desplegar el PR mientras `verify-release.mjs` tenga bloqueos.
+
+
+## Compradores (cartera nueva, independiente del propietario)
+| Código | Situación | Campo |
+|---|---|---|
+| `RH-BUY-001` | Nombre de comprador ausente o demasiado corto | `comprador-nombre` |
+| `RH-BUY-002` | Teléfono sin al menos 7 dígitos | `comprador-telefono` |
+| `RH-BUY-003` | Presupuesto máximo numérico inválido, negativo o excesivo | `comprador-presupuesto` |
+
+El registro nuevo solo exige nombre y teléfono; los demás datos quedan opcionales. `compradores` es una colección distinta a `prospectos` y `casas`; archivar no elimina registros. Los controles de rol actuales son de interfaz y **no sustituyen la autorización del servidor**.

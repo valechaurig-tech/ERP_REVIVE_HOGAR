@@ -24,6 +24,8 @@ jobs:
         run: node --version
       - name: Prueba de integridad de sincronización (mocks)
         run: node scripts/test-db-sync.mjs
+      - name: Módulo compradores independiente (mocks)
+        run: node scripts/test-compradores.mjs
       - name: Privacidad y retención de métricas (mocks)
         run: node scripts/test-usage-metrics.mjs
       - name: Errores de captura (mocks)
