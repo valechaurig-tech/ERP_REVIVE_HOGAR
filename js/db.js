@@ -21,6 +21,13 @@ const RH_TABLE = 'rh_records';
 const RH_STORAGE_PREFIX = 'revive_hogar_';
 
 const DB_CACHE = {};
+// Huellas de la última lectura/escritura remota, nunca objetos mutables de DB.get.
+const DB_SYNCED_ROWS = {};
+function registrarFilasSincronizadas(key, items) {
+    DB_SYNCED_ROWS[key] = new Map((items || [])
+        .filter(item => item && item.id)
+        .map(item => [item.id, JSON.stringify(item)]));
+}
 // Registro independiente para detectar bajas aunque DB.get() se modifique in-place.
 const DB_IDS_SNAPSHOT = {};
 function registrarIdsCache(key) {
@@ -116,6 +123,7 @@ async function cargarColeccionNube(key) {
     if (DB_PENDING_WRITES.has(key) || pendingDeletes[key]?.size) return false;
     DB_CACHE[key] = rows.map(row => row.data).filter(Boolean);
     registrarIdsCache(key);
+    registrarFilasSincronizadas(key, DB_CACHE[key]);
     return true;
 }
 
@@ -129,7 +137,13 @@ async function migrarLocalANubeSiVacio() {
     if (count > 0) return false;
     cargarCacheLocal();
     for (const key of DB_KEYS) {
-        if ((DB_CACHE[key] || []).length > 0) await persistirColeccionNube(key, true);
+        if ((DB_CACHE[key] || []).length > 0) {
+            // La migración inicial deliberada no tiene huellas previas en la nube.
+            DB_SYNCED_ROWS[key] = new Map();
+            DB_PENDING_WRITES.add(key);
+            DB_REVISIONS[key] = (DB_REVISIONS[key] || 0) + 1;
+            await persistirColeccionNube(key, true);
+        }
     }
     return true;
 }
@@ -152,11 +166,15 @@ async function flushPendientesEliminacion(key) {
     if (!ids.length) return;
     // Los IDs no salen de la cola hasta recibir confirmación remota.
     await eliminarIdsNube(key, ids);
-    ids.forEach(id => pendingDeletes[key]?.delete(id));
+    ids.forEach(id => {
+        pendingDeletes[key]?.delete(id);
+        DB_SYNCED_ROWS[key]?.delete(id);
+    });
 }
 
 async function persistirColeccionNube(key, inmediato = false) {
     if (!supabaseClient || dbMode !== 'cloud') return;
+    if (!DB_PENDING_WRITES.has(key) && !pendingDeletes[key]?.size) return;
     const revision = DB_REVISIONS[key] || 0;
     await flushPendientesEliminacion(key);
     const items = DB_CACHE[key] || [];
@@ -165,12 +183,16 @@ async function persistirColeccionNube(key, inmediato = false) {
         if (inmediato) actualizarIndicadorNube(DB_PENDING_WRITES.size ? 'sync' : 'ok');
         return;
     }
-    const filas = items.filter(i => i.id).map(item => ({
-        collection: key,
-        record_id: item.id,
-        data: item,
-        updated_at: new Date().toISOString()
-    }));
+    const previas = DB_SYNCED_ROWS[key] || new Map();
+    // Escribir solo nuevos/editados: un flush de otra sesión no pisa filas ajenas.
+    const filas = items.filter(i => i.id)
+        .filter(item => JSON.stringify(item) !== previas.get(item.id))
+        .map(item => ({
+            collection: key,
+            record_id: item.id,
+            data: JSON.parse(JSON.stringify(item)),
+            updated_at: new Date().toISOString()
+        }));
     for (let i = 0; i < filas.length; i += 200) {
         const lote = filas.slice(i, i + 200);
         const { error } = await supabaseClient.from(RH_TABLE).upsert(lote, { onConflict: 'collection,record_id' });
@@ -178,6 +200,8 @@ async function persistirColeccionNube(key, inmediato = false) {
             actualizarIndicadorNube('error');
             throw new Error(`RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
         }
+        if (!DB_SYNCED_ROWS[key]) DB_SYNCED_ROWS[key] = new Map();
+        lote.forEach(row => DB_SYNCED_ROWS[key].set(row.record_id, JSON.stringify(row.data)));
     }
     if ((DB_REVISIONS[key] || 0) === revision) DB_PENDING_WRITES.delete(key);
     else programarPersistencia(key);
@@ -322,6 +346,7 @@ const DB = {
             return false;
         }
         registrarIdsCache(key);
+        DB_SYNCED_ROWS[key]?.delete(id);
         return true;
     },
 
