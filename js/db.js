@@ -23,10 +23,12 @@ const RH_STORAGE_PREFIX = 'revive_hogar_';
 const DB_CACHE = {};
 // Huellas de la última lectura/escritura remota, nunca objetos mutables de DB.get.
 const DB_SYNCED_ROWS = {};
-function registrarFilasSincronizadas(key, items) {
+const DB_REMOTE_STAMPS = {};
+function registrarFilasSincronizadas(key, items, stamps) {
     DB_SYNCED_ROWS[key] = new Map((items || [])
         .filter(item => item && item.id)
         .map(item => [item.id, JSON.stringify(item)]));
+    DB_REMOTE_STAMPS[key] = new Map(stamps || []);
 }
 // Registro independiente para detectar bajas aunque DB.get() se modifique in-place.
 const DB_IDS_SNAPSHOT = {};
@@ -111,7 +113,7 @@ async function cargarColeccionNube(key) {
     const rows = [];
     for (let desde = 0; desde <= DB_LIMITS.MAX_ITEMS_PER_COLLECTION; desde += tamano) {
         const { data, error } = await supabaseClient.from(RH_TABLE)
-            .select('data').eq('collection', key)
+            .select('data, record_id, updated_at').eq('collection', key)
             .order('record_id', { ascending: true }).range(desde, desde + tamano - 1);
         if (error) throw new Error(`RH-DB-004: No se pudo leer ${key}: ${error.message || error}`);
         rows.push(...(data || []));
@@ -124,7 +126,9 @@ async function cargarColeccionNube(key) {
     if (DB_PENDING_WRITES.has(key) || pendingDeletes[key]?.size) return false;
     DB_CACHE[key] = rows.map(row => row.data).filter(Boolean);
     registrarIdsCache(key);
-    registrarFilasSincronizadas(key, DB_CACHE[key]);
+    registrarFilasSincronizadas(key, DB_CACHE[key], rows
+        .filter(row => row?.data?.id)
+        .map(row => [row.data.id, row.updated_at || '']));
     return true;
 }
 
@@ -185,25 +189,54 @@ async function persistirColeccionNube(key, inmediato = false) {
         return;
     }
     const previas = DB_SYNCED_ROWS[key] || new Map();
-    // Escribir solo nuevos/editados: un flush de otra sesión no pisa filas ajenas.
+    const sellos = DB_REMOTE_STAMPS[key] || new Map();
+    // Escribir solo nuevos/editados. Una fila ya vista solo se actualiza si su sello no cambió.
     const filas = items.filter(i => i.id)
         .filter(item => JSON.stringify(item) !== previas.get(item.id))
         .map(item => ({
             collection: key,
             record_id: item.id,
             data: JSON.parse(JSON.stringify(item)),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
+            sello: sellos.has(item.id) ? sellos.get(item.id) : null
         }));
-    for (let i = 0; i < filas.length; i += 200) {
-        const lote = filas.slice(i, i + 200);
-        const { error } = await supabaseClient.from(RH_TABLE).upsert(lote, { onConflict: 'collection,record_id' });
-        if (error) {
-            actualizarIndicadorNube('error');
-            throw new Error(`RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
+    for (const fila of filas) {
+        if (fila.sello) {
+            const { data, error } = await supabaseClient.from(RH_TABLE)
+                .update({ data: fila.data, updated_at: fila.updated_at })
+                .eq('collection', key)
+                .eq('record_id', fila.record_id)
+                .eq('updated_at', fila.sello)
+                .select('record_id, updated_at');
+            if (error) {
+                actualizarIndicadorNube('error');
+                throw new Error(`RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
+            }
+            if (!data?.length) {
+                actualizarIndicadorNube('error');
+                throw new Error(`RH-DB-008: Otro usuario modificó ${key}/${fila.record_id}. Recarga antes de volver a guardar; no se sobrescribió su cambio.`);
+            }
+            sellos.set(fila.record_id, data[0].updated_at || fila.updated_at);
+        } else {
+            const { error } = await supabaseClient.from(RH_TABLE).insert({
+                collection: fila.collection,
+                record_id: fila.record_id,
+                data: fila.data,
+                updated_at: fila.updated_at
+            });
+            if (error) {
+                actualizarIndicadorNube('error');
+                const duplicado = error.code === '23505' || /duplicate|already exists/i.test(error.message || '');
+                throw new Error(duplicado
+                    ? `RH-DB-008: ${key}/${fila.record_id} ya fue creado por otro usuario. Recarga antes de guardar.`
+                    : `RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
+            }
+            sellos.set(fila.record_id, fila.updated_at);
         }
         if (!DB_SYNCED_ROWS[key]) DB_SYNCED_ROWS[key] = new Map();
-        lote.forEach(row => DB_SYNCED_ROWS[key].set(row.record_id, JSON.stringify(row.data)));
+        DB_SYNCED_ROWS[key].set(fila.record_id, JSON.stringify(fila.data));
     }
+    DB_REMOTE_STAMPS[key] = sellos;
     if ((DB_REVISIONS[key] || 0) === revision) DB_PENDING_WRITES.delete(key);
     else programarPersistencia(key);
     if (inmediato || !DB_PENDING_WRITES.size) actualizarIndicadorNube(DB_PENDING_WRITES.size ? 'sync' : 'ok');

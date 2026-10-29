@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         bindAllForms();
         inicializarCompradores();
         inicializarTitulares();
+        if (typeof inicializarOperacionesVenta === 'function') inicializarOperacionesVenta();
         bindLoginForm();
         bindAuditoriaEvents();
         const pipeFilter = document.getElementById('pipeline-filter');

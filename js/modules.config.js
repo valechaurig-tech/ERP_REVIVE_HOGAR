@@ -11,6 +11,7 @@ const RH_ALL_MODULES = [
     { id: 'mod-marketing', icon: '📢', name: 'Marketing', label: 'Campañas y prospectos' },
     { id: 'mod-vendedor', icon: '💼', name: 'Mis Prospectos', label: 'Seguimiento comercial' },
     { id: 'mod-compradores', icon: '🧑‍💼', name: 'Compradores', label: 'Cartera independiente de compradores' },
+    { id: 'mod-operaciones', icon: '📝', name: 'Operaciones de venta', label: 'Preparación de compraventa sin pagos' },
     { id: 'mod-administradora', icon: '📋', name: 'Bandeja Administradora', label: 'Propuestas y documentos' },
     { id: 'mod-pipeline', icon: '🏠', name: 'Propiedades', label: 'Pipeline de casas' },
     { id: 'mod-gastos', icon: '💳', name: 'Gastos y Presupuestos', label: 'Control financiero por propiedad' },
@@ -44,7 +45,7 @@ const RH_MENU_GRUPOS_DIRECCION = [
         id: 'grupo-comercial',
         name: 'Comercial',
         icon: 'mod-marketing',
-        items: ['mod-marketing', 'mod-vendedor', 'mod-compradores', 'mod-administradora']
+        items: ['mod-marketing', 'mod-vendedor', 'mod-compradores', 'mod-operaciones', 'mod-administradora']
     },
     {
         id: 'grupo-propiedades',
@@ -82,6 +83,7 @@ const RH_PERM_MAP = {
     Administradora: [
         { id: 'mod-administradora', icon: '📋', name: 'Bandeja Administradora' },
         { id: 'mod-compradores', icon: '🧑‍💼', name: 'Compradores' },
+        { id: 'mod-operaciones', icon: '📝', name: 'Operaciones de venta' },
         { id: 'mod-pipeline', icon: '🏠', name: 'Propiedades' },
         { id: 'mod-gastos', icon: '💳', name: 'Gastos y Presupuestos' },
         { id: 'mod-proyectos', icon: '📌', name: 'Tareas' },
@@ -137,6 +139,7 @@ const RH_NAV_ICON_SVG = {
     'mod-vendedor': '<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>',
     'mod-administradora': '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
     'mod-compradores': '<path stroke-linecap="round" stroke-linejoin="round" d="M16 19a4 4 0 00-8 0m11 0v-1a4 4 0 00-3-3.87M5 19v-1a4 4 0 013-3.87M15 6a3 3 0 11-6 0 3 3 0 016 0zm6 2a3 3 0 01-3 3m-15-3a3 3 0 003 3"/>',
+    'mod-operaciones': '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m-7 5h8a2 2 0 002-2V7l-4-4H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>',
     'mod-pipeline': '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>',
     'mod-gastos': '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75h19.5v10.5H2.25V6.75zm3 3h3m7.5 4.5h3M12 9.5v5m2-4.25c-.5-.75-3.5-.75-3.5.75 0 1.75 3.5.75 3.5 2.5 0 1.5-3 1.5-3.5.75"/>',
     'mod-gastos-empresa': '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5M2.25 9.75l9.75-6.75 9.75 6.75M4.5 10.5V21h6v-6h3v6h6V10.5"/>',

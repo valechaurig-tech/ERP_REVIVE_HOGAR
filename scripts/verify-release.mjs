@@ -24,7 +24,7 @@ const mandatory = [
   'js/app.js', 'js/auth.js', 'js/db.js', 'js/archivos.js',
   'js/expediente.js', 'js/gastos.js', 'js/gastos-empresa.js',
   'js/configuracion.js', 'js/referidos.js', 'js/recorrido.js',
-  'js/compradores.js', 'js/titulares.js',
+  'js/compradores.js', 'js/titulares.js', 'js/operaciones-venta.js',
   'api/archivos.js', 'api/ia.js', 'scripts/setup-storage.js'
 ];
 for (const p of mandatory) {
@@ -41,7 +41,7 @@ if (exists('index.html')) {
 
 if (exists('js/db.js')) {
   const source = read('js/db.js');
-  for (const col of ['presupuestos', 'archivos', 'configuracion', 'gastosEmpresa', 'presupuestoEmpresa', 'cuentasBancarias', 'compradores', 'copropietarios']) {
+  for (const col of ['presupuestos', 'archivos', 'configuracion', 'gastosEmpresa', 'presupuestoEmpresa', 'cuentasBancarias', 'compradores', 'copropietarios', 'operacionesVenta']) {
     check(source.includes(`'${col}'`), 'REV-REL-003', `Colección avanzada no declarada: ${col}`);
   }
 }

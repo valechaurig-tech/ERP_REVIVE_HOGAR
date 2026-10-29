@@ -17,7 +17,8 @@ async function createHarness(initialRecords = null) {
     let failUpserts = false;
     const remote = new Map();
     const timers = [];
-    const calls = { delete: 0, upsert: 0, upsertRows: 0, pages: 0 };
+    const calls = { delete: 0, upsert: 0, upsertRows: 0, update: 0, insert: 0, pages: 0 };
+    const stamps = new Map();
     remote.set('prospectos', new Map(initialRecords
         ? initialRecords.map(item => [item.id, item])
         : [
@@ -52,7 +53,11 @@ async function createHarness(initialRecords = null) {
                             const values = [...coll(selectedKey).values()]
                                 .sort((a, b) => a.id.localeCompare(b.id))
                                 .slice(first, last + 1);
-                            return Promise.resolve({ data: values.map(data => ({ data: structuredClone(data) })), error: null });
+                            return Promise.resolve({ data: values.map(data => ({
+                                data: structuredClone(data),
+                                record_id: data.id,
+                                updated_at: stamps.get(selectedKey + ':' + data.id) || 'v1'
+                            })), error: null });
                         }
                     };
                 },
@@ -86,6 +91,36 @@ async function createHarness(initialRecords = null) {
                     if (failUpserts) return Promise.resolve({ error: { message: 'Escritura rechazada' } });
                     for (const r of rows) coll(r.collection).set(r.record_id, structuredClone(r.data));
                     return Promise.resolve({ error: null });
+                },
+                update(row) {
+                    const filters = {};
+                    return {
+                        eq(column, value) { filters[column] = value; return this; },
+                        select() {
+                            calls.update++;
+                            calls.upsertRows++;
+                            if (failUpserts) return Promise.resolve({ data: null, error: { message: 'Escritura rechazada' } });
+                            const map = coll(filters.collection);
+                            const stampKey = filters.collection + ':' + filters.record_id;
+                            if (!map.has(filters.record_id) || (stamps.get(stampKey) || 'v1') !== filters.updated_at) {
+                                return Promise.resolve({ data: [], error: null });
+                            }
+                            map.set(filters.record_id, structuredClone(row.data));
+                            const next = 'v' + (calls.update + 1);
+                            stamps.set(stampKey, next);
+                            return Promise.resolve({ data: [{ record_id: filters.record_id, updated_at: next }], error: null });
+                        }
+                    };
+                },
+                insert(row) {
+                    calls.insert++;
+                    calls.upsertRows++;
+                    if (failUpserts) return Promise.resolve({ error: { message: 'Escritura rechazada' } });
+                    const map = coll(row.collection);
+                    if (map.has(row.record_id)) return Promise.resolve({ error: { code: '23505', message: 'duplicate' } });
+                    map.set(row.record_id, structuredClone(row.data));
+                    stamps.set(row.collection + ':' + row.record_id, row.updated_at || 'v-new');
+                    return Promise.resolve({ error: null });
                 }
             };
         }
@@ -114,7 +149,8 @@ async function createHarness(initialRecords = null) {
     return {
         ...h, badge, calls, remote, events,
         setDeleteFailure: v => { failDeletes = v; },
-        setUpsertFailure: v => { failUpserts = v; }
+        setUpsertFailure: v => { failUpserts = v; },
+        touch(key, id) { stamps.set(key + ':' + id, 'externo-' + id); }
     };
 }
 
@@ -183,15 +219,16 @@ function ok(name) { tests++; console.log('PASS ' + name); }
     list[0].nombreCompleto = 'Cambio pendiente';
     h.DB.set('prospectos', list);
     h.remote.get('prospectos').get('rh_a').nombreCompleto = 'Cambio externo';
+    h.touch('prospectos', 'rh_a');
     const updated = await h.cargarColeccionNube('prospectos');
     assert.equal(updated, false);
     assert.equal(h.DB.get('prospectos')[0].nombreCompleto, 'Cambio pendiente');
     assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
     ok('realtime no pisa borrador local no confirmado');
-    await h.persistirColeccionNube('prospectos', true);
-    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), false);
-    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Cambio pendiente');
-    ok('tras guardar se confirma estado y se habilita recarga');
+    await assert.rejects(h.persistirColeccionNube('prospectos', true), /RH-DB-008/);
+    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
+    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Cambio externo');
+    ok('un guardado concurrente no sobrescribe el cambio del otro usuario');
 }
 {
     const h = await createHarness();
@@ -214,7 +251,8 @@ function ok(name) { tests++; console.log('PASS ' + name); }
     registros[0].nombreCompleto = 'Actualizado localmente';
     h.DB.set('prospectos', registros);
     await h.persistirColeccionNube('prospectos', true);
-    assert.equal(h.calls.upsertRows, 1);
+    assert.equal(h.calls.update, 1);
+    assert.equal(h.calls.upsert, 0);
     assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Actualizado localmente');
     assert.equal(h.remote.get('prospectos').get('rh_b').nombreCompleto, 'Edición de compañera');
     ok('upsert solo actualiza registro cambiado sin pisar modificaciones ajenas');

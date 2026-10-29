@@ -21,7 +21,7 @@ function createDB({errorOnConnect = false, missingSdk = false, missingKey = fals
                         error: errorOnConnect ? {message:'simulated offline'} : null
                     })};
                     if (options?.count==='exact') throw Error('No se permite comprobar la nube para migración automática');
-                    if (field==='data') return {eq(key,value) {
+                    if (field==='data' || field==='data, record_id, updated_at') return {eq(key,value) {
                         return {order() { return {range: async () => ({data: [...(rows.get(value)||[])], error:null})}; }};
                     }};
                     throw Error('Unexpected cloud read '+field);

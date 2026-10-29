@@ -11,6 +11,7 @@ const MODULE_RENDERERS = {
     'mod-marketing': () => renderMarketing(),
     'mod-vendedor': () => renderVendedor(),
     'mod-compradores': () => renderCompradores(),
+    'mod-operaciones': () => renderOperacionesVenta(),
     'mod-administradora': () => renderAdministradora(),
     'mod-pipeline': () => renderPipeline(),
     'mod-gastos': () => renderGastos(),

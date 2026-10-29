@@ -11,7 +11,7 @@
     const ALLOWED_ROLES = new Set(['Direccion', 'Dirección', 'Marketing', 'Vendedor', 'Administradora']);
     const ALLOWED_MODULES = new Set([
         'mod-planner', 'mod-proyectos', 'mod-dashboard', 'mod-marketing',
-        'mod-vendedor', 'mod-compradores', 'mod-administradora', 'mod-pipeline', 'mod-gastos',
+        'mod-vendedor', 'mod-compradores', 'mod-operaciones', 'mod-administradora', 'mod-pipeline', 'mod-gastos',
         'mod-gastos-empresa', 'mod-referidos', 'mod-configuracion',
         'mod-auditoria', 'mod-usuarios'
     ]);
@@ -20,7 +20,7 @@
         'form-expediente-admin', 'form-pipeline', 'form-costo-remodelacion',
         'form-montos-casa', 'form-nuevo-vendedor', 'form-usuario',
         'form-mi-perfil', 'form-tarea', 'form-mensaje-caso',
-        'form-autorizacion', 'form-pago-referido', 'form-comprador'
+        'form-autorizacion', 'form-pago-referido', 'form-comprador', 'form-operacion'
     ]);
     const ALLOWED_EVENTS = new Set(['module_open', 'form_attempt']);
     const localDay = date => [
