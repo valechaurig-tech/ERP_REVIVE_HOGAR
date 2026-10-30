@@ -175,7 +175,9 @@
   width:40px;height:40px;align-items:center;justify-content:center;
   margin-left:auto;font-size:25px;cursor:pointer
 }
+@media (max-width:640px){
 #app-screen .rh-mobile-table-cards{border:0;background:transparent;box-shadow:none;overflow:visible}
+}
 @media (max-width:1100px){
   #app-screen .topbar {padding-inline:16px}
   #app-screen .content-area{padding:19px}
@@ -293,4 +295,61 @@
 }
 @media (prefers-reduced-motion:reduce){
   #app-screen .sidebar,#app-screen .module.module-enter{animation:none!important;transition:none!important}
+}
+
+
+/* Inicio de sesión: identidad contemporánea con el mismo branding y sin alterar autenticación. */
+#login-screen {
+  background:radial-gradient(circle at 10% 9%,#e1f2f8 0%,transparent 40%),
+             radial-gradient(circle at 86% 80%,#f9eae1 0%,transparent 32%),#f1f6f9;
+}
+#login-screen .login-shell{
+  border:1px solid #dae7ee;border-radius:24px;
+  box-shadow:0 28px 90px rgba(12,43,63,.13);
+}
+#login-screen .login-hero{
+  background:linear-gradient(155deg,#07364c,#075878 63%,#0a7290);
+}
+#login-screen .login-badge{border-radius:999px;letter-spacing:.09em}
+#login-screen .login-box{background:#fff}
+#login-screen .form-control{border:1px solid #d1e0e9;background:#fff;border-radius:12px}
+#login-screen .btn-login-submit{border-radius:12px;box-shadow:0 8px 24px rgba(10,88,119,.15)}
+/* Las ventanas de edición están en el DOM fuera de #app-screen. Se aplican a nivel documento. */
+body > .modal{background:rgba(7,25,37,.58);backdrop-filter:blur(3px)}
+body > .modal .modal-content{
+  border:1px solid #e3ebf0;background:#fff;border-radius:18px;
+  box-shadow:0 25px 70px rgba(7,27,43,.2);
+  max-height:calc(100dvh - 28px);overscroll-behavior:contain
+}
+body > .modal :is(.form-grid,.rh-buyer-fields){min-width:0}
+body > .modal :is(input,select,textarea){max-width:100%}
+@media (max-width:900px){
+  body > .modal{padding:10px;align-items:center}
+  body > .modal .modal-content{
+    width:100%;max-width:min(100%,720px);padding:16px;overflow-y:auto
+  }
+  body > .modal .form-grid{grid-template-columns:1fr}
+  body > .modal .full-width{grid-column:1/-1}
+  body > .modal .modal-form-actions{display:flex;flex-wrap:wrap;gap:8px}
+  body > .modal .modal-form-actions .btn{flex:1 1 140px;min-height:44px}
+}
+@media (max-width:640px){
+  #login-screen{padding:12px;align-items:flex-start}
+  #login-screen .login-shell{
+    display:flex;flex-direction:column;min-height:0;border-radius:17px;
+    width:100%;max-width:450px;margin:auto
+  }
+  #login-screen .login-hero{padding:24px 20px 16px;min-height:0}
+  #login-screen .login-hero .login-badge{margin-bottom:11px;font-size:10px}
+  #login-screen .login-brand{font-size:25px;margin-bottom:9px}
+  #login-screen .login-box{padding:22px 18px 24px}
+  #login-screen :is(input,select){font-size:16px}
+  body > .modal{padding:0;align-items:stretch}
+  body > .modal .modal-content{
+    width:100%;max-width:none;max-height:100dvh;
+    border:0;border-radius:0;overflow-y:auto;
+    padding:16px 14px max(18px,env(safe-area-inset-bottom))
+  }
+  body > .modal .modal-form-actions{flex-direction:column}
+  body > .modal .modal-form-actions .btn{width:100%;flex:none;min-width:0}
 }
