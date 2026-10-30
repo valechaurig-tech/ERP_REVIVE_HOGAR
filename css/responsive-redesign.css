@@ -1,0 +1,382 @@
+/* REVIVE HOGAR / Interfaz unificada 2026-10-29
+   Capa visual no destructiva: conserva IDs, estados, datos y funciones originales. */
+#app-screen {
+  --rh-ink:#172e3f;--rh-muted:#637b8d;--rh-surface:#fff;--rh-line:#e2ebf1;
+  --rh-tint:#f4f8fb;--rh-brand:#075878;--rh-brand-strong:#064460;
+  --rh-brand-soft:#e6f4fa;--rh-elevation:0 12px 36px rgba(17,58,79,.06);
+  color:var(--rh-ink);background:var(--rh-tint);
+}
+#app-screen .main-container,#app-screen .content-area,#app-screen .module,
+#app-screen .module-toolbar,#app-screen .module-toolbar-text {min-width:0}
+#app-screen .content-area {
+  background:linear-gradient(180deg,#f5f9fc,#f1f6fa);
+  padding:clamp(14px,2.5vw,34px);
+  scroll-behavior:smooth;
+  overscroll-behavior-y:contain;
+}
+#app-screen .topbar {
+  min-height:74px;padding:12px 24px;
+  background:#fff;color:var(--rh-ink);
+  border-bottom:1px solid var(--rh-line);box-shadow:0 2px 14px rgba(12,52,74,.04);
+  flex-wrap:nowrap;gap:14px;position:relative;z-index:40;
+}
+#app-screen .topbar-left,#app-screen .topbar-right{min-width:0}
+#app-screen .topbar-left strong,#app-screen .brand-lockup--topbar .brand-selectas {
+  color:var(--rh-ink)
+}
+#app-screen .brand-lockup--topbar .brand-erp {color:var(--rh-muted)}
+#app-screen .topbar-right {justify-content:flex-end;gap:8px;flex-wrap:nowrap}
+#app-screen .topbar-chip {
+  border:1px solid var(--rh-line);background:#f5f8fb;color:#435d6d;
+  font-size:12px;white-space:nowrap;box-shadow:none
+}
+#app-screen .btn-logout {
+  border:1px solid var(--rh-line);background:#fff;color:var(--rh-ink);
+  min-height:38px;border-radius:12px;font-weight:650
+}
+#app-screen .btn-logout:hover{background:var(--rh-brand-soft);color:var(--rh-brand)}
+#app-screen .sidebar {
+  width:262px;flex-basis:262px;
+  background:linear-gradient(175deg,#082d41 0%,#0a3e56 70%,#104e66 100%);
+  border-right:0;box-shadow:none;padding:18px 12px 20px;max-height:none
+}
+#app-screen .sidebar-brand {background:rgba(255,255,255,.035);border-radius:16px;padding:14px 10px 16px}
+#app-screen .sidebar-nav{padding:4px 0 16px;gap:5px}
+#app-screen .sidebar .nav-item {
+  border-radius:11px;min-height:42px;
+  transition:background .18s ease, transform .18s ease;
+}
+#app-screen .sidebar .nav-item:hover{transform:translateX(2px)}
+#app-screen .sidebar .nav-item.active {
+  background:rgba(225,248,255,.16);
+  box-shadow:inset 3px 0 0 #68d1ee;
+}
+#app-screen .breadcrumbs {
+  background:transparent;border:0;padding:4px 0;margin:0 0 20px;
+  font-size:12px;box-shadow:none;gap:7px;color:var(--rh-muted)
+}
+#app-screen .module-toolbar {
+  padding:0;margin-bottom:20px;align-items:center;gap:12px 20px
+}
+#app-screen .module-toolbar-text{flex:1 1 300px}
+#app-screen .module-toolbar-text h3,#app-screen .module-header h3 {
+  color:var(--rh-ink);font-size:clamp(21px,2vw,27px);font-weight:800;
+  letter-spacing:-.045em;line-height:1.22;margin:0 0 7px;border:0;padding:0
+}
+#app-screen .module-toolbar-text .module-desc,#app-screen .module-desc {
+  color:var(--rh-muted);font-size:13px;line-height:1.55
+}
+#app-screen .module-toolbar-actions{gap:8px}
+#app-screen .btn {border-radius:11px;min-height:39px;font-weight:650;letter-spacing:-.01em}
+#app-screen .btn-primary {
+  background:linear-gradient(135deg,#076589 0%,#085171 100%);
+  color:#fff;box-shadow:0 5px 14px rgba(7,89,120,.14)
+}
+#app-screen .btn-outline,#app-screen .btn-secondary{
+  border-color:#cadde8;color:var(--rh-brand)
+}
+#app-screen :is(.kpi-card,.mkt-metric-card,.form-card,.mkt-section,.panel,.rh-buyer-editor) {
+  border-radius:16px;
+}
+#app-screen .kpi-card,#app-screen .mkt-analytics-grid .mkt-metric-card {
+  background:#fff;border:1px solid var(--rh-line);
+  box-shadow:var(--rh-elevation);padding:18px;gap:7px;min-width:0
+}
+#app-screen .mkt-analytics-grid,
+#app-screen .mkt-analytics-grid--compact{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr));
+  gap:12px;margin-bottom:20px
+}
+#app-screen .mkt-metric-label,#app-screen .kpi-card h4 {
+  color:var(--rh-muted);font-size:12px;font-weight:650;line-height:1.45
+}
+#app-screen .mkt-metric-value,#app-screen .kpi-card .value {
+  color:var(--rh-ink);font-weight:800;letter-spacing:-.05em;
+  line-height:1.15;font-variant-numeric:tabular-nums
+}
+#app-screen .mkt-metric-link:focus-visible,#app-screen .nav-item:focus-visible,
+#app-screen :is(button,a,input,textarea,select):focus-visible{
+  outline:3px solid rgba(12,153,201,.48);outline-offset:2px
+}
+#app-screen .mkt-metric-link:hover{transform:translateY(-2px);box-shadow:0 15px 36px rgba(12,65,89,.12)}
+#app-screen .mkt-section{margin-bottom:23px}
+#app-screen .section-title {
+  color:var(--rh-ink);font-size:14px;padding-bottom:10px;
+  border-bottom:1px solid var(--rh-line)
+}
+#app-screen .form-card {
+  background:#fff;border:1px solid var(--rh-line);
+  box-shadow:var(--rh-elevation);padding:clamp(14px,2vw,24px)
+}
+#app-screen .form-grid,#app-screen .rh-buyer-fields {
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+#app-screen .form-control,
+#app-screen :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]){
+  max-width:100%;min-width:0;
+}
+#app-screen .form-control{
+  border:1px solid #cedee8;background-color:#fff;
+  border-radius:11px;color:var(--rh-ink);min-height:42px;
+  box-shadow:none
+}
+#app-screen .form-control:focus{
+  border-color:#1487b4;box-shadow:0 0 0 3px rgba(20,135,180,.12)
+}
+#app-screen .table-responsive {
+  background:#fff;border:1px solid var(--rh-line);
+  border-radius:16px;box-shadow:var(--rh-elevation);max-width:100%;
+  overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch
+}
+#app-screen .table-responsive table{min-width:max-content;width:100%}
+#app-screen .table-responsive th{
+  background:#f5f9fc;color:#6a8190;font-size:11px;
+  letter-spacing:.045em;padding:13px 15px;white-space:nowrap
+}
+#app-screen .table-responsive td {
+  border-color:#edf2f6;font-size:12.5px;
+  line-height:1.5;padding:12px 15px
+}
+#app-screen .table-responsive tbody tr:hover{background:#f5fbff}
+#app-screen .badge{font-weight:700}
+#app-screen .modal{padding:16px;background:rgba(7,25,37,.54);backdrop-filter:blur(3px)}
+#app-screen .modal-content {
+  background:#fff;border:1px solid #e5eef3;border-radius:19px;
+  max-width:min(94vw,880px);max-height:min(88dvh,950px);
+  box-shadow:0 26px 80px rgba(10,37,56,.24);
+  overscroll-behavior:contain;
+}
+#app-screen .rh-buyer-editor{background:#fff;border:1px solid var(--rh-line);padding:18px}
+#app-screen .rh-buyer-summary{
+  background:var(--rh-brand-soft);border:1px solid #d0e8f2;border-radius:13px;
+  padding:12px 15px;color:var(--rh-brand)
+}
+#app-screen .rh-buyer-filters{max-width:100%}
+#app-screen .rh-buyer-actions{align-items:center}
+#app-screen .rh-mobile-menu-button{
+  display:none;align-items:center;justify-content:center;flex:0 0 44px;
+  width:44px;height:44px;padding:0;border:1px solid var(--rh-line);
+  border-radius:13px;background:#f3f8fb;color:#075878;
+  cursor:pointer;font-size:24px;line-height:1;
+}
+#app-screen .rh-mobile-menu-button svg{width:21px;height:21px}
+#app-screen .rh-mobile-title{
+  display:none;min-width:0;flex:1 1 auto;white-space:nowrap;
+  text-overflow:ellipsis;overflow:hidden;color:var(--rh-ink);
+  font-size:14px;font-weight:800;letter-spacing:-.03em
+}
+#app-screen .rh-drawer-backdrop {
+  display:none;position:fixed;inset:0;z-index:79;
+  border:0;background:rgba(7,26,39,.51);cursor:pointer
+}
+#app-screen .rh-drawer-close{
+  display:none;color:#fff;border:1px solid rgba(255,255,255,.19);
+  border-radius:10px;background:rgba(255,255,255,.1);
+  width:40px;height:40px;align-items:center;justify-content:center;
+  margin-left:auto;font-size:25px;cursor:pointer
+}
+@media (max-width:640px){
+#app-screen .rh-mobile-table-cards{border:0;background:transparent;box-shadow:none;overflow:visible}
+}
+@media (max-width:1100px){
+  #app-screen .topbar {padding-inline:16px}
+  #app-screen .content-area{padding:19px}
+  #app-screen .sidebar{width:226px;flex-basis:226px}
+}
+@media (max-width:900px){
+  #app-screen {height:100dvh;height:100vh;height:100dvh}
+  #app-screen .topbar {min-height:64px;padding:10px 13px;flex-wrap:nowrap}
+  #app-screen .topbar-left {flex:1 1 auto;gap:9px}
+  #app-screen .topbar-right {flex:0 0 auto}
+  #app-screen .rh-mobile-menu-button,#app-screen .rh-mobile-title {display:flex}
+  #app-screen .topbar-left > :not(.rh-mobile-menu-button):not(.rh-mobile-title){display:none!important}
+  #app-screen .main-container{flex-direction:row;min-height:0;overflow:hidden}
+  #app-screen .content-area{flex:1 1 auto;width:100%;overflow-x:hidden;overflow-y:auto;padding:17px 14px 40px;min-height:0}
+  #app-screen .sidebar {
+    display:flex!important;position:fixed;top:0;left:0;bottom:0;
+    width:min(86vw,320px);max-width:320px;max-height:100dvh;min-height:100dvh;
+    flex-direction:column;overflow:auto;padding:15px 12px 30px;
+    border:0;box-shadow:12px 0 50px rgba(4,23,35,.22);z-index:80;
+    transform:translateX(-105%);visibility:hidden;pointer-events:none;
+    transition:transform .24s ease,visibility .24s ease
+  }
+  #app-screen .sidebar-nav,#app-screen .sidebar-nav:not(.sidebar-nav--grouped){
+    flex-direction:column;overflow:visible;gap:4px;width:100%;padding-bottom:12px
+  }
+  #app-screen .sidebar .nav-item,#app-screen .sidebar-nav:not(.sidebar-nav--grouped) .nav-item {
+    white-space:normal;width:100%;min-height:45px;flex-shrink:0;padding:10px 12px
+  }
+  #app-screen .sidebar .nav-item.active{box-shadow:inset 3px 0 0 #68d1ee}
+  #app-screen .rh-drawer-close{display:flex}
+  #app-screen.rh-menu-open .sidebar{transform:translateX(0);visibility:visible;pointer-events:auto}
+  #app-screen.rh-menu-open .rh-drawer-backdrop{display:block}
+  #app-screen .topbar-chip#reloj{display:none}
+  #app-screen .btn-logout{min-height:38px;padding:7px 10px}
+  #app-screen .echauri-brand-badge{display:none}
+  #app-screen .breadcrumbs{margin-bottom:15px}
+  #app-screen .module-toolbar{gap:12px;margin-bottom:16px}
+  #app-screen .module-toolbar-text{flex-basis:100%}
+  #app-screen .module-toolbar-actions{width:100%}
+  #app-screen .module-toolbar-actions .btn{flex:1 1 auto}
+  #app-screen .form-grid,#app-screen .rh-buyer-fields{grid-template-columns:minmax(0,1fr)}
+  #app-screen .full-width{grid-column:1/-1}
+  #app-screen .mkt-analytics-grid,
+  #app-screen .mkt-analytics-grid--compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #app-screen .modal {padding:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  #app-screen .modal-content{max-width:100%;width:100%;max-height:calc(100dvh - 20px);overflow:auto;padding:16px}
+}
+@media (max-width:640px){
+  #app-screen .content-area{padding:15px 11px 38px}
+  #app-screen .topbar{min-height:58px;padding:7px 10px;gap:7px}
+  #app-screen .topbar-right{gap:5px}
+  #app-screen #db-status-badge{display:none}
+  #app-screen .topbar-user {max-width:112px;overflow:hidden;text-overflow:ellipsis}
+  #app-screen .btn-logout {font-size:0;min-width:39px;width:39px;min-height:39px;position:relative}
+  #app-screen .btn-logout::before{
+    content:"⎋";font-size:21px;line-height:1;position:absolute;inset:0;display:grid;place-items:center
+  }
+  #app-screen .module-toolbar-text h3{font-size:22px}
+  #app-screen .module-toolbar-text .module-desc{font-size:12px}
+  #app-screen .kpi-container,
+  #app-screen .mkt-analytics-grid,
+  #app-screen .mkt-analytics-grid--compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #app-screen .kpi-card,#app-screen .mkt-analytics-grid .mkt-metric-card{padding:13px 12px;border-radius:14px}
+  #app-screen .mkt-metric-value,#app-screen .kpi-card .value{font-size:clamp(19px,5.6vw,26px)}
+  #app-screen .kpi-card h4,#app-screen .mkt-metric-label{font-size:11px;overflow-wrap:anywhere}
+  #app-screen .module-toolbar-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:8px}
+  #app-screen .module-toolbar-actions .btn{width:100%;min-height:44px}
+  #app-screen .form-card{padding:14px}
+  #app-screen .form-grid,#app-screen .rh-buyer-fields,
+  #app-screen .mkt-filter-row,#app-screen .filter-bar{grid-template-columns:minmax(0,1fr)}
+  #app-screen :is(input,select,textarea).form-control{font-size:16px}
+  #app-screen .rh-buyer-actions,#app-screen .modal-form-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+  #app-screen .rh-buyer-actions .btn,#app-screen .modal-form-actions .btn{width:100%;min-width:0}
+  #app-screen .mkt-filter-group,#app-screen .mkt-filter-control{width:100%;max-width:100%;min-width:0}
+  #app-screen .filter-bar .form-control{width:100%;max-width:100%}
+  #app-screen .table-responsive:not(.rh-mobile-table-cards){overflow-x:auto}
+  #app-screen .table-responsive:not(.rh-mobile-table-cards)::after{content:"Desliza para ver más columnas →";display:block;text-align:right;font-size:10px;padding:7px 12px;color:#698296}
+  #app-screen .table-responsive.rh-mobile-table-cards table{display:block;width:100%;min-width:0}
+  #app-screen .table-responsive.rh-mobile-table-cards thead{display:none}
+  #app-screen .table-responsive.rh-mobile-table-cards tbody{display:grid;gap:12px}
+  #app-screen .table-responsive.rh-mobile-table-cards tbody tr{
+    display:flex;flex-direction:column;align-items:stretch;min-width:0;
+    padding:8px 13px;border:1px solid var(--rh-line);border-radius:16px;
+    background:#fff;box-shadow:var(--rh-elevation)
+  }
+  #app-screen .table-responsive.rh-mobile-table-cards td{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+    white-space:normal;word-break:break-word;overflow-wrap:anywhere;
+    padding:10px 0;border-bottom:1px solid #edf2f5;text-align:right;
+    min-width:0;font-size:12px;background:transparent!important
+  }
+  #app-screen .table-responsive.rh-mobile-table-cards td:last-child{border:0}
+  #app-screen .table-responsive.rh-mobile-table-cards td::before{
+    content:attr(data-rh-label);text-align:left;font-weight:750;
+    color:#647e91;flex:0 0 41%;max-width:41%;font-size:11px;
+    line-height:1.5;overflow-wrap:anywhere
+  }
+  #app-screen .table-responsive.rh-mobile-table-cards td:first-child{
+    font-size:13px;font-weight:750;color:var(--rh-ink)
+  }
+  #app-screen .table-responsive.rh-mobile-table-cards td:first-child::before{font-weight:650}
+  #app-screen .table-responsive.rh-mobile-table-cards td:has(button),
+  #app-screen .table-responsive.rh-mobile-table-cards td:has(a){flex-wrap:wrap;align-items:center}
+  #app-screen .table-responsive.rh-mobile-table-cards td button{max-width:100%;white-space:normal}
+  #app-screen .table-responsive.rh-mobile-table-cards td[colspan]{
+    display:block;text-align:center;min-height:52px
+  }
+  #app-screen .table-responsive.rh-mobile-table-cards td[colspan]::before{display:none}
+}
+@media (max-width:360px){
+  #app-screen .topbar-user{max-width:78px;font-size:11px}
+  #app-screen .rh-mobile-title{font-size:13px}
+  #app-screen .content-area{padding-inline:9px}
+  #app-screen .mkt-analytics-grid .mkt-metric-card{padding:11px 9px}
+}
+@media (prefers-reduced-motion:reduce){
+  #app-screen .sidebar,#app-screen .module.module-enter{animation:none!important;transition:none!important}
+}
+
+
+/* Inicio de sesión: identidad contemporánea con el mismo branding y sin alterar autenticación. */
+#login-screen {
+  background:radial-gradient(circle at 10% 9%,#e1f2f8 0%,transparent 40%),
+             radial-gradient(circle at 86% 80%,#f9eae1 0%,transparent 32%),#f1f6f9;
+}
+#login-screen .login-shell{
+  border:1px solid #dae7ee;border-radius:24px;
+  box-shadow:0 28px 90px rgba(12,43,63,.13);
+}
+#login-screen .login-hero{
+  background:linear-gradient(155deg,#07364c,#075878 63%,#0a7290);
+}
+#login-screen .login-badge{border-radius:999px;letter-spacing:.09em}
+#login-screen .login-box{background:#fff}
+#login-screen .form-control{border:1px solid #d1e0e9;background:#fff;border-radius:12px}
+#login-screen .btn-login-submit{border-radius:12px;box-shadow:0 8px 24px rgba(10,88,119,.15)}
+/* Las ventanas de edición están en el DOM fuera de #app-screen. Se aplican a nivel documento. */
+body > .modal{background:rgba(7,25,37,.58);backdrop-filter:blur(3px)}
+body > .modal .modal-content{
+  border:1px solid #e3ebf0;background:#fff;border-radius:18px;
+  box-shadow:0 25px 70px rgba(7,27,43,.2);
+  max-height:calc(100dvh - 28px);overscroll-behavior:contain
+}
+body > .modal :is(.form-grid,.rh-buyer-fields){min-width:0}
+body > .modal :is(input,select,textarea){max-width:100%}
+@media (max-width:900px){
+  body > .modal{padding:10px;align-items:center}
+  body > .modal .modal-content{
+    width:100%;max-width:min(100%,720px);padding:16px;overflow-y:auto
+  }
+  body > .modal .form-grid{grid-template-columns:1fr}
+  body > .modal .full-width{grid-column:1/-1}
+  body > .modal .modal-form-actions{display:flex;flex-wrap:wrap;gap:8px}
+  body > .modal .modal-form-actions .btn{flex:1 1 140px;min-height:44px}
+}
+@media (max-width:640px){
+  #login-screen{padding:12px;align-items:flex-start}
+  #login-screen .login-shell{
+    display:flex;flex-direction:column;min-height:0;border-radius:17px;
+    width:100%;max-width:450px;margin:auto
+  }
+  #login-screen .login-hero{padding:24px 20px 16px;min-height:0}
+  #login-screen .login-hero .login-badge{margin-bottom:11px;font-size:10px}
+  #login-screen .login-brand{font-size:25px;margin-bottom:9px}
+  #login-screen .login-box{padding:22px 18px 24px}
+  #login-screen :is(input,select){font-size:16px}
+  body > .modal{padding:0;align-items:stretch}
+  body > .modal .modal-content{
+    width:100%;max-width:none;max-height:100dvh;
+    border:0;border-radius:0;overflow-y:auto;
+    padding:16px 14px max(18px,env(safe-area-inset-bottom))
+  }
+  body > .modal .modal-form-actions{flex-direction:column}
+  body > .modal .modal-form-actions .btn{width:100%;flex:none;min-width:0}
+}
+
+/* Garantizar que el botón del menú permanezca táctil incluso a 320px.
+   La botonera de sesión no debe invadir el área del menú. */
+@media (max-width:900px){
+  #app-screen .topbar-left{flex:1 1 0;min-width:100px;position:relative;z-index:3}
+  #app-screen .topbar-right{flex:0 1 auto;min-width:0;max-width:calc(100% - 112px);position:relative;z-index:1}
+  #app-screen .rh-mobile-menu-button{position:relative;z-index:5;flex:0 0 44px}
+  #app-screen .rh-mobile-title{flex:1 1 0;min-width:0}
+}
+@media (max-width:360px){
+  #app-screen .topbar-user{display:none!important}
+}
+
+/* Refinamientos verificados sobre capturas reales del navegador. */
+#app-screen .brand-lockup--topbar .brand-revive{color:#19394d;font-weight:750}
+#app-screen .brand-lockup--topbar .brand-hogar{color:#0a779c;font-weight:850}
+#app-screen .table-responsive td button:not([class]){
+  border:1px solid #cce0e9;border-radius:8px;background:#eaf5fa;
+  color:#075878;padding:7px 10px;font:inherit;font-weight:700;cursor:pointer
+}
+@media(max-width:480px){
+  #app-screen .mkt-analytics-grid,
+  #app-screen .mkt-analytics-grid--compact,
+  #app-screen .planner-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+}
