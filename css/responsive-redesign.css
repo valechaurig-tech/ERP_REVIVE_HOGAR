@@ -353,3 +353,15 @@ body > .modal :is(input,select,textarea){max-width:100%}
   body > .modal .modal-form-actions{flex-direction:column}
   body > .modal .modal-form-actions .btn{width:100%;flex:none;min-width:0}
 }
+
+/* Garantizar que el botón del menú permanezca táctil incluso a 320px.
+   La botonera de sesión no debe invadir el área del menú. */
+@media (max-width:900px){
+  #app-screen .topbar-left{flex:1 1 0;min-width:100px;position:relative;z-index:3}
+  #app-screen .topbar-right{flex:0 1 auto;min-width:0;max-width:calc(100% - 112px);position:relative;z-index:1}
+  #app-screen .rh-mobile-menu-button{position:relative;z-index:5;flex:0 0 44px}
+  #app-screen .rh-mobile-title{flex:1 1 0;min-width:0}
+}
+@media (max-width:360px){
+  #app-screen .topbar-user{display:none!important}
+}
