@@ -5,7 +5,7 @@
 const RH_DATA_RESET_VERSION = '2026-04-v1';
 
 function limpiarDatosOperativos() {
-    ['campanas', 'prospectos', 'casas', 'alertas', 'historial', 'auditoria', 'tareas'].forEach(k => {
+    ['campanas', 'prospectos', 'casas', 'alertas', 'historial', 'auditoria', 'tareas', 'presupuestos', 'archivos', 'gastosEmpresa', 'presupuestoEmpresa'].forEach(k => {
         DB.set(k, []);
     });
 }
@@ -14,7 +14,6 @@ function initSeedData() {
     const resetKey = RH_STORAGE_PREFIX + 'data_reset_version';
     const prevReset = typeof localStorage !== 'undefined' ? localStorage.getItem(resetKey) : '';
     if (prevReset !== RH_DATA_RESET_VERSION) {
-        limpiarDatosOperativos();
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem(resetKey, RH_DATA_RESET_VERSION);
         }
@@ -25,7 +24,9 @@ function initSeedData() {
     });
 
     let usuarios = DB.get('usuariosLogin');
-    const base = [
+    // Cuentas demo únicamente para previews locales aislados. Nunca auto-crear
+    // credenciales conocidas en Supabase empresarial.
+    const base = DB.mode() === 'cloud' ? [] : [
         { tipo: 'general', displayName: 'Dirección', rol: 'Direccion', password: '1234' },
         { tipo: 'general', displayName: 'Marketing', rol: 'Marketing', password: '1234' },
         { tipo: 'general', displayName: 'Administradora', rol: 'Administradora', password: '1234' },
@@ -85,10 +86,16 @@ function addHistory(tipo, titulo, detalle) {
 
 function createAlert({ titulo, mensaje, targetRoles, targetUserId, relatedId, tipo, casoTipo }) {
     const alertas = DB.get('alertas');
-    const duplicada = alertas.some(a =>
+    const duplicada = alertas.find(a =>
         a.relatedId === relatedId && a.tipo === tipo && a.estado !== 'Resuelta' && a.titulo === titulo
     );
-    if (duplicada) return;
+    if (duplicada) {
+        duplicada.mensaje = mensaje;
+        duplicada.targetRoles = targetRoles || duplicada.targetRoles || [];
+        duplicada.targetUserId = targetUserId || duplicada.targetUserId || '';
+        DB.set('alertas', alertas);
+        return duplicada;
+    }
     alertas.unshift({
         id: DB.getId(),
         titulo,
@@ -146,9 +153,11 @@ function notificarNuevoProspecto(prospecto, vendedorId) {
 }
 
 function notificarProspectoInteresado(prospecto) {
+    const pendientes = typeof validarDocumentacionAsesor === 'function'
+        ? validarDocumentacionAsesor(prospecto) : [];
     createAlert({
         titulo: 'Prospecto listo para administradora',
-        mensaje: `${prospecto.nombreCompleto} marcado como Interesado`,
+        mensaje: `${prospecto.nombreCompleto} marcado como Interesado${pendientes.length ? ` · Pendientes: ${pendientes.join(', ')}` : ' · Documentación completa'}`,
         targetRoles: ['Administradora', 'Direccion'],
         relatedId: prospecto.id,
         tipo: 'prospecto_interesado'
@@ -168,7 +177,7 @@ function notificarPropuestaLista(prospecto, vendedorId) {
 function crearCasaDesdeProspectoFirmado(prospecto) {
     const casas = DB.get('casas');
     if (casas.some(c => c.prospectoId === prospecto.id)) return;
-    casas.push({
+    const casa = {
         id: DB.getId(),
         prospectoId: prospecto.id,
         vendedorId: prospecto.vendedorId,
@@ -177,7 +186,7 @@ function crearCasaDesdeProspectoFirmado(prospecto) {
         tipoCredito: prospecto.tipoCredito,
         propuestaFinal: '',
         montoAdquisicion: prospecto.montoAdquisicion ?? 0,
-        precioVenta: 0,
+        precioVenta: Number(prospecto.datosExpediente?.precioVentaEstimado || prospecto.precioVentaEstimadoAsesor || 0),
         costosRemodelacion: [],
         estatusPipeline: RH_ESTATUS_PIPELINE.ESPERA,
         mensajes: [],
@@ -188,9 +197,61 @@ function crearCasaDesdeProspectoFirmado(prospecto) {
             usuario: getUsuarioActual(),
             nota: 'Casa registrada tras firma'
         }]
-    });
+    };
+    casas.push(casa);
     DB.set('casas', casas);
+    if (typeof getPresupuestoCasa === 'function') getPresupuestoCasa(casa.id, true);
     addHistory('casa', 'Nueva propiedad en pipeline', prospecto.nombreCompleto);
+}
+
+function abrirModalNuevaPropiedad() {
+    if (!rhEsDireccion(currentUser) && currentUser?.rol !== 'Administradora') {
+        alert('Solo Dirección o Administradora pueden crear propiedades manualmente.');
+        return;
+    }
+    document.getElementById('form-nueva-propiedad')?.reset();
+    document.getElementById('modal-nueva-propiedad')?.classList.add('active');
+}
+
+function guardarNuevaPropiedadManual(event) {
+    event.preventDefault();
+    if (!rhEsDireccion(currentUser) && currentUser?.rol !== 'Administradora') return;
+    const propietario = document.getElementById('np-propietario')?.value.trim() || '';
+    const direccion = document.getElementById('np-direccion')?.value.trim() || '';
+    if (!propietario || !direccion) {
+        alert('Propietario y dirección son obligatorios.');
+        return;
+    }
+    const casas = DB.get('casas');
+    const casa = {
+        id: DB.getId(),
+        prospectoId: null,
+        origenManual: true,
+        vendedorId: currentUser?.id || null,
+        nombreCompleto: propietario,
+        direccionPropiedad: direccion,
+        tipoCredito: document.getElementById('np-credito')?.value || '',
+        propuestaFinal: '',
+        montoAdquisicion: Number(document.getElementById('np-precio-compra')?.value || 0),
+        precioVenta: Number(document.getElementById('np-precio-venta')?.value || 0),
+        costosRemodelacion: [],
+        estatusPipeline: document.getElementById('np-estatus')?.value || RH_ESTATUS_PIPELINE.ESPERA,
+        mensajes: [],
+        fechaFirma: new Date().toISOString(),
+        historial: [{
+            fecha: new Date().toLocaleString(),
+            estatus: document.getElementById('np-estatus')?.value || RH_ESTATUS_PIPELINE.ESPERA,
+            usuario: getUsuarioActual(),
+            nota: 'Propiedad creada manualmente desde Pipeline'
+        }]
+    };
+    casas.push(casa);
+    DB.set('casas', casas);
+    if (typeof getPresupuestoCasa === 'function') getPresupuestoCasa(casa.id, true);
+    addHistory('casa', 'Nueva propiedad manual', propietario);
+    logAction(`Propiedad creada manualmente: ${direccion}`);
+    closeModal('modal-nueva-propiedad');
+    refreshActiveModule();
 }
 
 function agregarEventoProspecto(prospecto, evento, detalle) {

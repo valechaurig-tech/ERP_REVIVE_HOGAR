@@ -19,41 +19,10 @@ function tareaVisibleParaUsuario(t) {
 
 function renderPlanner() {
     if (!currentUser) return;
-
-    const esDir = rhEsDireccion(currentUser);
     const alertas = DB.get('alertas').filter(a => alertaVisibleParaUsuario(a));
     const pendientesAlert = alertas.filter(a => a.estado !== 'Resuelta');
-
-    const tareas = esDir ? [] : DB.get('tareas').filter(tareaVisibleParaUsuario);
-    const activas = tareas.filter(t => t.estado !== 'Completada');
-    const completadas = tareas.filter(t => t.estado === 'Completada');
-    const urgentes = activas.filter(t => t.priority === 'Urgente' || t.priority === 'Alta');
-
     setText('planner-pendientes', pendientesAlert.length);
     setText('planner-resueltas', alertas.filter(a => a.estado === 'Resuelta').length);
-    setText('planner-tareas-activas', activas.length);
-    setText('planner-tareas-urgentes', urgentes.length);
-    setText('planner-tareas-completadas', completadas.length);
-
-    document.getElementById('planner-btn-nueva')?.classList.toggle('hidden', esDir);
-    document.getElementById('planner-kanban-section')?.classList.toggle('hidden', esDir);
-    document.getElementById('planner-equipo-resumen')?.classList.toggle('hidden', !esDir);
-    document.getElementById('planner-completadas-section')?.classList.toggle('hidden', esDir);
-
-    const kanbanTitle = document.getElementById('planner-kanban-title');
-    if (kanbanTitle) kanbanTitle.textContent = 'Mi tablero Kanban';
-
-    if (typeof renderPmSummaryBar === 'function') renderPmSummaryBar();
-
-    if (esDir) {
-        aplicarEstadoColapsable('planner-equipo', true);
-        renderPlannerResumenEquipo();
-    } else {
-        const normalizadas = tareas.map(t => typeof normalizarTarea === 'function' ? normalizarTarea(t) : t);
-        renderPlannerKanban(normalizadas.filter(t => t.estado !== 'Completada'), true);
-        renderPlannerCompletadas(completadas);
-    }
-
     renderPlannerAlertas(pendientesAlert);
     renderHistorialPlanner();
 }
@@ -118,6 +87,8 @@ function renderPlannerAlertas(alertas) {
             <td><span class="badge-mkt badge-mkt-warning">Pendiente</span></td>
             <td class="celda-acciones">
                 ${a.relatedId && a.tipo === 'mensaje_caso' ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirCasoDesdeAlerta('${escapeHtml(a.relatedId)}','${escapeHtml(a.casoTipo || 'casa')}')">Ver caso</button>` : ''}
+                ${a.relatedId && (a.tipo === 'presupuesto_escrituras' || a.tipo === 'saldo_caja_negativo') ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirPresupuestoDesdeAlerta('${escapeHtml(a.relatedId)}')">Abrir gastos</button>` : ''}
+                ${a.relatedId && a.tipo === 'saldo_cuenta_negativo' ? `<button type="button" class="btn btn-outline btn-small" onclick="showModule('mod-gastos-empresa', null, true)">Abrir cuentas</button>` : ''}
                 ${`<button type="button" class="btn btn-primary btn-small" onclick="resolverAlerta('${escapeHtml(a.id)}')">Resolver</button>`}
             </td>
         </tr>`).join('');
@@ -235,4 +206,12 @@ function guardarTarea(e) {
 function abrirCasoDesdeAlerta(relatedId, casoTipo) {
     if (casoTipo === 'prospecto') abrirDetalleProspecto(relatedId, 'comunicacion');
     else abrirDetalleCasa(relatedId, 'comunicacion');
+}
+
+function abrirPresupuestoDesdeAlerta(prospectoId) {
+    if (!rhUserCanAccessModule(currentUser, 'mod-gastos')) return;
+    showModule('mod-gastos', null, true);
+    gastoPropiedadActivaId = prospectoId;
+    renderGastos();
+    document.getElementById('gastos-detalle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

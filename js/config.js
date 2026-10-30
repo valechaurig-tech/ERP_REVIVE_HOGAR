@@ -7,3 +7,20 @@ window.RH_CONFIG = {
     LOGIN_REQUIERE_PASSWORD: true,
     PASSWORD_INICIAL: '1234'
 };
+
+/*
+ * PROTECCIÓN: un Preview generado por Vercel no debe compartir datos reales.
+ * Dominios de producción conservan la conexión existente; despliegues temporales
+ * de echauri-apps usan solo datos locales de demostración. No reemplaza RLS.
+ */
+(function protegerEntornoPreviewRevive() {
+    const host = String(window.location?.hostname || '').toLowerCase();
+    const prodHosts = new Set(['revive-hogar.vercel.app', 'revive-hogar-echauri-apps.vercel.app']);
+    const previewVercel = host.startsWith('revive-hogar-') && host.endsWith('-echauri-apps.vercel.app')
+        && !prodHosts.has(host);
+    if (previewVercel) {
+        window.RH_CONFIG.SUPABASE_URL = '';
+        window.RH_CONFIG.SUPABASE_ANON_KEY = '';
+        window.RH_CONFIG.ISOLATED_PREVIEW = true;
+    }
+})();

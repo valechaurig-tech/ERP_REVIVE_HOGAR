@@ -49,6 +49,46 @@ function actualizarMapaDireccion(inputOrAddress, previewId) {
 
 const _mapDebounceTimers = {};
 
+function extraerDireccionDesdeMapsUrl(url) {
+    const raw = String(url || '').trim();
+    if (!raw) return '';
+    try {
+        const u = new URL(raw);
+        const q = u.searchParams.get('q') || u.searchParams.get('query') || '';
+        if (q) return decodeURIComponent(q.replace(/\+/g, ' '));
+        const place = raw.match(/\/place\/([^/]+)/);
+        if (place?.[1]) return decodeURIComponent(place[1].replace(/\+/g, ' '));
+        const coords = raw.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (coords) return `${coords[1]}, ${coords[2]}`;
+    } catch (_) { /* ignore */ }
+    return raw;
+}
+
+function aplicarLinkMapsGestion() {
+    const link = document.getElementById('ges-maps-url')?.value.trim() || '';
+    const dir = document.getElementById('ges-dir');
+    if (!link || !dir) return;
+    const extraida = extraerDireccionDesdeMapsUrl(link);
+    if (extraida) dir.value = extraida;
+    actualizarMapaDireccion(dir, 'ges-map-preview');
+}
+
+async function usarUbicacionActualGestion() {
+    if (!navigator.geolocation) {
+        alert('Este dispositivo no permite geolocalización.');
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        const dir = document.getElementById('ges-dir');
+        const link = document.getElementById('ges-maps-url');
+        const texto = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+        if (dir && !dir.value.trim()) dir.value = texto;
+        if (link) link.value = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        if (dir) actualizarMapaDireccion(dir.value || texto, 'ges-map-preview');
+    }, () => alert('No se pudo obtener la ubicación. Revisa permisos del navegador.'), { enableHighAccuracy: true, timeout: 12000 });
+}
+
 function bindMapaDireccionInput(inputId, previewId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);

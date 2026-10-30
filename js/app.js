@@ -12,9 +12,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         cargarUsuariosLogin();
         setLoginMode('general');
         bindAllForms();
+        inicializarCompradores();
+        inicializarTitulares();
+        if (typeof inicializarOperacionesVenta === 'function') inicializarOperacionesVenta();
+        if (typeof initIAAssistant === 'function') initIAAssistant();
         bindLoginForm();
         bindAuditoriaEvents();
-        if (typeof initIAAssistant === 'function') initIAAssistant();
         const pipeFilter = document.getElementById('pipeline-filter');
         if (pipeFilter) pipeFilter.addEventListener('change', renderPipeline);
     } catch (error) {

@@ -43,8 +43,8 @@ function renderDashboard() {
     const fin = calcularIndicadoresFinancieros();
     setText('dash-remodelacion', formatearMoneda(fin.costosRemodelacion));
     setText('dash-inversion-propiedades', formatearMoneda(fin.inversionPropiedades));
-    setText('dash-utilidad-realizada', fin.utilidadRealizada ? formatearMoneda(fin.utilidadRealizada) : '—');
-    setText('dash-utilidad-proyectada', fin.utilidadProyectada ? formatearMoneda(fin.utilidadProyectada) : '—');
+    setText('dash-utilidad-realizada', fin.utilidadRealizada == null ? '—' : formatearMoneda(fin.utilidadRealizada));
+    setText('dash-utilidad-proyectada', fin.utilidadProyectada == null ? '—' : formatearMoneda(fin.utilidadProyectada));
 }
 
 /* —— Marketing —— */
@@ -236,7 +236,7 @@ function renderVendedor() {
                 <td>${badgeEstatusPipeline(c.estatusPipeline)}</td>
                 <td class="mkt-celda-monto">${formatearMoneda(eco.remodelacion)}</td>
                 <td>${escapeHtml(c.direccionPropiedad)}</td>
-                <td><button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}')">Ver registro</button></td>
+                <td><button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}')">Abrir ficha</button></td>
             </tr>`;
             }).join('');
     }
@@ -285,11 +285,22 @@ function abrirGestionProspecto(id) {
     }
     document.getElementById('ges-tipo-credito').value = p.tipoCredito || '';
     document.getElementById('ges-escrituras').value = p.tieneEscrituras || '';
-    document.getElementById('ges-invadida').value = p.invadida || '';
+    document.getElementById('ges-estatus-propiedad').value = p.estatusPropiedad || (p.invadida === 'Si' ? 'Invadida' : '');
+    document.getElementById('ges-ine-domicilio').value = p.ineDomicilioPropiedad || '';
+    document.getElementById('ges-cfe-domicilio').value = p.cfeNombreYDomicilio || '';
+    document.getElementById('ges-meses-viviendo').value = Number(p.mesesViviendo || 0);
+    document.getElementById('ges-existe-notaria').value = p.existeNotariaEscritura || '';
     document.getElementById('ges-adeudo-credito').value = p.adeudoCredito ?? 0;
     document.getElementById('ges-adeudo-agua').value = p.adeudoAgua ?? 0;
     document.getElementById('ges-adeudo-luz').value = p.adeudoLuz ?? 0;
     document.getElementById('ges-adeudo-predial').value = p.adeudoPredial ?? 0;
+    document.getElementById('ges-adeudo-credito-estado').value = p.adeudoCreditoEstado || 'Pendiente de revisar';
+    document.getElementById('ges-adeudo-agua-estado').value = p.adeudoAguaEstado || 'Pendiente de revisar';
+    document.getElementById('ges-adeudo-luz-estado').value = p.adeudoLuzEstado || 'Pendiente de revisar';
+    document.getElementById('ges-adeudo-predial-estado').value = p.adeudoPredialEstado || 'Pendiente de revisar';
+    document.getElementById('ges-precio-venta-estimado').value = Number(p.precioVentaEstimadoAsesor || 0);
+    const mapsUrl = document.getElementById('ges-maps-url');
+    if (mapsUrl) mapsUrl.value = p.mapsUrl || '';
 
     const locked = document.getElementById('ges-locked-fields');
     if (locked) {
@@ -310,8 +321,74 @@ function abrirGestionProspecto(id) {
         enviarAdmin.classList.toggle('hidden',
             p.estatus !== RH_ESTATUS_PROSPECTO.INTERESADO || p.enviadoAdministradora);
     }
+    const btnContratos = document.getElementById('ges-btn-imprimir-contratos');
+    if (btnContratos) {
+        const aceptada = !!(p.ofertaAceptadaDigital || p.firmaDigital?.aceptada);
+        btnContratos.disabled = !aceptada;
+        btnContratos.title = aceptada
+            ? 'Imprimir contratos tras aceptación de la oferta'
+            : 'Primero registra la aceptación digital de la oferta';
+        btnContratos.classList.toggle('btn-disabled-soft', !aceptada);
+    }
+
+    const ineUploads = document.getElementById('ges-ine-uploads');
+    if (ineUploads) ineUploads.innerHTML = `
+        ${uploadCardHtml(p.id, 'ine_frente', 'Foto o PDF de INE · frente', esReglaObligatoria('ase_ine_frente'), 'asesor')}
+        ${uploadCardHtml(p.id, 'ine_reverso', 'Foto o PDF de INE · reverso', esReglaObligatoria('ase_ine_reverso'), 'asesor')}`;
+    actualizarCondicionalesAsesor(p);
+    if (typeof cambiarPasoCaptura === 'function') cambiarPasoCaptura('form-gestion-prospecto', 'contacto');
 
     document.getElementById('modal-gestion-prospecto')?.classList.add('active');
+}
+
+function actualizarCondicionalesAsesor(prospecto) {
+    const id = document.getElementById('ges-id')?.value;
+    const p = prospecto || getProspectoById(id);
+    if (typeof aplicarIndicadoresRequisitos === 'function') aplicarIndicadoresRequisitos();
+    const estatus = document.getElementById('ges-estatus')?.value || p?.estatus;
+    const activo = [
+        RH_ESTATUS_PROSPECTO.EN_CONTACTO,
+        RH_ESTATUS_PROSPECTO.INTERESADO,
+        RH_ESTATUS_PROSPECTO.EN_ADMIN,
+        RH_ESTATUS_PROSPECTO.PROPUESTA_LISTA
+    ].includes(estatus);
+    document.getElementById('ges-identidad-section')?.classList.toggle('is-disabled', !activo);
+    document.getElementById('ges-enviar-admin-wrap')?.classList.toggle(
+        'hidden',
+        estatus !== RH_ESTATUS_PROSPECTO.INTERESADO || !!p?.enviadoAdministradora
+    );
+
+    const ineNo = document.getElementById('ges-ine-domicilio')?.value === 'No';
+    const cfeSi = document.getElementById('ges-cfe-domicilio')?.value === 'Si';
+    document.getElementById('ges-nota-cambio-ine')?.classList.toggle('hidden', !(ineNo && !cfeSi));
+
+    const cfeUpload = document.getElementById('ges-cfe-upload');
+    if (cfeUpload) {
+        cfeUpload.classList.toggle('hidden', !cfeSi);
+        cfeUpload.innerHTML = cfeSi && p ? uploadCardHtml(p.id, 'cfe_asesor', 'Recibo CFE a nombre del vendedor', esReglaObligatoria('ase_cfe_archivo'), 'asesor') : '';
+    }
+
+    const escrituras = document.getElementById('ges-escrituras')?.value;
+    document.getElementById('ges-existe-notaria-wrap')?.classList.toggle('hidden', escrituras !== 'No');
+    const escrituraUpload = document.getElementById('ges-escrituras-upload');
+    if (escrituraUpload) {
+        escrituraUpload.classList.toggle('hidden', escrituras !== 'Si');
+        escrituraUpload.innerHTML = escrituras === 'Si' && p
+            ? uploadCardHtml(p.id, 'escrituras_asesor', 'Escrituras completas (foto o PDF)', esReglaObligatoria('ase_escrituras_archivo'), 'asesor')
+            : '';
+    }
+}
+
+function refrescarArchivosAsesor(prospectoId) {
+    if (document.getElementById('ges-id')?.value !== prospectoId) return;
+    const p = getProspectoById(prospectoId);
+    const ineUploads = document.getElementById('ges-ine-uploads');
+    if (p && ineUploads) {
+        ineUploads.innerHTML = `
+            ${uploadCardHtml(p.id, 'ine_frente', 'Foto o PDF de INE · frente', esReglaObligatoria('ase_ine_frente'), 'asesor')}
+            ${uploadCardHtml(p.id, 'ine_reverso', 'Foto o PDF de INE · reverso', esReglaObligatoria('ase_ine_reverso'), 'asesor')}`;
+    }
+    actualizarCondicionalesAsesor(p);
 }
 
 /* —— Administradora —— */
@@ -342,7 +419,6 @@ function renderAdministradora() {
                 <td>${formatearMoneda(p.adeudoCredito)}</td>
                 <td class="celda-acciones">
                     <button type="button" class="btn btn-outline btn-small" onclick="abrirDetalleProspecto('${escapeHtml(p.id)}')">Ver caso</button>
-                    <button type="button" class="btn btn-outline btn-small btn-luna-chip" onclick="lunaScoreProspecto('${escapeHtml(p.id)}')">Luna</button>
                     <button type="button" class="btn btn-primary btn-small" onclick="abrirExpedienteAdmin('${escapeHtml(p.id)}')">Expediente</button>
                 </td>
             </tr>`;
@@ -359,24 +435,41 @@ function abrirExpedienteAdmin(id) {
     const fields = document.getElementById('exp-fields');
     if (fields) {
         fields.innerHTML = `
+            <div class="full-width">${generarCamposExpedienteAdmin(p)}</div>
             ${camposContactoBloqueadosHtml(p, 'exp', true)}
             <div class="form-group"><label>Tipo de crédito</label><input class="form-control" id="exp-tipo-credito" value="${escapeHtml(p.tipoCredito || '')}"></div>
             <div class="form-group"><label>¿Escrituras?</label><select class="form-control" id="exp-escrituras"><option value="">—</option><option value="Si" ${p.tieneEscrituras === 'Si' ? 'selected' : ''}>Sí</option><option value="No" ${p.tieneEscrituras === 'No' ? 'selected' : ''}>No</option></select></div>
-            <div class="form-group"><label>¿Invadida?</label><select class="form-control" id="exp-invadida"><option value="">—</option><option value="Si" ${p.invadida === 'Si' ? 'selected' : ''}>Sí</option><option value="No" ${p.invadida === 'No' ? 'selected' : ''}>No</option></select></div>
-            <div class="form-group"><label>Adeudo crédito</label><input type="number" min="0" step="0.01" class="form-control" id="exp-adeudo-credito" value="${Number(p.adeudoCredito || 0)}"></div>
-            <div class="form-group"><label>Adeudo agua</label><input type="number" min="0" step="0.01" class="form-control" id="exp-adeudo-agua" value="${Number(p.adeudoAgua || 0)}"></div>
-            <div class="form-group"><label>Adeudo luz</label><input type="number" min="0" step="0.01" class="form-control" id="exp-adeudo-luz" value="${Number(p.adeudoLuz || 0)}"></div>
-            <div class="form-group"><label>Adeudo predial</label><input type="number" min="0" step="0.01" class="form-control" id="exp-adeudo-predial" value="${Number(p.adeudoPredial || 0)}"></div>`;
+            <div class="form-group"><label>¿Existe la notaría de la escritura?</label><select class="form-control" id="exp-existe-notaria"><option value="">—</option><option value="Si" ${p.existeNotariaEscritura === 'Si' ? 'selected' : ''}>Sí · segundo testimonio</option><option value="No" ${p.existeNotariaEscritura === 'No' ? 'selected' : ''}>No · Archivo Público</option></select></div>
+            <div class="form-group"><label>Estatus actual de la propiedad</label><select class="form-control" id="exp-estatus-propiedad"><option value="">—</option>${['Invadida','Rentada','Sola','No se sabe'].map(x => `<option ${p.estatusPropiedad === x || (!p.estatusPropiedad && p.invadida === 'Si' && x === 'Invadida') ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+            ${campoAdeudoAdminHtml('Crédito', 'credito', p.adeudoCredito, p.adeudoCreditoEstado)}
+            ${campoAdeudoAdminHtml('Agua', 'agua', p.adeudoAgua, p.adeudoAguaEstado)}
+            ${campoAdeudoAdminHtml('Luz', 'luz', p.adeudoLuz, p.adeudoLuzEstado)}
+            ${campoAdeudoAdminHtml('Predial', 'predial', p.adeudoPredial, p.adeudoPredialEstado)}`;
     }
 
     const docs = document.getElementById('exp-documentos-preview');
-    if (docs) docs.innerHTML = generarVistaDocumentos(p);
+    if (docs) docs.innerHTML = `
+        <div id="exp-checklist-wrap">${generarChecklistDocumental(p)}</div>
+        ${generarVistaDocumentos(p)}`;
+    if (typeof aplicarIndicadoresRequisitosAdmin === 'function') aplicarIndicadoresRequisitosAdmin();
+    if (typeof actualizarCamposReferidoExpediente === 'function') actualizarCamposReferidoExpediente();
+    if (typeof actualizarCamposComisionVentaExpediente === 'function') actualizarCamposComisionVentaExpediente();
+    if (typeof actualizarCamposCocompradorExpediente === 'function') actualizarCamposCocompradorExpediente();
 
     if (typeof actualizarMapaDireccion === 'function') {
         actualizarMapaDireccion(p.direccionPropiedad || '', 'exp-map-preview');
     }
 
+    if (typeof cambiarPasoCaptura === 'function') cambiarPasoCaptura('form-expediente-admin', 'datos');
     document.getElementById('modal-expediente-admin')?.classList.add('active');
+}
+
+function campoAdeudoAdminHtml(label, key, monto, estado) {
+    const actual = estado || 'Pendiente de revisar';
+    return `<div class="form-group"><label>Adeudo ${escapeHtml(label)}</label><div class="debt-input-row">
+        <input type="number" min="0" step="0.01" class="form-control" id="exp-adeudo-${key}" value="${Number(monto || 0)}">
+        <select class="form-control" id="exp-adeudo-${key}-estado">${['Confirmado','Pendiente de revisar','No aplica'].map(x => `<option ${x === actual ? 'selected' : ''}>${x}</option>`).join('')}</select>
+    </div></div>`;
 }
 
 /* —— Pipeline —— */
@@ -390,12 +483,16 @@ function renderPipeline() {
     setText('pipe-espera', casas.filter(c => c.estatusPipeline === 'Espera remodelación').length);
     setText('pipe-remodelacion', casas.filter(c => c.estatusPipeline === 'En remodelación').length);
     setText('pipe-venta', casas.filter(c => c.estatusPipeline === 'En venta').length);
+    setText('pipe-apartadas', casas.filter(c => c.estatusPipeline === 'Apartada').length);
+    setText('pipe-vendidas', casas.filter(c => c.estatusPipeline === 'Vendida').length);
     setText('pipe-cerradas', casas.filter(c => c.estatusPipeline === 'Cerrada').length);
+    const btnNueva = document.getElementById('btn-nueva-propiedad-pipeline');
+    if (btnNueva) btnNueva.classList.toggle('hidden', !(rhEsDireccion(currentUser) || currentUser?.rol === 'Administradora'));
 
     const fin = calcularIndicadoresFinancieros();
     setText('pipe-costo-remodelacion', formatearMoneda(fin.costosRemodelacion));
     setText('pipe-inversion-total', formatearMoneda(fin.inversionPropiedades));
-    setText('pipe-utilidad-realizada', fin.utilidadRealizada ? formatearMoneda(fin.utilidadRealizada) : '—');
+    setText('pipe-utilidad-realizada', fin.utilidadRealizada == null ? '—' : formatearMoneda(fin.utilidadRealizada));
 
     const tbody = document.querySelector('#table-pipeline tbody');
     if (!tbody) return;
@@ -416,13 +513,14 @@ function renderPipeline() {
             <td class="${utilidadCls}">${utilidadTxt}</td>
             <td>${escapeHtml(c.fechaFirma ? new Date(c.fechaFirma).toLocaleDateString() : '—')}</td>
             <td class="celda-acciones">
-                <button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}')">Ver registro</button>
-                <button type="button" class="btn btn-outline btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}','remodelacion')">Costos</button>
-                ${puedeEditarPipeline() ? `<button type="button" class="btn btn-primary btn-small" onclick="abrirCambioPipeline('${escapeHtml(c.id)}')">Estatus</button>` : ''}
-                <button type="button" class="btn btn-outline btn-small btn-luna-chip" onclick="abrirDetalleCasa('${escapeHtml(c.id)}','luna')">Luna</button>
+                <button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}')">Abrir ficha</button>
+                <button type="button" class="btn btn-outline btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}','expediente')">Documentos</button>
+                ${puedeEditarPipeline() ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirCambioPipeline('${escapeHtml(c.id)}')">Estatus</button>` : ''}
+                ${(currentUser?.rol === 'Direccion' || currentUser?.rol === 'Administradora') ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirModalTitulares('${escapeHtml(c.id)}')">Copropietarios</button>` : ''}
             </td>
         </tr>`;
         }).join('');
+    if (typeof renderCatalogoPipeline === 'function') renderCatalogoPipeline();
 }
 
 function abrirCambioPipeline(casaId) {
@@ -443,9 +541,14 @@ function togglePipePrecioVenta() {
     const wrap = document.getElementById('pipe-precio-venta-wrap');
     const input = document.getElementById('pipe-precio-venta');
     if (!wrap || !input) return;
-    const requiere = estatus === RH_ESTATUS_PIPELINE.CERRADA || estatus === RH_ESTATUS_PIPELINE.VENTA;
+    const requiere = [
+        RH_ESTATUS_PIPELINE.CERRADA,
+        RH_ESTATUS_PIPELINE.VENDIDA,
+        RH_ESTATUS_PIPELINE.VENTA,
+        RH_ESTATUS_PIPELINE.APARTADA
+    ].includes(estatus);
     wrap.classList.toggle('hidden', !requiere);
-    input.required = estatus === RH_ESTATUS_PIPELINE.CERRADA;
+    input.required = estatus === RH_ESTATUS_PIPELINE.CERRADA || estatus === RH_ESTATUS_PIPELINE.VENDIDA;
 }
 
 /* —— Auditoría —— */
@@ -462,6 +565,72 @@ function renderAuditoria() {
         <td>${escapeHtml(l.usuario)}</td>
         <td>${escapeHtml(l.accion)}</td>
     </tr>`).join('') || '<tr><td colspan="3" class="celda-vacia">Sin registros.</td></tr>';
+
+    const metricsBody = document.querySelector('#table-uso-local tbody');
+    if (metricsBody) {
+        const nube = window.RH_USAGE?.reporteNube?.() || [];
+        const agregados = new Map();
+        nube.forEach(evento => {
+            const key = [evento.tipo, evento.rol, evento.destino].join('|');
+            agregados.set(key, (agregados.get(key) || 0) + 1);
+        });
+        const filas = [...agregados].map(([key, total]) => {
+            const [event, role, target] = key.split('|');
+            return { etiqueta: etiquetaUso(event, target), accion: accionUso(event), role, total };
+        }).sort((a, b) => b.total - a.total).slice(0, 80);
+        metricsBody.innerHTML = filas.map(r => `<tr>
+            <td>${escapeHtml(r.etiqueta)}</td>
+            <td>${escapeHtml(r.accion)}</td>
+            <td>${escapeHtml(r.role)}</td>
+            <td>${r.total}</td>
+        </tr>`).join('') || '<tr><td colspan="4" class="celda-vacia">Aún no hay uso registrado del equipo.</td></tr>';
+    }
+    const sinUso = document.getElementById('uso-sin-registros');
+    if (sinUso && window.RH_USAGE) {
+        const vistos = new Set((window.RH_USAGE.reporteNube?.() || []).map(x => x.tipo + '|' + x.destino));
+        const faltan = [
+            ...(window.RH_USAGE.modulos || []).filter(id => !vistos.has('module_open|' + id)).map(id => RH_MODULE_LABELS[id] || id),
+            ...(window.RH_USAGE.pestanas || []).filter(id => !vistos.has('tab_open|' + id)),
+            ...(window.RH_USAGE.formularios || []).filter(id => !vistos.has('form_open|' + id) && !vistos.has('form_attempt|' + id))
+        ];
+        sinUso.textContent = faltan.length ? faltan.join(' · ') : 'Todo el catálogo tuvo al menos un uso en los últimos 30 días.';
+    }
+    const notasBody = document.querySelector('#table-notas-prueba tbody');
+    if (notasBody && typeof DB !== 'undefined') {
+        const notas = (DB.get('notasPrueba') || []).slice().sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
+        notasBody.innerHTML = notas.map(nota => `<tr>
+            <td>${escapeHtml(nota.ts ? new Date(nota.ts).toLocaleString() : '—')}</td>
+            <td>${escapeHtml(nota.usuario || '—')}<small>${escapeHtml(nota.rol || '')}</small></td>
+            <td>${escapeHtml(nota.modulo || '—')}</td>
+            <td>${escapeHtml(nota.comentario || '')}</td>
+            <td>${nota.captura ? `<button type="button" class="btn btn-outline btn-small" onclick="verCapturaNotaPrueba('${escapeHtml(nota.id)}')">Ver</button>` : '—'}</td>
+        </tr>`).join('') || '<tr><td colspan="5" class="celda-vacia">Aún no hay notas de prueba.</td></tr>';
+    }
+}
+
+function etiquetaUso(event, target) {
+    if (event === 'module_open') return RH_MODULE_LABELS[target] || target;
+    if (event === 'session_start') return 'Entrada al sistema';
+    return target;
+}
+
+function accionUso(event) {
+    return {
+        module_open: 'Abrió módulo',
+        form_open: 'Abrió formulario',
+        form_attempt: 'Envió formulario',
+        tab_open: 'Abrió pestaña',
+        session_start: 'Inició sesión'
+    }[event] || event;
+}
+
+function verCapturaNotaPrueba(id) {
+    const nota = (DB.get('notasPrueba') || []).find(x => x.id === id);
+    const marco = document.getElementById('nota-prueba-visor');
+    const img = document.getElementById('nota-prueba-visor-img');
+    if (!nota?.captura || !marco || !img) return;
+    img.src = nota.captura;
+    marco.classList.add('active');
 }
 
 /* —— Usuarios —— */
@@ -480,7 +649,7 @@ function renderUsuarios() {
     const tbody = document.querySelector('#table-usuarios tbody');
     if (!tbody) return;
     tbody.innerHTML = usuarios.map(u => `<tr>
-        <td><strong>${escapeHtml(u.displayName)}</strong>${u.nombreLuna && u.nombreLuna !== u.displayName ? `<br><small class="celda-muted">Luna: ${escapeHtml(getNombreLuna(u))}</small>` : ''}</td>
+        <td><strong>${escapeHtml(u.displayName)}</strong></td>
         <td>${escapeHtml(rhEtiquetaRol(u.rol))}</td>
         <td>${formatoContactoUsuario(u)}</td>
         <td>${u.activo === false ? '<span class="badge-mkt badge-mkt-danger">Inactivo</span>' : '<span class="badge-mkt badge-mkt-success">Activo</span>'}</td>
@@ -500,7 +669,8 @@ function abrirEditorUsuario(id) {
     document.getElementById('usr-edit-correo').value = u.correo || '';
     document.getElementById('usr-edit-telefono').value = u.telefono || '';
     document.getElementById('usr-edit-rol').value = rhEtiquetaRol(u.rol);
-    document.getElementById('usr-edit-password').value = u.password || '1234';
+    // No mostrar ni precargar credenciales existentes en el formulario.
+    document.getElementById('usr-edit-password').value = '';
     document.getElementById('usr-edit-activo').checked = u.activo !== false;
     document.getElementById('modal-usuario')?.classList.add('active');
 }
@@ -512,7 +682,7 @@ function abrirMiPerfil() {
     document.getElementById('perfil-correo').value = u.correo || '';
     document.getElementById('perfil-telefono').value = u.telefono || '';
     document.getElementById('perfil-rol').value = rhEtiquetaRol(u.rol);
-    document.getElementById('perfil-password').value = u.password || '1234';
+    document.getElementById('perfil-password').value = '';
     document.getElementById('modal-mi-perfil')?.classList.add('active');
 }
 
@@ -522,11 +692,13 @@ function abrirNuevoVendedor() {
     document.getElementById('modal-nuevo-vendedor')?.classList.add('active');
 }
 
-function eliminarVendedor(id) {
+async function eliminarVendedor(id) {
     if (!puedeGestionarUsuarios()) return;
     if (!confirmAction('¿Eliminar este vendedor? No se borran sus prospectos históricos.')) return;
-    const usuarios = DB.get('usuariosLogin').filter(u => u.id !== id);
-    DB.set('usuariosLogin', usuarios);
+    if (!await DB.remove('usuariosLogin', id)) {
+        alert('No se pudo eliminar el usuario en la nube.');
+        return;
+    }
     logAction('Vendedor eliminado');
     renderUsuarios();
     cargarUsuariosLogin();

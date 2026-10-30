@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/revive-hogar-mark.svg">
-    <link rel="stylesheet" href="css/app.css?v=20260709h">
+    <link rel="stylesheet" href="css/app.css?v=20261029c">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -88,60 +88,21 @@
                 <div id="mod-planner" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
-                            <h3>Tareas y Alertas</h3>
-                            <p class="module-desc">Tu tablero personal y alertas del sistema. Cada usuario tiene su propio espacio de trabajo.</p>
+                            <h3>Alertas</h3>
+                            <p class="module-desc">Avisos del sistema. Las tareas del equipo viven en un solo tablero.</p>
                         </div>
                         <div class="module-toolbar-actions">
-                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaPriorizarKanban()">Hablar con Luna</button>
-                            <button type="button" class="btn btn-primary btn-toolbar" id="planner-btn-nueva" onclick="abrirModalTarea()">+ Nueva tarea</button>
+                            <button type="button" class="btn btn-outline btn-toolbar" onclick="showModule('mod-proyectos', null, true)">Ir a tareas</button>
                         </div>
                     </div>
                     <div class="mkt-analytics-grid mkt-analytics-grid--compact">
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">🔔</span><span class="mkt-metric-label">Alertas</span><span class="mkt-metric-value" id="planner-pendientes">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📋</span><span class="mkt-metric-label">Tareas activas</span><span class="mkt-metric-value" id="planner-tareas-activas">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">🔥</span><span class="mkt-metric-label">Urgentes / Alta</span><span class="mkt-metric-value" id="planner-tareas-urgentes">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="planner-tareas-completadas">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">✔️</span><span class="mkt-metric-label">Resueltas</span><span class="mkt-metric-value" id="planner-resueltas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Pendientes</span><span class="mkt-metric-value" id="planner-pendientes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Resueltas</span><span class="mkt-metric-value" id="planner-resueltas">0</span></div>
                     </div>
-
-                    <div id="pm-summary-bar" class="pm-summary-bar">
-                        <div class="pm-summary-copy">
-                            <h4 id="pm-summary-titulo">Resumen</h4>
-                            <p id="pm-summary-desc" class="module-desc"></p>
-                            <div id="pm-summary-stats" class="pm-summary-stats"></div>
-                        </div>
-                        <button type="button" id="pm-btn-gestor" class="btn btn-primary btn-toolbar pm-btn-gestor hidden" onclick="irAGestorProyectos()">Abrir gestor de proyectos →</button>
-                    </div>
-
-                    <section id="planner-equipo-resumen" class="mkt-section rh-section-collapsible hidden">
-                        <button type="button" class="rh-section-toggle" data-collapse-target="planner-equipo" onclick="toggleSeccionColapsable('planner-equipo')">
-                            <span><span class="rh-collapse-chevron">▸</span> Tableros del equipo</span>
-                            <span class="section-badge-lectura">solo lectura</span>
-                        </button>
-                        <div id="planner-equipo-body" class="rh-section-body is-collapsed">
-                            <p class="module-desc rh-section-hint">Cada persona tiene su tablero independiente. Gestiona desde el gestor de proyectos.</p>
-                            <div id="planner-equipo-grid" class="pm-equipo-grid"></div>
-                        </div>
-                    </section>
-
-                    <section id="planner-kanban-section" class="mkt-section">
-                        <h4 class="section-title" id="planner-kanban-title">📋 Mi tablero</h4>
-                        <div class="kanban-board pm-kanban-board">
-                            <div class="kanban-column kanban-column--pending"><h5>📝 Por hacer</h5><div id="kanban-pendiente"></div></div>
-                            <div class="kanban-column kanban-column--progress"><h5>⚡ En curso</h5><div id="kanban-proceso"></div></div>
-                            <div class="kanban-column kanban-column--follow"><h5>📌 Seguimiento</h5><div id="kanban-seguimiento"></div></div>
-                        </div>
-                    </section>
                     <section class="mkt-section">
                         <h4 class="section-title">Alertas del sistema</h4>
                         <div class="table-responsive table-clean table-mkt">
                             <table id="table-planner"><thead><tr><th>Tipo</th><th>Alerta</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </section>
-                    <section id="planner-completadas-section" class="mkt-section">
-                        <h4 class="section-title">Tareas completadas <span class="section-badge-lectura" id="planner-completadas-count">0</span></h4>
-                        <div class="table-responsive table-clean table-mkt">
-                            <table id="table-tareas-completadas"><thead><tr><th>Tarea</th><th>Asignado</th><th>Prioridad</th><th>Completada</th></tr></thead><tbody></tbody></table>
                         </div>
                     </section>
                     <section class="mkt-section">
@@ -153,15 +114,15 @@
                 <div id="mod-proyectos" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
-                            <h3>📌 Gestor de proyectos</h3>
-                            <p class="module-desc">Tablero, tabla, notas y seguimiento — estilo Monday / Asana.</p>
+                            <h3>Tareas</h3>
+                            <p class="module-desc">Un solo tablero para el equipo: kanban, tabla, notas y seguimiento.</p>
                         </div>
                         <div class="module-toolbar-actions">
                             <div class="proy-vista-toggle">
-                                <button type="button" id="proy-vista-kanban" class="proy-vista-btn active" onclick="setProyectosVista('kanban')">▦ Kanban</button>
-                                <button type="button" id="proy-vista-tabla" class="proy-vista-btn" onclick="setProyectosVista('tabla')">≡ Tabla</button>
+                                <button type="button" id="proy-vista-kanban" class="proy-vista-btn active" onclick="setProyectosVista('kanban')">Kanban</button>
+                                <button type="button" id="proy-vista-tabla" class="proy-vista-btn" onclick="setProyectosVista('tabla')">Tabla</button>
                             </div>
-                            <label class="proy-chk-seguimiento"><input type="checkbox" id="proy-filtro-seguimiento"> 📌 Solo seguimiento</label>
+                            <label class="proy-chk-seguimiento"><input type="checkbox" id="proy-filtro-seguimiento"> Solo seguimiento</label>
                             <div class="proy-filtro-wrap">
                                 <label for="proy-filtro-usuario">Persona</label>
                                 <select id="proy-filtro-usuario" class="form-control proy-filtro-select">
@@ -172,10 +133,10 @@
                         </div>
                     </div>
                     <div class="mkt-analytics-grid mkt-analytics-grid--compact planner-kpis">
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📋</span><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">🔥</span><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">📌</span><span class="mkt-metric-label">Seguimiento</span><span class="mkt-metric-value" id="proy-seguimiento">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Activas</span><span class="mkt-metric-value" id="proy-activas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Urgentes</span><span class="mkt-metric-value" id="proy-urgentes">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-label">Seguimiento</span><span class="mkt-metric-value" id="proy-seguimiento">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Completadas</span><span class="mkt-metric-value" id="proy-completadas">0</span></div>
                     </div>
                     <section class="mkt-section rh-section-collapsible">
                         <button type="button" class="rh-section-toggle" data-collapse-target="proy-equipo" onclick="toggleSeccionColapsable('proy-equipo')">
@@ -186,16 +147,16 @@
                         </div>
                     </section>
                     <section class="mkt-section" id="proy-kanban-wrap">
-                        <h4 class="section-title">▦ Tablero Kanban</h4>
+                        <h4 class="section-title">Tablero</h4>
                         <div class="kanban-board pm-kanban-board">
-                            <div class="kanban-column kanban-column--pending"><h5>📝 Por hacer</h5><div id="proy-kanban-pendiente"></div></div>
-                            <div class="kanban-column kanban-column--progress"><h5>⚡ En curso</h5><div id="proy-kanban-proceso"></div></div>
-                            <div class="kanban-column kanban-column--follow"><h5>📌 Seguimiento</h5><div id="proy-kanban-seguimiento"></div></div>
-                            <div class="kanban-column kanban-column--done"><h5>✅ Listo</h5><div id="proy-kanban-hecho"></div></div>
+                            <div class="kanban-column kanban-column--pending"><h5>Por hacer</h5><div id="proy-kanban-pendiente"></div></div>
+                            <div class="kanban-column kanban-column--progress"><h5>En curso</h5><div id="proy-kanban-proceso"></div></div>
+                            <div class="kanban-column kanban-column--follow"><h5>Seguimiento</h5><div id="proy-kanban-seguimiento"></div></div>
+                            <div class="kanban-column kanban-column--done"><h5>Listo</h5><div id="proy-kanban-hecho"></div></div>
                         </div>
                     </section>
                     <section class="mkt-section hidden" id="proy-tabla-wrap">
-                        <h4 class="section-title">≡ Vista tabla</h4>
+                        <h4 class="section-title">Vista tabla</h4>
                         <div class="table-responsive table-clean table-mkt">
                             <table id="table-proy-activas"><thead><tr><th>Tarea</th><th>Asignado</th><th>Estado</th><th>Prioridad</th><th>Seg.</th><th>Límite</th><th>Notas</th></tr></thead><tbody></tbody></table>
                         </div>
@@ -214,24 +175,16 @@
                             <h3>Resumen Ejecutivo</h3>
                             <p class="module-desc">Indicadores de campañas, conversión y pipeline de propiedades.</p>
                         </div>
-                        <div class="module-toolbar-actions">
-                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaReporteSemanal()">Reporte con Luna</button>
-                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaBriefingDiario()">Briefing de hoy</button>
-                        </div>
+                        <div class="module-toolbar-actions"></div>
                     </div>
+                    <p class="module-desc">Cada tarjeta abre el módulo donde se trabaja ese número.</p>
                     <div class="mkt-analytics-grid mkt-analytics-grid--compact">
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Inversión campañas</span><span class="mkt-metric-value" id="dash-presupuesto">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">👥</span><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">✖️</span><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-emoji">📊</span><span class="mkt-metric-label">Costo / prospecto</span><span class="mkt-metric-value" id="dash-costo-prospecto">—</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏠</span><span class="mkt-metric-label">Casas en pipeline</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">🏷️</span><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="dash-casas-venta">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">🔧</span><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="dash-remodelacion">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="dash-inversion-propiedades">$0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span></div>
-                        <div class="mkt-metric-card mkt-metric-accent"><span class="mkt-metric-emoji">🎯</span><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="dash-utilidad-proyectada">—</span></div>
+                        <button type="button" class="mkt-metric-card mkt-metric-link" onclick="showModule('mod-marketing', null, true)"><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="dash-prospectos">0</span><small>Abrir marketing</small></button>
+                        <button type="button" class="mkt-metric-card mkt-metric-link mkt-metric-success" onclick="showModule('mod-administradora', null, true)"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="dash-firmados">0</span><small>Abrir administradora</small></button>
+                        <button type="button" class="mkt-metric-card mkt-metric-link" onclick="showModule('mod-vendedor', null, true)"><span class="mkt-metric-label">En proceso</span><span class="mkt-metric-value" id="dash-activos">0</span><small>Abrir prospectos</small></button>
+                        <button type="button" class="mkt-metric-card mkt-metric-link mkt-metric-danger" onclick="showModule('mod-vendedor', null, true)"><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="dash-declinados">0</span><small>Abrir prospectos</small></button>
+                        <button type="button" class="mkt-metric-card mkt-metric-link" onclick="showModule('mod-pipeline', null, true)"><span class="mkt-metric-label">Casas activas</span><span class="mkt-metric-value" id="dash-casas-pipeline">0</span><small>Abrir propiedades</small></button>
+                        <button type="button" class="mkt-metric-card mkt-metric-link mkt-metric-success" onclick="showModule('mod-gastos', null, true)"><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="dash-utilidad-realizada">—</span><small>Abrir gastos</small></button>
                     </div>
                 </div>
 
@@ -242,16 +195,15 @@
                             <p class="module-desc">Registro de campañas, costos y asignación de prospectos.</p>
                         </div>
                         <div class="module-toolbar-actions">
-                            <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaAnalizarCampanas()">Luna · Campañas</button>
                             <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirModalCampana()">+ Agregar campaña</button>
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalProspectoMarketing()">+ Asignar prospecto</button>
                         </div>
                     </div>
                     <div class="mkt-analytics-grid mkt-analytics-grid--compact">
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Presupuesto</span><span class="mkt-metric-value" id="kpi-mkt-presupuesto">$0</span></div>
-                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">👥</span><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="kpi-mkt-prospectos">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✍️</span><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="kpi-mkt-firmados">0</span></div>
-                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">✖️</span><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="kpi-mkt-declinados">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Presupuesto</span><span class="mkt-metric-value" id="kpi-mkt-presupuesto">$0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-label">Prospectos</span><span class="mkt-metric-value" id="kpi-mkt-prospectos">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-label">Firmados</span><span class="mkt-metric-value" id="kpi-mkt-firmados">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-label">Declinados</span><span class="mkt-metric-value" id="kpi-mkt-declinados">0</span></div>
                     </div>
                     <section class="mkt-section">
                         <h4 class="section-title">Campañas</h4>
@@ -270,6 +222,172 @@
                             <table id="table-prospectos-mkt"><thead><tr><th>Nombre</th><th>Campaña</th><th>Vendedor</th><th>Teléfono</th><th>Estatus</th><th>Origen</th></tr></thead><tbody></tbody></table>
                         </div>
                     </section>
+                </div>
+
+                <div id="mod-compradores" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Compradores</h3>
+                            <p class="module-desc">Personas interesadas en comprar. Sus datos permanecen separados de los propietarios y expedientes de inmuebles.</p>
+                        </div>
+                        <button id="comprador-nuevo" type="button" class="btn btn-primary">+ Nuevo comprador</button>
+                    </div>
+                    <div class="rh-buyer-summary">Compradores activos: <strong id="comprador-total">0</strong> · Contactos pendientes (hoy/vencidos): <strong id="comprador-pendientes">0</strong></div>
+                    <div id="comprador-editor" class="rh-buyer-editor hidden">
+                        <h4 id="comprador-editor-titulo">Nuevo comprador</h4>
+                        <form id="form-comprador">
+                            <input id="comprador-id" type="hidden">
+                            <div class="rh-buyer-fields">
+                                <label>Nombre completo *
+                                    <input id="comprador-nombre" class="form-control" type="text" maxlength="160" autocomplete="name" required>
+                                </label>
+                                <label>Teléfono *
+                                    <input id="comprador-telefono" class="form-control" type="tel" maxlength="35" autocomplete="tel" required>
+                                </label>
+                            </div>
+                            <details class="rh-buyer-advanced">
+                                <summary>Más datos opcionales</summary>
+                                <div class="rh-buyer-fields">
+                                    <label>Correo
+                                        <input id="comprador-correo" type="email" class="form-control" maxlength="150">
+                                    </label>
+                                    <label>Zona o tipo de propiedad que busca
+                                        <input id="comprador-interes" class="form-control" type="text" maxlength="180">
+                                    </label>
+                                    <label>Presupuesto máximo (MXN)
+                                        <input id="comprador-presupuesto" class="form-control" type="number" min="0" max="1000000000000" step="0.01">
+                                    </label>
+                                    <label>Forma de compra
+                                        <select id="comprador-financiamiento" class="form-control">
+                                            <option>Por definir</option>
+                                            <option>Contado</option>
+                                            <option>Crédito hipotecario bancario</option>
+                                            <option>Infonavit</option>
+                                            <option>Fovissste</option>
+                                            <option>Otro</option>
+                                        </select>
+                                    </label>
+                                    <label>Banco o institución (opcional)
+                                        <input id="comprador-institucion" class="form-control" type="text" maxlength="100" placeholder="Ej. Banco / Infonavit">
+                                    </label>
+                                    <label>Propiedad de interés
+                                        <select id="comprador-propiedad" class="form-control"><option value="">Sin propiedad seleccionada</option></select>
+                                    </label>
+                                    <label>Etapa comercial
+                                        <select id="comprador-estatus" class="form-control">
+                                            <option>Nuevo</option><option>En seguimiento</option><option>Interesado</option>
+                                            <option>Apartado</option><option>Concretado</option><option>Archivado</option>
+                                        </select>
+                                        <small class="field-hint">Apartado y Concretado requieren inmueble vinculado. No generan pagos, escrituras ni cambio automático del Pipeline.</small>
+                                    </label>
+                                    <label class="rh-buyer-asesor-field">Asesor responsable
+                                        <select id="comprador-asesor" class="form-control"><option value="">Sin asignar</option></select>
+                                    </label>
+                                    <label>Próximo contacto
+                                        <input id="comprador-proximo-contacto" class="form-control" type="date">
+                                    </label>
+                                    <label class="rh-buyer-notes">Notas internas
+                                        <textarea id="comprador-notas" class="form-control" rows="3" maxlength="2000"></textarea>
+                                    </label>
+                                </div>
+                                <label class="rh-buyer-activity-label">Registrar actividad (opcional; se agrega al historial al guardar)
+                                    <textarea id="comprador-seguimiento-nota" class="form-control" maxlength="500" rows="2" placeholder="Ej.: Se llamó, pidió visitar la propiedad el viernes"></textarea>
+                                </label>
+                                <details class="rh-buyer-history"><summary>Historial de seguimiento</summary>
+                                    <ol id="comprador-historial"><li>Aún no hay actividades registradas.</li></ol>
+                                </details>
+                            </details>
+                            <div class="rh-buyer-actions">
+                                <button type="submit" class="btn btn-primary">Guardar comprador</button>
+                                <button type="button" id="comprador-cancelar" class="btn btn-secondary">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="rh-buyer-filters">
+                        <label class="rh-buyer-search">Buscar comprador
+                            <input id="comprador-buscar" type="search" class="form-control" placeholder="Nombre, teléfono o interés">
+                        </label>
+                        <label class="rh-buyer-checkbox"><input type="checkbox" id="comprador-solo-pendientes"> Solo contactos vencidos o de hoy</label>
+                        <label class="rh-buyer-checkbox"><input type="checkbox" id="comprador-mostrar-archivados"> Incluir archivados</label>
+                    </div>
+                    <div class="table-responsive table-clean table-mkt">
+                        <table id="table-compradores"><thead><tr>
+                            <th>Comprador</th><th>Teléfono</th><th>Interés</th><th>Propiedad</th><th>Etapa</th><th>Próximo contacto</th><th>Asesor</th><th>Acciones</th>
+                        </tr></thead><tbody><tr><td colspan="8" class="celda-vacia">Sin compradores registrados.</td></tr></tbody></table>
+                    </div>
+                </div>
+
+                <div id="mod-operaciones" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Operaciones de venta</h3>
+                            <p class="module-desc">Preparación de compraventa. Las comisiones son estimaciones: guardar un borrador no crea pagos, movimientos bancarios ni cambia el Pipeline.</p>
+                        </div>
+                        <button id="op-nueva" type="button" class="btn btn-primary">+ Nueva operación</button>
+                    </div>
+                    <div class="rh-buyer-summary">Operaciones activas: <strong id="op-total">0</strong> · Comisiones estimadas: <strong id="op-comisiones-total">$0.00</strong></div>
+                    <div id="op-editor" class="rh-buyer-editor hidden">
+                        <h4 id="op-editor-titulo">Nueva preparación de venta</h4>
+                        <form id="form-operacion">
+                            <input id="op-id" type="hidden">
+                            <div class="rh-buyer-fields">
+                                <label>Propiedad *
+                                    <select id="op-casa" class="form-control" required><option value="">Seleccionar inmueble</option></select>
+                                </label>
+                                <label>Comprador *
+                                    <select id="op-comprador" class="form-control" required><option value="">Seleccionar comprador</option></select>
+                                </label>
+                                <label>Etapa
+                                    <select id="op-etapa" class="form-control">
+                                        <option>Borrador</option>
+                                        <option>En negociación</option>
+                                        <option>Apartado preliminar</option>
+                                        <option>Documentación</option>
+                                        <option>En notaría</option>
+                                        <option>Cancelada</option>
+                                        <option>Archivada</option>
+                                    </select>
+                                </label>
+                                <label>Precio pactado (MXN)
+                                    <input id="op-precio" class="form-control" type="number" min="0" step="0.01">
+                                </label>
+                                <label>Asesor que captó
+                                    <select id="op-captador" class="form-control"><option value="">Sin definir</option></select>
+                                </label>
+                                <label>Asesor que cerró
+                                    <select id="op-vendedor" class="form-control"><option value="">Sin definir</option></select>
+                                </label>
+                                <label>Tipo de comisión de captación
+                                    <select id="op-tipo-captacion" class="form-control"><option>Porcentaje</option><option>Monto fijo</option></select>
+                                </label>
+                                <label>Comisión de captación
+                                    <input id="op-comision-captacion" class="form-control" type="number" min="0" step="0.01">
+                                </label>
+                                <label>Tipo de comisión de cierre
+                                    <select id="op-tipo-cierre" class="form-control"><option>Porcentaje</option><option>Monto fijo</option></select>
+                                </label>
+                                <label>Comisión de cierre
+                                    <input id="op-comision-cierre" class="form-control" type="number" min="0" step="0.01">
+                                </label>
+                                <label class="rh-buyer-notes">Observaciones
+                                    <textarea id="op-observaciones" class="form-control" rows="3" maxlength="1500"></textarea>
+                                </label>
+                            </div>
+                            <p id="op-estimacion" class="field-hint">Las cifras son estimaciones internas. No son comisiones devengadas ni pagadas.</p>
+                            <div class="rh-buyer-actions">
+                                <button type="submit" class="btn btn-primary">Guardar preparación</button>
+                                <button type="button" id="op-cancelar" class="btn btn-secondary">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="rh-buyer-filters">
+                        <label class="rh-buyer-checkbox"><input type="checkbox" id="op-filtrar-archivadas"> Incluir archivadas</label>
+                    </div>
+                    <div class="table-responsive table-clean table-mkt">
+                        <table id="table-operaciones"><thead><tr>
+                            <th>Propiedad</th><th>Comprador</th><th>Etapa</th><th>Captador</th><th>Vendedor</th><th>Precio</th><th>Comisión estimada</th><th>Acciones</th>
+                        </tr></thead><tbody><tr><td colspan="8" class="celda-vacia">Aún no hay operaciones registradas.</td></tr></tbody></table>
+                    </div>
                 </div>
 
                 <div id="mod-vendedor" class="module">
@@ -328,7 +446,10 @@
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
                             <h3>Propiedades — Pipeline</h3>
-                            <p class="module-desc">Casas firmadas: espera, remodelación, venta y cierre.</p>
+                            <p class="module-desc">Casas firmadas: espera, remodelación, venta, apartada y vendida.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-primary btn-toolbar" id="btn-nueva-propiedad-pipeline" onclick="abrirModalNuevaPropiedad()">+ Nueva propiedad</button>
                         </div>
                     </div>
                     <div class="filter-bar">
@@ -338,7 +459,9 @@
                             <option value="Espera remodelación">Espera remodelación</option>
                             <option value="En remodelación">En remodelación</option>
                             <option value="En venta">En venta</option>
-                            <option value="Cerrada">Cerradas</option>
+                            <option value="Apartada">Apartada</option>
+                            <option value="Vendida">Vendida</option>
+                            <option value="Cerrada">Cerrada</option>
                         </select>
                     </div>
                     <div class="mkt-analytics-grid mkt-analytics-grid--compact">
@@ -346,17 +469,122 @@
                         <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">En espera</span><span class="mkt-metric-value" id="pipe-espera">0</span></div>
                         <div class="mkt-metric-card"><span class="mkt-metric-emoji">🔧</span><span class="mkt-metric-label">Remodelación</span><span class="mkt-metric-value" id="pipe-remodelacion">0</span></div>
                         <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">🏷️</span><span class="mkt-metric-label">En venta</span><span class="mkt-metric-value" id="pipe-venta">0</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📌</span><span class="mkt-metric-label">Apartadas</span><span class="mkt-metric-value" id="pipe-apartadas">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✅</span><span class="mkt-metric-label">Vendidas</span><span class="mkt-metric-value" id="pipe-vendidas">0</span></div>
                         <div class="mkt-metric-card"><span class="mkt-metric-emoji">🔒</span><span class="mkt-metric-label">Cerradas</span><span class="mkt-metric-value" id="pipe-cerradas">0</span></div>
                         <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">💸</span><span class="mkt-metric-label">Costos remodelación</span><span class="mkt-metric-value" id="pipe-costo-remodelacion">$0</span></div>
                         <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión propiedades</span><span class="mkt-metric-value" id="pipe-inversion-total">$0</span></div>
                         <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad realizada</span><span class="mkt-metric-value" id="pipe-utilidad-realizada">—</span></div>
                     </div>
                     <section class="mkt-section">
+                        <h4 class="mkt-section-title">Casas en catálogo</h4>
+                        <p class="module-desc rh-section-hint">Precios, fotos y recorrido virtual. Lo publicado aparece en <a href="tour.html" target="_blank" rel="noopener">el sitio de recorridos</a>. Para tomar las fotos con guía: <a href="captura.html">visita guiada</a>.</p>
+                        <div id="pipeline-catalogo" class="rh-catalogo-grid"></div>
+                    </section>
+                    <section class="mkt-section">
                         <div class="table-responsive table-clean table-mkt">
                             <table id="table-pipeline"><thead><tr><th>Prospecto</th><th>Dirección</th><th>Crédito</th><th>Estatus</th><th>Remodelación</th><th>Inversión</th><th>Utilidad</th><th>Firma</th><th>Acciones</th></tr></thead><tbody></tbody></table>
                         </div>
                     </section>
                     <div id="pipeline-detalle"></div>
+                </div>
+
+                <div id="mod-gastos" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Gastos y Presupuestos</h3>
+                            <p class="module-desc">Control financiero integral por propiedad: presupuesto, egresos, inversión, socios y retornos.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <label class="fin-property-picker">
+                                <span>Propiedad</span>
+                                <select id="gastos-propiedad-select" class="form-control" onchange="seleccionarPropiedadGastos(this.value)"></select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🧾</span><span class="mkt-metric-label">Presupuesto</span><span class="mkt-metric-value" id="gastos-kpi-presupuesto">$0.00</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">💸</span><span class="mkt-metric-label">Egresos reales</span><span class="mkt-metric-value" id="gastos-kpi-egresos">$0.00</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">Falta por invertir</span><span class="mkt-metric-value" id="gastos-kpi-faltante">$0.00</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏦</span><span class="mkt-metric-label">Inversión registrada</span><span class="mkt-metric-value" id="gastos-kpi-inversion">$0.00</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad proyectada</span><span class="mkt-metric-value" id="gastos-kpi-utilidad">—</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">✓</span><span class="mkt-metric-label">Utilidad sobre egresos</span><span class="mkt-metric-value" id="gastos-kpi-utilidad-real">—</span></div>
+                    </div>
+                    <div id="gastos-empty" class="empty-state hidden">
+                        <strong>No hay propiedades ni presupuestos preliminares</strong>
+                        <p>El presupuesto se habilita al guardar un prospecto desde “En contacto” con dirección de propiedad.</p>
+                    </div>
+                    <div id="gastos-detalle"></div>
+                </div>
+
+                <div id="mod-gastos-empresa" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Gastos de Empresa</h3>
+                            <p class="module-desc">Control corporativo de ingresos, egresos, presupuesto mensual y panorama consolidado con la operación inmobiliaria.</p>
+                        </div>
+                        <div class="module-toolbar-actions emp-toolbar-actions">
+                            <div class="emp-month-nav">
+                                <button type="button" class="btn btn-outline btn-toolbar" onclick="cambiarMesEmpresa(-1)" aria-label="Mes anterior">‹</button>
+                                <strong id="emp-mes-label">—</strong>
+                                <button type="button" class="btn btn-outline btn-toolbar" onclick="cambiarMesEmpresa(1)" aria-label="Mes siguiente">›</button>
+                                <button type="button" class="btn btn-outline btn-toolbar" onclick="irMesEmpresaActual()">Hoy</button>
+                            </div>
+                            <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirModalCuentasBancarias()">Cuentas bancarias</button>
+                            <button type="button" class="btn btn-outline btn-toolbar" onclick="imprimirReporteEmpresa()">Imprimir</button>
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirModalMovimientoEmpresa()">+ Movimiento</button>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">💰</span><span class="mkt-metric-label">Ingresos del mes</span><span class="mkt-metric-value" id="emp-kpi-ingresos">$0.00</span></div>
+                        <div class="mkt-metric-card mkt-metric-danger"><span class="mkt-metric-emoji">💸</span><span class="mkt-metric-label">Egresos del mes</span><span class="mkt-metric-value" id="emp-kpi-egresos">$0.00</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">⚖️</span><span class="mkt-metric-label">Balance neto</span><span class="mkt-metric-value" id="emp-kpi-balance">$0.00</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">🎯</span><span class="mkt-metric-label">Presupuesto mensual</span><span class="mkt-metric-value" id="emp-kpi-presupuesto">—</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🏠</span><span class="mkt-metric-label">Egresos en propiedades</span><span class="mkt-metric-value" id="emp-kpi-propiedades">$0.00</span></div>
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">📈</span><span class="mkt-metric-label">Utilidad en propiedades</span><span class="mkt-metric-value" id="emp-kpi-utilidad-prop">—</span></div>
+                    </div>
+                    <div class="emp-tabs">
+                        <button type="button" class="emp-tab active" data-emp-vista="resumen" onclick="cambiarVistaEmpresa('resumen')">Resumen</button>
+                        <button type="button" class="emp-tab" data-emp-vista="movimientos" onclick="cambiarVistaEmpresa('movimientos')">Movimientos</button>
+                        <button type="button" class="emp-tab" data-emp-vista="presupuesto" onclick="cambiarVistaEmpresa('presupuesto')">Presupuesto</button>
+                    </div>
+                    <div id="emp-contenido"></div>
+                </div>
+
+                <div id="mod-referidos" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Referidos y Comisiones</h3>
+                            <p class="module-desc">Control de quién refirió cada operación, cuánto se le debe, pagos realizados y saldo pendiente.</p>
+                        </div>
+                    </div>
+                    <div class="mkt-analytics-grid mkt-analytics-grid--compact">
+                        <div class="mkt-metric-card"><span class="mkt-metric-emoji">🤝</span><span class="mkt-metric-label">Operaciones referidas</span><span class="mkt-metric-value" id="ref-kpi-operaciones">0</span></div>
+                        <div class="mkt-metric-card mkt-metric-warning"><span class="mkt-metric-emoji">⏳</span><span class="mkt-metric-label">Comisiones pendientes</span><span class="mkt-metric-value" id="ref-kpi-pendiente">$0.00</span></div>
+                        <div class="mkt-metric-card mkt-metric-success"><span class="mkt-metric-emoji">✓</span><span class="mkt-metric-label">Comisiones pagadas</span><span class="mkt-metric-value" id="ref-kpi-pagado">$0.00</span></div>
+                    </div>
+                    <section class="fin-section">
+                        <div class="fin-section-heading"><div><span>01</span><h4>Control de comisiones</h4></div><small>Captura en expediente (Regina) → pagos aquí</small></div>
+                        <div id="referidos-content"></div>
+                    </section>
+                </div>
+
+                <div id="mod-configuracion" class="module">
+                    <div class="module-toolbar">
+                        <div class="module-toolbar-text">
+                            <h3>Configuración de requisitos</h3>
+                            <p class="module-desc">Dirección define qué documentos y campos son obligatorios, cuáles son opcionales y el orden en que aparecen.</p>
+                        </div>
+                        <div class="module-toolbar-actions">
+                            <button type="button" class="btn btn-outline btn-toolbar" onclick="restaurarConfiguracionRequisitos()">Restaurar valores</button>
+                            <button type="button" class="btn btn-primary btn-toolbar" onclick="guardarConfiguracionRequisitos()">Guardar configuración</button>
+                        </div>
+                    </div>
+                    <div class="cfg-legend">
+                        <span><i class="cfg-dot cfg-dot--required"></i><strong>Obligatorio</strong> bloquea el avance si falta.</span>
+                        <span><i class="cfg-dot cfg-dot--optional"></i><strong>Opcional</strong> solo genera un aviso de pendiente.</span>
+                    </div>
+                    <div id="configuracion-requisitos-content"></div>
                 </div>
 
                 <div id="mod-auditoria" class="module">
@@ -371,13 +599,29 @@
                     <div class="table-responsive table-clean table-mkt">
                         <table id="table-auditoria"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th></tr></thead><tbody></tbody></table>
                     </div>
+                    <section aria-label="Uso del equipo" style="margin-top:24px">
+                        <h4>Qué se está usando · últimos 30 días</h4>
+                        <p class="module-desc">Entradas, módulos, pestañas y formularios de todo el equipo. No se guardan contraseñas, NSS ni lo que se escribe en los campos.</p>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table aria-label="Uso del equipo" id="table-uso-local"><thead><tr><th>Módulo, pestaña o formulario</th><th>Acción</th><th>Rol</th><th>Veces</th></tr></thead><tbody><tr><td colspan="4">Aún sin registros.</td></tr></tbody></table>
+                        </div>
+                        <h4 style="margin-top:18px">Sin uso en este periodo</h4>
+                        <p id="uso-sin-registros" class="module-desc">Aún no hay datos para comparar.</p>
+                    </section>
+                    <section aria-label="Notas de prueba" style="margin-top:24px">
+                        <h4>Notas de prueba</h4>
+                        <p class="module-desc">Lo que el equipo marca con el botón Prueba. La captura muestra la pantalla que ellos eligieron.</p>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-notas-prueba"><thead><tr><th>Fecha</th><th>Quién</th><th>Dónde</th><th>Comentario</th><th>Captura</th></tr></thead><tbody><tr><td colspan="5">Aún no hay notas.</td></tr></tbody></table>
+                        </div>
+                    </section>
                 </div>
 
                 <div id="mod-usuarios" class="module">
                     <div class="module-toolbar">
                         <div class="module-toolbar-text">
                             <h3>Usuarios del equipo</h3>
-                            <p class="module-desc">Configura nombre, contacto y acceso. Luna saluda a cada persona por su nombre.</p>
+                            <p class="module-desc">Nombre, contacto y acceso. La contraseña no se muestra en la lista.</p>
                         </div>
                         <div class="module-toolbar-actions">
                             <button type="button" class="btn btn-primary btn-toolbar" onclick="abrirNuevoVendedor()">+ Nuevo vendedor</button>
@@ -411,13 +655,14 @@
                 <button type="button" class="detalle-tab" data-tab="historial" onclick="cambiarTabDetalleCasa('historial')">Historial</button>
                 <button type="button" class="detalle-tab" data-tab="expediente" onclick="cambiarTabDetalleCasa('expediente')">Expediente</button>
                 <button type="button" class="detalle-tab hidden detalle-tab--remodelacion" id="detalle-tab-remodelacion" data-tab="remodelacion" onclick="cambiarTabDetalleCasa('remodelacion')">Remodelación</button>
+                <button type="button" class="detalle-tab hidden" id="detalle-tab-recorrido" data-tab="recorrido" onclick="cambiarTabDetalleCasa('recorrido')">Recorrido</button>
                 <button type="button" class="detalle-tab" data-tab="comunicacion" onclick="cambiarTabDetalleCasa('comunicacion')">Comunicación <span id="detalle-msg-count" class="tab-badge hidden">0</span></button>
-                <button type="button" class="detalle-tab detalle-tab--luna" data-tab="luna" onclick="cambiarTabDetalleCasa('luna')">Luna ✨</button>
             </div>
             <div class="detalle-tab-panel active" data-panel="resumen" id="detalle-resumen-content"></div>
             <div class="detalle-tab-panel" data-panel="historial"><div id="detalle-historial-content" class="timeline-wrap"></div></div>
             <div class="detalle-tab-panel" data-panel="expediente"><div id="detalle-expediente-content"></div></div>
             <div class="detalle-tab-panel" data-panel="remodelacion"><div id="detalle-remodelacion-content" class="remodel-panel"></div></div>
+            <div class="detalle-tab-panel" data-panel="recorrido"><div id="detalle-recorrido-content" class="recorrido-panel"></div></div>
             <div class="detalle-tab-panel" data-panel="comunicacion">
                 <div id="detalle-mensajes-list" class="chat-thread"></div>
                 <form id="form-mensaje-caso" class="chat-compose">
@@ -426,7 +671,6 @@
                     <button type="submit" class="btn btn-primary btn-toolbar">Enviar mensaje</button>
                 </form>
             </div>
-            <div class="detalle-tab-panel" data-panel="luna"><div id="detalle-luna-panel" class="luna-caso-panel"></div></div>
         </div>
     </div>
 
@@ -558,20 +802,34 @@
             <form id="form-gestion-prospecto" class="form-grid">
                 <input type="hidden" id="ges-id">
                 <div id="ges-locked-fields" class="full-width form-grid-span"></div>
+                <div class="capture-tabs full-width" role="tablist">
+                    <button type="button" class="capture-tab active" data-paso-btn="contacto" onclick="cambiarPasoCaptura('form-gestion-prospecto','contacto',this)">Contacto</button>
+                    <button type="button" class="capture-tab" data-paso-btn="identidad" onclick="cambiarPasoCaptura('form-gestion-prospecto','identidad',this)">Identidad</button>
+                    <button type="button" class="capture-tab" data-paso-btn="adeudos" onclick="cambiarPasoCaptura('form-gestion-prospecto','adeudos',this)">Adeudos</button>
+                </div>
+                <div class="capture-pane form-grid" data-paso="contacto">
                 <div class="form-group full-width">
-                    <label>Dirección de la propiedad *</label>
+                    <label data-requisito="ase_direccion">Dirección de la propiedad</label>
                     <input type="text" id="ges-dir" class="form-control" placeholder="Calle, número, colonia, ciudad">
-                    <small class="field-hint">La dirección se captura aquí al dar seguimiento. Verás el mapa al guardar o al escribir.</small>
+                    <small class="field-hint">Escribe la dirección, pega un link de Google Maps o usa tu ubicación física.</small>
+                </div>
+                <div class="form-group full-width">
+                    <label>Link de Google Maps (opcional)</label>
+                    <div class="debt-input-row">
+                        <input type="url" id="ges-maps-url" class="form-control" placeholder="https://maps.google.com/… o https://maps.app.goo.gl/…">
+                        <button type="button" class="btn btn-outline btn-toolbar" onclick="aplicarLinkMapsGestion()">Usar link</button>
+                        <button type="button" class="btn btn-outline btn-toolbar" onclick="usarUbicacionActualGestion()">Mi ubicación</button>
+                    </div>
                 </div>
                 <div id="ges-map-preview" class="form-group full-width rh-map-preview-wrap hidden"></div>
                 <div class="form-group"><label>Estatus de seguimiento</label>
-                    <select id="ges-estatus" class="form-control">
+                    <select id="ges-estatus" class="form-control" onchange="actualizarCondicionalesAsesor()">
                         <option value="No contactado">No contactado</option>
                         <option value="En contacto">En contacto</option>
                         <option value="Interesado">Interesado</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Tipo de crédito *</label>
+                <div class="form-group"><label data-requisito="ase_tipo_credito">Tipo de crédito</label>
                     <select id="ges-tipo-credito" class="form-control">
                         <option value="">Selecciona…</option>
                         <option value="Infonavit">Infonavit</option>
@@ -579,28 +837,59 @@
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
-                <div class="form-group"><label>¿Tiene escrituras? *</label>
-                    <select id="ges-escrituras" class="form-control"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option></select>
+                <div class="form-group"><label data-requisito="ase_tiene_escrituras">¿Tiene escrituras?</label>
+                    <select id="ges-escrituras" class="form-control" onchange="actualizarCondicionalesAsesor()"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option></select>
                 </div>
-                <div class="form-group"><label>¿Está invadida? *</label>
-                    <select id="ges-invadida" class="form-control"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option></select>
+                <div class="form-group"><label data-requisito="ase_estatus_propiedad">Estatus actual de la propiedad</label>
+                    <select id="ges-estatus-propiedad" class="form-control"><option value="">Selecciona…</option><option>Invadida</option><option>Rentada</option><option>Sola</option><option>No se sabe</option></select>
                 </div>
-                <div class="form-group"><label>Adeudo crédito</label><input type="number" id="ges-adeudo-credito" class="form-control" min="0" step="0.01" value="0"></div>
-                <div class="form-group"><label>Adeudo agua</label><input type="number" id="ges-adeudo-agua" class="form-control" min="0" step="0.01" value="0"></div>
-                <div class="form-group"><label>Adeudo luz</label><input type="number" id="ges-adeudo-luz" class="form-control" min="0" step="0.01" value="0"></div>
-                <div class="form-group"><label>Adeudo predial</label><input type="number" id="ges-adeudo-predial" class="form-control" min="0" step="0.01" value="0"></div>
+                </div>
+                <section id="ges-identidad-section" class="full-width advisor-intake capture-pane hidden" data-paso="identidad">
+                    <div class="advisor-intake-heading">
+                        <div><span>Identidad y comprobación de domicilio</span><strong>Se activa desde “En contacto”</strong></div>
+                        <small>Los archivos quedan integrados al expediente digital de Regi.</small>
+                    </div>
+                    <div id="ges-ine-uploads" class="rh-upload-grid"></div>
+                    <div class="form-grid advisor-conditional-grid">
+                        <div class="form-group"><label data-requisito="ase_ine_domicilio">¿La INE tiene el domicilio de la propiedad?</label>
+                            <select id="ges-ine-domicilio" class="form-control" onchange="actualizarCondicionalesAsesor()"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option></select>
+                        </div>
+                        <div class="form-group"><label data-requisito="ase_cfe_respuesta">¿Tiene recibos CFE a su nombre y con este domicilio?</label>
+                            <select id="ges-cfe-domicilio" class="form-control" onchange="actualizarCondicionalesAsesor()"><option value="">—</option><option value="Si">Sí</option><option value="No">No</option><option value="No sabe">No sabe</option></select>
+                        </div>
+                        <div class="form-group"><label data-requisito="ase_meses_viviendo">Meses viviendo en el inmueble</label><input type="number" min="0" id="ges-meses-viviendo" class="form-control"></div>
+                        <div id="ges-nota-cambio-ine" class="advisor-warning full-width hidden"><strong>CAMBIO DE INE DE DOMICILIO</strong><span>Se añadirá al cronograma con plazo estimado de 2 semanas desde la firma.</span></div>
+                    </div>
+                    <div id="ges-cfe-upload" class="rh-upload-grid hidden"></div>
+                    <div id="ges-escrituras-conditional" class="form-grid advisor-conditional-grid">
+                        <div id="ges-existe-notaria-wrap" class="form-group hidden"><label data-requisito="ase_notaria">¿Existe la notaría de la escritura?</label>
+                            <select id="ges-existe-notaria" class="form-control"><option value="">—</option><option value="Si">Sí · segundo testimonio ($5,000)</option><option value="No">No · recuperación Archivo Público ($15,000)</option></select>
+                        </div>
+                        <div id="ges-escrituras-upload" class="full-width rh-upload-grid hidden"></div>
+                    </div>
+                </section>
+                <div class="capture-pane form-grid hidden" data-paso="adeudos">
+                <div class="form-group"><label data-requisito="ase_adeudo_credito" data-requisito-secundario="ase_adeudo_credito_estado">Adeudo crédito</label><div class="debt-input-row"><input type="number" id="ges-adeudo-credito" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-credito-estado" class="form-control" aria-label="Estado adeudo crédito"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
+                <div class="form-group"><label data-requisito="ase_adeudo_agua" data-requisito-secundario="ase_adeudo_agua_estado">Adeudo agua</label><div class="debt-input-row"><input type="number" id="ges-adeudo-agua" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-agua-estado" class="form-control" aria-label="Estado adeudo agua"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
+                <div class="form-group"><label data-requisito="ase_adeudo_luz" data-requisito-secundario="ase_adeudo_luz_estado">Adeudo luz</label><div class="debt-input-row"><input type="number" id="ges-adeudo-luz" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-luz-estado" class="form-control" aria-label="Estado adeudo luz"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
+                <div class="form-group"><label data-requisito="ase_adeudo_predial" data-requisito-secundario="ase_adeudo_predial_estado">Adeudo predial</label><div class="debt-input-row"><input type="number" id="ges-adeudo-predial" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-predial-estado" class="form-control" aria-label="Estado adeudo predial"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
+                <div class="form-group full-width"><label data-requisito="ase_precio_venta">Precio de venta estimado por el asesor</label><input type="number" id="ges-precio-venta-estimado" class="form-control" min="0" step="0.01" placeholder="Estimación inicial para análisis de Regina"></div>
+                </div>
                 <div class="form-group full-width modal-form-actions" id="ges-enviar-admin-wrap">
-                    <button type="button" class="btn btn-success btn-toolbar" onclick="enviarAAdministradora()">Enviar a administradora</button>
+                    <button type="button" class="btn btn-success btn-toolbar" onclick="guardarYEnviarAAdministradora()">Guardar y enviar a administradora</button>
                 </div>
                 <div class="form-group full-width modal-form-actions">
-                    <button type="button" class="btn btn-outline btn-toolbar btn-luna-toolbar" onclick="lunaGuionProspecto(document.getElementById('ges-id').value)">Luna · Guión de llamada</button>
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirComunicacionDesdeGestion()">Comunicación del caso</button>
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-gestion-prospecto')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Guardar seguimiento</button>
                 </div>
                 <div class="form-group full-width modal-form-actions hidden" id="ges-cierre-wrap">
-                    <button type="button" class="btn btn-success btn-toolbar" onclick="cerrarVentaVendedor('Firmado')">Firmado</button>
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="imprimirDocumentoProspecto(document.getElementById('ges-id').value,'oferta')">Imprimir oferta</button>
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="enviarOfertaFirmaDigital(document.getElementById('ges-id').value)">Registrar envío interno</button>
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="aceptarOfertaDigital(document.getElementById('ges-id').value)">Registrar aceptación del cliente</button>
+                    <button type="button" class="btn btn-primary btn-toolbar" onclick="cerrarVentaVendedor('Firmado')">Marcar como Firmado</button>
                     <button type="button" class="btn btn-danger btn-toolbar" onclick="cerrarVentaVendedor('Declinado')">Declinado</button>
+                    <p class="field-hint">El contrato y el aviso de privacidad se imprimen solo desde el expediente de administradora. Aquí solo queda constancia interna de envío y aceptación.</p>
                 </div>
             </form>
         </div>
@@ -615,24 +904,58 @@
             </div>
             <form id="form-expediente-admin">
                 <input type="hidden" id="exp-id">
-                <div id="exp-fields" class="form-grid"></div>
-                <div id="exp-map-preview" class="form-group full-width rh-map-preview-wrap"></div>
-                <div class="form-group full-width">
-                    <label>Precio de compra a la familia *</label>
-                    <input type="number" id="exp-monto-adquisicion" class="form-control" min="0" step="0.01" placeholder="Ej. 450000" required>
-                    <small class="field-hint">Monto que Revive Hogar paga por la propiedad. Se usa para calcular utilidad.</small>
+                <div class="capture-tabs full-width" role="tablist">
+                    <button type="button" class="capture-tab active" data-paso-btn="datos" onclick="cambiarPasoCaptura('form-expediente-admin','datos',this)">Datos</button>
+                    <button type="button" class="capture-tab" data-paso-btn="ubicacion" onclick="cambiarPasoCaptura('form-expediente-admin','ubicacion',this)">Ubicación</button>
+                    <button type="button" class="capture-tab" data-paso-btn="documentos" onclick="cambiarPasoCaptura('form-expediente-admin','documentos',this)">Documentos</button>
                 </div>
-                <div id="exp-documentos-preview"></div>
+                <div id="exp-fields" class="form-grid capture-pane" data-paso="datos"></div>
+                <div id="exp-map-preview" class="form-group full-width rh-map-preview-wrap capture-pane hidden" data-paso="ubicacion"></div>
+                <div class="form-group full-width capture-pane" data-paso="datos">
+                    <label>Precio de compra</label>
+                    <input type="number" id="exp-monto-adquisicion" class="form-control" min="0" step="0.01" placeholder="Ej. 450000">
+                    <small class="field-hint">Dirección define en Configuración si este dato bloquea el envío al vendedor.</small>
+                </div>
+                <div id="exp-documentos-preview" class="capture-pane hidden" data-paso="documentos"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirComunicacionDesdeExpediente()">Comunicación del caso</button>
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-expediente-admin')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar y enviar al vendedor</button>
+                    <button type="submit" class="btn btn-outline btn-toolbar" data-accion="borrador">Guardar borrador</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar" data-accion="finalizar">Guardar y enviar al vendedor</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal pipeline -->
+    <div id="modal-nueva-propiedad" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva propiedad</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-nueva-propiedad')">&times;</button>
+            </div>
+            <form id="form-nueva-propiedad" class="form-grid" onsubmit="guardarNuevaPropiedadManual(event)">
+                <div class="form-group full-width"><label>Propietario *</label><input id="np-propietario" class="form-control" required></div>
+                <div class="form-group full-width"><label>Dirección *</label><input id="np-direccion" class="form-control" required placeholder="Calle, número, colonia, ciudad"></div>
+                <div class="form-group"><label>Tipo de crédito</label><select id="np-credito" class="form-control"><option value="">—</option><option>Infonavit</option><option>Fovissste</option><option>Bancario</option><option>Otro</option></select></div>
+                <div class="form-group"><label>Estatus inicial</label>
+                    <select id="np-estatus" class="form-control">
+                        <option>Espera remodelación</option>
+                        <option>En remodelación</option>
+                        <option>En venta</option>
+                        <option>Apartada</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Precio de compra</label><input type="number" min="0" step="0.01" id="np-precio-compra" class="form-control" value="0"></div>
+                <div class="form-group"><label>Precio de venta estimado</label><input type="number" min="0" step="0.01" id="np-precio-venta" class="form-control" value="0"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-nueva-propiedad')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Crear propiedad</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="modal-pipeline" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -646,6 +969,8 @@
                         <option value="Espera remodelación">Espera remodelación</option>
                         <option value="En remodelación">En remodelación</option>
                         <option value="En venta">En venta</option>
+                        <option value="Apartada">Apartada</option>
+                        <option value="Vendida">Vendida</option>
                         <option value="Cerrada">Cerrada</option>
                     </select>
                 </div>
@@ -671,7 +996,7 @@
                 <div class="form-group full-width">
                     <label>Nombre *</label>
                     <input type="text" id="usr-edit-nombre" class="form-control" required placeholder="Ej. Ana, Carlos, María">
-                    <small class="field-hint">Así aparece en el sistema y así te llama Luna.</small>
+                    <small class="field-hint">Así aparece en el sistema.</small>
                 </div>
                 <div class="form-group"><label>Correo</label><input type="email" id="usr-edit-correo" class="form-control" placeholder="opcional@correo.com"></div>
                 <div class="form-group"><label>Teléfono</label><input type="tel" id="usr-edit-telefono" class="form-control" placeholder="Opcional"></div>
@@ -679,7 +1004,7 @@
                     <label>Rol</label>
                     <input type="text" id="usr-edit-rol" class="form-control field-locked" readonly>
                 </div>
-                <div class="form-group full-width"><label>Contraseña *</label><input type="text" id="usr-edit-password" class="form-control" required></div>
+                <div class="form-group full-width"><label>Contraseña nueva (opcional)</label><input type="password" id="usr-edit-password" class="form-control" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Dejar vacío para conservar la actual"></div>
                 <div class="form-group full-width" id="usr-edit-activo-wrap"><label><input type="checkbox" id="usr-edit-activo" checked> Usuario activo</label></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-usuario')">Cancelar</button>
@@ -696,7 +1021,7 @@
                 <div class="form-group full-width">
                     <label>Tu nombre *</label>
                     <input type="text" id="perfil-nombre" class="form-control" required placeholder="Cómo quieres que te llamen">
-                    <small class="field-hint">Luna te saludará con este nombre.</small>
+                    <small class="field-hint">Así te verá el equipo.</small>
                 </div>
                 <div class="form-group"><label>Correo</label><input type="email" id="perfil-correo" class="form-control" placeholder="Opcional"></div>
                 <div class="form-group"><label>Teléfono</label><input type="tel" id="perfil-telefono" class="form-control" placeholder="Opcional"></div>
@@ -704,10 +1029,110 @@
                     <label>Rol en el sistema</label>
                     <input type="text" id="perfil-rol" class="form-control field-locked" readonly>
                 </div>
-                <div class="form-group full-width"><label>Contraseña *</label><input type="text" id="perfil-password" class="form-control" required></div>
+                <div class="form-group full-width"><label>Contraseña nueva (opcional)</label><input type="password" id="perfil-password" class="form-control" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Dejar vacío para conservar la actual"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-mi-perfil')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-cuentas-bancarias" class="modal">
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h3>Cuentas bancarias</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-cuentas-bancarias')">&times;</button>
+            </div>
+            <form id="form-cuenta-bancaria" class="form-grid" onsubmit="guardarCuentaBancaria(event)">
+                <input type="hidden" id="cuenta-bancaria-id">
+                <div class="form-group"><label>Banco / tipo *</label>
+                    <select id="cuenta-bancaria-banco" class="form-control" required>
+                        <option value="">Selecciona banco</option>
+                        <option>BBVA</option><option>Banorte</option><option>Santander</option>
+                        <option>Banamex / Citibanamex</option><option>HSBC</option><option>Scotiabank</option>
+                        <option>Inbursa</option><option>Banregio</option><option>Afirme</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Alias de la cuenta *</label><input id="cuenta-bancaria-alias" class="form-control" required placeholder="Ej. Operativa nómina"></div>
+                <div class="form-group"><label>Titular</label><input id="cuenta-bancaria-titular" class="form-control" placeholder="Nombre del titular"></div>
+                <div class="form-group"><label>CLABE / número</label><input id="cuenta-bancaria-clabe" class="form-control" placeholder="Últimos dígitos o CLABE"></div>
+                <div class="form-group"><label>Saldo inicial / corte</label><input type="number" step="0.01" id="cuenta-bancaria-saldo" class="form-control" value="0" placeholder="Saldo disponible"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-cuentas-bancarias')">Cerrar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar cuenta</button>
+                </div>
+            </form>
+            <div id="cuentas-bancarias-lista" class="table-responsive table-clean" style="margin-top:12px"></div>
+        </div>
+    </div>
+
+    <div id="modal-movimiento-empresa" class="modal">
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h3 id="emp-modal-title">Nuevo movimiento</h3>
+                <button type="button" class="btn-close" onclick="closeModal('modal-movimiento-empresa')">&times;</button>
+            </div>
+            <form id="form-movimiento-empresa" onsubmit="guardarMovimientoEmpresa(event)">
+                <input type="hidden" id="emp-mov-id">
+                <div class="form-grid">
+                    <div class="form-group"><label>Fecha *</label><input type="date" id="emp-mov-fecha" class="form-control" required></div>
+                    <div class="form-group"><label>Tipo *</label><select id="emp-mov-tipo" class="form-control" onchange="actualizarCategoriasMovimientoEmpresa()" required><option value="gasto">Egreso</option><option value="ingreso">Ingreso</option></select></div>
+                    <div class="form-group"><label>Categoría *</label><select id="emp-mov-categoria" class="form-control" required></select></div>
+                    <div class="form-group"><label>Monto *</label><input type="number" min="0.01" step="0.01" id="emp-mov-monto" class="form-control" required></div>
+                    <div class="form-group full-width"><label>Concepto *</label><input id="emp-mov-concepto" class="form-control" placeholder="Descripción del movimiento" required></div>
+                    <div class="form-group"><label>Proveedor / beneficiario</label><input id="emp-mov-proveedor" class="form-control" placeholder="Quién recibe o entrega"></div>
+                    <div class="form-group"><label>Método de pago</label><select id="emp-mov-metodo" class="form-control"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Cheque</option><option>Otro</option></select></div>
+                    <div class="form-group"><label>Banco / tipo</label><select id="emp-mov-banco" class="form-control" onchange="filtrarCuentasPorBancoMovimiento()"></select></div>
+                    <div class="form-group"><label>Cuenta bancaria</label><select id="emp-mov-cuenta" class="form-control"></select></div>
+                    <div class="form-group"><label>Referencia / factura</label><input id="emp-mov-referencia" class="form-control" placeholder="Folio, UUID, etc."></div>
+                    <div class="form-group"><label>Vincular a propiedad</label><select id="emp-mov-casa" class="form-control"><option value="">Sin vincular</option></select></div>
+                    <div class="form-group full-width"><label>Notas</label><textarea id="emp-mov-notas" class="form-control" rows="2" placeholder="Detalle adicional"></textarea></div>
+                </div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-movimiento-empresa')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar movimiento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-titulares" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Propietario y copropietarios</h3>
+                <button type="button" class="btn-close" onclick="cerrarModalTitulares()" aria-label="Cerrar">&times;</button>
+            </div>
+            <p class="module-desc">Propietario principal del expediente: <strong id="tit-propietario-principal">—</strong></p>
+            <p class="module-desc">Datos declarativos para control interno. Verificar titulares y porcentajes con las escrituras; no generan pagos ni cambios en contratos.</p>
+            <label class="rh-buyer-checkbox" style="margin-top:12px"><input type="checkbox" id="tit-mostrar-archivados"> Mostrar archivados</label>
+            <div class="table-responsive table-clean">
+                <table id="table-titulares">
+                    <thead><tr><th>Copropietario</th><th>Participación declarada</th><th>Acciones</th></tr></thead>
+                    <tbody><tr><td colspan="3">Sin registros.</td></tr></tbody>
+                </table>
+            </div>
+            <form id="form-copropietario" class="form-grid" style="margin-top:16px">
+                <input type="hidden" id="tit-casa-id">
+                <input type="hidden" id="tit-id">
+                <div class="form-group full-width">
+                    <label>Nombre completo del copropietario *</label>
+                    <input id="tit-nombre" class="form-control" required maxlength="160">
+                </div>
+                <details class="full-width">
+                    <summary>Datos opcionales</summary>
+                    <div class="form-grid" style="margin-top:12px">
+                        <div class="form-group"><label>Teléfono</label><input id="tit-telefono" class="form-control" type="tel" maxlength="35"></div>
+                        <div class="form-group">
+                            <label>Participación declarada (%)</label>
+                            <input id="tit-participacion" class="form-control" type="number" min="0.01" max="100" step="0.01">
+                        </div>
+                    </div>
+                </details>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="cerrarModalTitulares()">Cerrar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Guardar copropietario</button>
                 </div>
             </form>
         </div>
@@ -720,11 +1145,11 @@
                 <div class="form-group full-width">
                     <label>Nombre *</label>
                     <input type="text" id="nv-nombre" class="form-control" required placeholder="Nombre del vendedor">
-                    <small class="field-hint">Luna y el equipo lo verán con este nombre.</small>
+                    <small class="field-hint">El equipo lo verá con este nombre.</small>
                 </div>
                 <div class="form-group"><label>Correo</label><input type="email" id="nv-correo" class="form-control" placeholder="Opcional"></div>
                 <div class="form-group"><label>Teléfono</label><input type="tel" id="nv-telefono" class="form-control" placeholder="Opcional"></div>
-                <div class="form-group full-width"><label>Contraseña</label><input type="text" id="nv-password" class="form-control" value="1234"></div>
+                <div class="form-group full-width"><label>Contraseña inicial individual *</label><input type="password" id="nv-password" class="form-control" required minlength="10" maxlength="128" autocomplete="new-password" placeholder="Mínimo 10 caracteres, letra y número"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-nuevo-vendedor')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Crear vendedor</button>
@@ -733,61 +1158,116 @@
         </div>
     </div>
 
-    <!-- Luna — asistente IA premium -->
-    <div id="ia-widget" class="ia-widget hidden" aria-live="polite">
-        <div id="ia-panel-shell" class="luna-gemini-shell">
-            <span class="luna-gemini-shell__glow" aria-hidden="true"></span>
-            <span class="luna-gemini-shell__ring" aria-hidden="true"></span>
-        <div id="ia-panel" class="ia-panel">
-            <header class="ia-header">
-                <div class="ia-header-bg" aria-hidden="true"></div>
-                <div id="ia-header-avatar" class="ia-header-avatar-slot"></div>
-                <div class="ia-header-text">
-                    <strong>Luna</strong>
-                    <span class="ia-header-tag">Tu guía inteligente del hogar</span>
-                    <small id="ia-status">En línea</small>
+    <div id="modal-autorizacion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Autorización</h3><button type="button" class="btn-close" onclick="cerrarAutorizacionFinanciera(false)">&times;</button></div>
+            <form id="form-autorizacion" class="form-grid">
+                <p id="autorizacion-texto" class="module-desc full-width"></p>
+                <div class="form-group full-width"><label>Otro usuario (Dirección o Administradora)</label><select id="autorizacion-usuario" class="form-control" required></select></div>
+                <div class="form-group full-width"><label>Contraseña de esa persona</label><input type="password" id="autorizacion-clave" class="form-control" required autocomplete="off"></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="cerrarAutorizacionFinanciera(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Autorizar</button>
                 </div>
-                <button type="button" id="ia-close" class="ia-close" aria-label="Cerrar Luna">&times;</button>
-            </header>
-            <div id="ia-messages" class="ia-messages"></div>
-            <div id="ia-quick" class="ia-quick"></div>
-            <form id="ia-form" class="ia-form">
-                <textarea id="ia-input" class="ia-input" rows="2" placeholder="Escríbele a Luna…" required></textarea>
-                <button type="submit" class="ia-send" aria-label="Enviar">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                </button>
             </form>
         </div>
+    </div>
+    <div id="rh-prueba" class="rh-prueba hidden">
+        <button type="button" id="rh-prueba-fab" class="rh-prueba-fab" onclick="abrirNotaPrueba()">Prueba</button>
+        <form id="rh-prueba-panel" class="rh-prueba-panel" onsubmit="guardarNotaPrueba(event)">
+            <strong>Nota de prueba</strong>
+            <p>Cuenta qué falló o qué no te convence. No escribas contraseñas ni NSS.</p>
+            <textarea id="rh-prueba-texto" maxlength="800" placeholder="Qué estabas haciendo y qué esperabas"></textarea>
+            <input type="hidden" id="rh-prueba-captura" value="">
+            <img id="rh-prueba-preview" alt="" class="hidden">
+            <div class="rh-prueba-actions">
+                <button type="button" class="btn btn-outline btn-small" onclick="capturarNotaPrueba()">Incluir captura</button>
+                <button type="button" class="btn btn-outline btn-small" onclick="cerrarNotaPrueba()">Cerrar</button>
+                <button type="submit" class="btn btn-primary btn-small">Guardar</button>
+            </div>
+        </form>
+    </div>
+    <div id="nota-prueba-visor" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3>Captura de la nota</h3>
+                <button type="button" class="btn-close" onclick="closeModal('nota-prueba-visor')">&times;</button>
+            </div>
+            <img id="nota-prueba-visor-img" alt="Captura enviada desde el botón de prueba">
         </div>
-        <button type="button" id="ia-fab" class="ia-fab" aria-label="Abrir a Luna">
+    </div>
+    <div id="ia-widget" class="ia-widget hidden">
+        <button type="button" id="ia-fab" class="ia-fab" aria-label="Abrir Aurora">
             <span id="ia-fab-avatar" class="ia-fab-avatar-slot"></span>
-            <span class="ia-fab-text">
-                <span class="ia-fab-label">Luna</span>
-                <span class="ia-fab-sub">Tu guía IA</span>
-            </span>
-            <span id="ia-fab-badge" class="ia-fab-badge hidden">0</span>
+            <span class="ia-fab-text"><span class="ia-fab-label">Aurora</span><span class="ia-fab-sub">Guía del sistema</span></span>
         </button>
+        <div id="ia-panel-shell" class="luna-gemini-shell">
+            <div id="ia-panel" class="ia-panel">
+                <header class="ia-header">
+                    <div class="ia-header-bg" aria-hidden="true"></div>
+                    <span id="ia-header-avatar" class="ia-header-avatar-slot"></span>
+                    <div class="ia-header-text">
+                        <strong>Aurora</strong>
+                        <span class="ia-header-tag">Guía de Revive Hogar</span>
+                        <small id="ia-status">En línea</small>
+                    </div>
+                    <button type="button" id="ia-close" class="ia-close" aria-label="Cerrar Aurora">×</button>
+                </header>
+                <div id="ia-messages" class="ia-messages"></div>
+                <div id="ia-quick" class="ia-quick"></div>
+                <form id="ia-form" class="ia-form">
+                    <textarea id="ia-input" class="ia-input" rows="1" placeholder="Pregúntale a Aurora cómo funciona la app"></textarea>
+                    <button type="submit" class="ia-send" aria-label="Enviar">→</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="modal-pago-referido" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Pago de referido</h3><button type="button" class="btn-close" onclick="closeModal('modal-pago-referido')">&times;</button></div>
+            <form id="form-pago-referido" class="form-grid">
+                <input type="hidden" id="ref-pago-entidad">
+                <p id="ref-pago-texto" class="module-desc full-width"></p>
+                <div class="form-group full-width"><label>Monto</label><input type="number" id="ref-pago-monto" class="form-control" min="0.01" step="0.01" required></div>
+                <div class="form-group full-width"><label>Cuenta que paga</label><select id="ref-pago-cuenta" class="form-control"></select></div>
+                <div class="form-group full-width modal-form-actions">
+                    <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-pago-referido')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-toolbar">Registrar pago</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
-    <script src="js/modules.config.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="js/modules.config.js?v=20261004c"></script>
+    <script src="js/utils.js?v=20261004c"></script>
     <script src="js/maps.js"></script>
-    <script src="js/db.js"></script>
-    <script src="js/services.js"></script>
-    <script src="js/documents.js"></script>
+    <script src="js/db.js?v=20261029c"></script>
+    <script src="js/services.js?v=20261004c"></script>
+    <script src="js/archivos.js?v=20261004c"></script>
+    <script src="js/expediente.js?v=20261004c"></script>
+    <script src="js/documents.js?v=20261029b"></script>
+    <script src="js/configuracion.js?v=20261004c"></script>
     <script src="js/brand.js?v=20260709g"></script>
-    <script src="js/proyectos.js?v=20260709c"></script>
-    <script src="js/planner.js?v=20260709c"></script>
-    <script src="js/caso-detalle.js"></script>
-    <script src="js/luna.js?v=20260709e"></script>
-    <script src="js/luna-knowledge.js"></script>
-    <script src="js/ia-features.js"></script>
-    <script src="js/ia-assistant.js?v=20260709e"></script>
-    <script src="js/render.js?v=20260709c"></script>
-    <script src="js/forms.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/proyectos.js?v=20261004c"></script>
+    <script src="js/planner.js?v=20261004c"></script>
+    <script src="js/gastos.js?v=20261029b"></script>
+    <script src="js/gastos-empresa.js?v=20261004c"></script>
+    <script src="js/referidos.js?v=20261029b"></script>
+    <script src="js/caso-detalle.js?v=20261029c"></script>
+    <script src="js/recorrido.js?v=20261029b"></script>
+    <script src="js/render.js?v=20261029c"></script>
+    <script src="js/forms.js?v=20261029c"></script>
+    <script src="js/compradores.js?v=20261027b"></script>
+    <script src="js/titulares.js?v=20261027a"></script>
+    <script src="js/operaciones-venta.js?v=20261029a"></script>
+    <script src="js/usage-metrics.js?v=20261029c"></script>
+    <script src="js/prueba-nota.js?v=20261029c"></script>
+    <script src="js/auth.js?v=20261029c"></script>
+    <script src="js/luna.js?v=20261029b"></script>
+    <script src="js/luna-knowledge.js?v=20261029b"></script>
+    <script src="js/ia-assistant.js?v=20261029b"></script>
+    <script src="js/app.js?v=20261029b"></script>
 </body>
 </html>

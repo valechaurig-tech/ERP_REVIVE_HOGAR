@@ -10,11 +10,13 @@ let tareaDetalleId = null;
 const RH_ESTADOS_TAREA_PM = ['Pendiente', 'En proceso', 'Completada', 'En seguimiento'];
 
 function rhPuedeUsarGestorProyectos() {
-    return rhEsDireccion(currentUser);
+    return !!currentUser && currentUser.activo !== false;
 }
 
 function getTodasLasTareas() {
-    return (DB.get('tareas') || []).map(normalizarTarea);
+    const todas = (DB.get('tareas') || []).map(normalizarTarea);
+    if (rhEsDireccion(currentUser) || currentUser?.rol === 'Administradora') return todas;
+    return todas.filter(t => t.assignedUserId === currentUser?.id || t.createdByUserId === currentUser?.id);
 }
 
 function normalizarTarea(t) {
@@ -63,9 +65,7 @@ function puedeVerDetalleTarea(t) {
 }
 
 function puedeCrearTareaEnModuloActual() {
-    if (!currentUser) return false;
-    if (rhEsDireccion(currentUser)) return activeModuleId === 'mod-proyectos';
-    return activeModuleId === 'mod-planner';
+    return !!currentUser && activeModuleId === 'mod-proyectos';
 }
 
 function irAGestorProyectos() {
@@ -144,6 +144,9 @@ function renderProyectos() {
     if (!rhPuedeUsarGestorProyectos()) return;
 
     aplicarEstadoColapsable('proy-equipo', true);
+    const esDireccion = rhEsDireccion(currentUser);
+    document.querySelector('[data-collapse-target="proy-equipo"]')?.closest('section')?.classList.toggle('hidden', !esDireccion);
+    document.querySelector('.proy-filtro-wrap')?.classList.toggle('hidden', !esDireccion);
 
     const todas = getTodasLasTareas();
     const activas = todas.filter(t => t.estado !== 'Completada');
@@ -167,12 +170,13 @@ function renderProyectos() {
     }
     if (sel && sel.options.length <= 1) {
         const usuarios = DB.get('usuariosLogin').filter(u => u.activo !== false);
-        sel.innerHTML = '<option value="">👥 Todo el equipo</option>' +
+        sel.innerHTML = '<option value="">Todo el equipo</option>' +
             usuarios.map(u => `<option value="${escapeHtml(u.id)}">${escapeHtml(u.displayName)}</option>`).join('');
         if (proyectosFiltroUsuarioId) sel.value = proyectosFiltroUsuarioId;
     }
 
-    document.getElementById('proy-filtro-seguimiento')?.addEventListener('change', onFiltroSeguimientoProyectos);
+    const filtroSeguimiento = document.getElementById('proy-filtro-seguimiento');
+    if (filtroSeguimiento) filtroSeguimiento.onchange = onFiltroSeguimientoProyectos;
 
     renderProyectosTablaEquipo();
     if (proyectosVistaModo === 'kanban') renderProyectosKanban(filtradas);

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recorridos — Revive Hogar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+<body data-vista="tour-publico" class="tour-publico">
+    <header class="tour-public-header">
+        <a href="/" class="tour-brand">Revive Hogar</a>
+        <span>Casas en venta · recorridos virtuales</span>
+    </header>
+    <main>
+        <div id="tour-catalogo" class="rh-catalogo-grid tour-public-grid"></div>
+        <div id="tour-viewer-wrap" hidden></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/utils.js?v=20260923a"></script>
+    <script src="js/db.js?v=20260828a"></script>
+    <script src="js/archivos.js?v=20260923a"></script>
+    <script src="js/recorrido.js?v=20260923a"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await DB.init();
+                await renderTourPublico();
+            } catch (error) {
+                document.getElementById('tour-catalogo').innerHTML =
+                    '<p class="celda-vacia">No se pudieron cargar las casas. ' + (error.message || error) + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

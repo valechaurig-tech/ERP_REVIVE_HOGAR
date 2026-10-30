@@ -1,0 +1,53 @@
+name: Revive Hogar — CI segura
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - work/recovery-vercel-2026-10-27
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-sin-datos-reales:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout sin credenciales persistentes
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Identificar runtime
+        run: node --version
+      - name: Prueba de integridad de sincronización (mocks)
+        run: node scripts/test-db-sync.mjs
+      - name: Seguridad de contraseñas y perfiles (mocks)
+        run: node scripts/test-password-handling.mjs
+      - name: Protección de origen de datos empresarial (mocks)
+        run: node scripts/test-storage-safety.mjs
+      - name: Módulo compradores independiente (mocks)
+        run: node scripts/test-compradores.mjs
+      - name: Copropietarios sin afectar finanzas (mocks)
+        run: node scripts/test-titulares.mjs
+      - name: Cierre de sesión espera confirmación de guardado
+        run: node scripts/test-logout-sync.mjs
+      - name: Privacidad y retención de métricas (mocks)
+        run: node scripts/test-usage-metrics.mjs
+      - name: Errores de captura (mocks)
+        run: node scripts/test-form-errors.mjs
+      - name: Aislamiento de Preview frente a producción
+        run: node scripts/test-preview-isolation.mjs
+  puerta-produccion:
+    needs: qa-sin-datos-reales
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout solo lectura
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Confirmar elegibilidad de producción (bloqueante)
+        run: node scripts/verify-release.mjs
