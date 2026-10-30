@@ -8,6 +8,8 @@ permissions:
 jobs:
   responsive-ui:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -31,7 +33,6 @@ jobs:
       - name: Preparar navegador de comprobación aislada
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
-          npx playwright install --with-deps chromium
       - name: Verificar interfaz en 320, 390, 768 y 1024 px
         run: node scripts/test-responsive-browser.mjs
       - name: Guardar capturas para revisión visual
