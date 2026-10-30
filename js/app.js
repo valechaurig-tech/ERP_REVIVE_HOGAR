@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         inicializarCompradores();
         inicializarTitulares();
         if (typeof inicializarOperacionesVenta === 'function') inicializarOperacionesVenta();
+        if (typeof initIAAssistant === 'function') initIAAssistant();
         bindLoginForm();
         bindAuditoriaEvents();
         const pipeFilter = document.getElementById('pipeline-filter');

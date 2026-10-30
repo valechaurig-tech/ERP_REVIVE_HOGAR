@@ -336,6 +336,7 @@ function abrirGestionProspecto(id) {
         ${uploadCardHtml(p.id, 'ine_frente', 'Foto o PDF de INE · frente', esReglaObligatoria('ase_ine_frente'), 'asesor')}
         ${uploadCardHtml(p.id, 'ine_reverso', 'Foto o PDF de INE · reverso', esReglaObligatoria('ase_ine_reverso'), 'asesor')}`;
     actualizarCondicionalesAsesor(p);
+    if (typeof cambiarPasoCaptura === 'function') cambiarPasoCaptura('form-gestion-prospecto', 'contacto');
 
     document.getElementById('modal-gestion-prospecto')?.classList.add('active');
 }
@@ -459,6 +460,7 @@ function abrirExpedienteAdmin(id) {
         actualizarMapaDireccion(p.direccionPropiedad || '', 'exp-map-preview');
     }
 
+    if (typeof cambiarPasoCaptura === 'function') cambiarPasoCaptura('form-expediente-admin', 'datos');
     document.getElementById('modal-expediente-admin')?.classList.add('active');
 }
 
@@ -512,6 +514,7 @@ function renderPipeline() {
             <td>${escapeHtml(c.fechaFirma ? new Date(c.fechaFirma).toLocaleDateString() : '—')}</td>
             <td class="celda-acciones">
                 <button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}')">Abrir ficha</button>
+                <button type="button" class="btn btn-outline btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}','expediente')">Documentos</button>
                 ${puedeEditarPipeline() ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirCambioPipeline('${escapeHtml(c.id)}')">Estatus</button>` : ''}
                 ${(currentUser?.rol === 'Direccion' || currentUser?.rol === 'Administradora') ? `<button type="button" class="btn btn-outline btn-small" onclick="abrirModalTitulares('${escapeHtml(c.id)}')">Copropietarios</button>` : ''}
             </td>
@@ -564,25 +567,70 @@ function renderAuditoria() {
     </tr>`).join('') || '<tr><td colspan="3" class="celda-vacia">Sin registros.</td></tr>';
 
     const metricsBody = document.querySelector('#table-uso-local tbody');
-    if (!metricsBody) return;
-    const datos = window.RH_USAGE?.report() || [];
-    const agregados = new Map();
-    datos.forEach(({ event, role, target, count }) => {
-        const key = [event, role, target].join('|');
-        agregados.set(key, (agregados.get(key) || 0) + count);
-    });
-    const filas = [...agregados].map(([key, total]) => {
-        const [event, role, target] = key.split('|');
-        const etiqueta = event === 'module_open' ? (RH_MODULE_LABELS[target] || target) : target;
-        const accion = event === 'module_open' ? 'Apertura de módulo' : 'Intento de formulario';
-        return { etiqueta, accion, role, total };
-    }).sort((a, b) => b.total - a.total).slice(0, 50);
-    metricsBody.innerHTML = filas.map(r => `<tr>
-        <td>${escapeHtml(r.etiqueta)}</td>
-        <td>${escapeHtml(r.accion)}</td>
-        <td>${escapeHtml(r.role)}</td>
-        <td>${r.total}</td>
-    </tr>`).join('') || '<tr><td colspan="4" class="celda-vacia">Aún sin registros en este navegador.</td></tr>';
+    if (metricsBody) {
+        const nube = window.RH_USAGE?.reporteNube?.() || [];
+        const agregados = new Map();
+        nube.forEach(evento => {
+            const key = [evento.tipo, evento.rol, evento.destino].join('|');
+            agregados.set(key, (agregados.get(key) || 0) + 1);
+        });
+        const filas = [...agregados].map(([key, total]) => {
+            const [event, role, target] = key.split('|');
+            return { etiqueta: etiquetaUso(event, target), accion: accionUso(event), role, total };
+        }).sort((a, b) => b.total - a.total).slice(0, 80);
+        metricsBody.innerHTML = filas.map(r => `<tr>
+            <td>${escapeHtml(r.etiqueta)}</td>
+            <td>${escapeHtml(r.accion)}</td>
+            <td>${escapeHtml(r.role)}</td>
+            <td>${r.total}</td>
+        </tr>`).join('') || '<tr><td colspan="4" class="celda-vacia">Aún no hay uso registrado del equipo.</td></tr>';
+    }
+    const sinUso = document.getElementById('uso-sin-registros');
+    if (sinUso && window.RH_USAGE) {
+        const vistos = new Set((window.RH_USAGE.reporteNube?.() || []).map(x => x.tipo + '|' + x.destino));
+        const faltan = [
+            ...(window.RH_USAGE.modulos || []).filter(id => !vistos.has('module_open|' + id)).map(id => RH_MODULE_LABELS[id] || id),
+            ...(window.RH_USAGE.pestanas || []).filter(id => !vistos.has('tab_open|' + id)),
+            ...(window.RH_USAGE.formularios || []).filter(id => !vistos.has('form_open|' + id) && !vistos.has('form_attempt|' + id))
+        ];
+        sinUso.textContent = faltan.length ? faltan.join(' · ') : 'Todo el catálogo tuvo al menos un uso en los últimos 30 días.';
+    }
+    const notasBody = document.querySelector('#table-notas-prueba tbody');
+    if (notasBody && typeof DB !== 'undefined') {
+        const notas = (DB.get('notasPrueba') || []).slice().sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
+        notasBody.innerHTML = notas.map(nota => `<tr>
+            <td>${escapeHtml(nota.ts ? new Date(nota.ts).toLocaleString() : '—')}</td>
+            <td>${escapeHtml(nota.usuario || '—')}<small>${escapeHtml(nota.rol || '')}</small></td>
+            <td>${escapeHtml(nota.modulo || '—')}</td>
+            <td>${escapeHtml(nota.comentario || '')}</td>
+            <td>${nota.captura ? `<button type="button" class="btn btn-outline btn-small" onclick="verCapturaNotaPrueba('${escapeHtml(nota.id)}')">Ver</button>` : '—'}</td>
+        </tr>`).join('') || '<tr><td colspan="5" class="celda-vacia">Aún no hay notas de prueba.</td></tr>';
+    }
+}
+
+function etiquetaUso(event, target) {
+    if (event === 'module_open') return RH_MODULE_LABELS[target] || target;
+    if (event === 'session_start') return 'Entrada al sistema';
+    return target;
+}
+
+function accionUso(event) {
+    return {
+        module_open: 'Abrió módulo',
+        form_open: 'Abrió formulario',
+        form_attempt: 'Envió formulario',
+        tab_open: 'Abrió pestaña',
+        session_start: 'Inició sesión'
+    }[event] || event;
+}
+
+function verCapturaNotaPrueba(id) {
+    const nota = (DB.get('notasPrueba') || []).find(x => x.id === id);
+    const marco = document.getElementById('nota-prueba-visor');
+    const img = document.getElementById('nota-prueba-visor-img');
+    if (!nota?.captura || !marco || !img) return;
+    img.src = nota.captura;
+    marco.classList.add('active');
 }
 
 /* —— Usuarios —— */

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="assets/revive-hogar-mark.svg">
-    <link rel="stylesheet" href="css/app.css?v=20261004c">
+    <link rel="stylesheet" href="css/app.css?v=20261029c">
 </head>
 <body>
     <div id="app-loader" class="app-loader">
@@ -599,11 +599,20 @@
                     <div class="table-responsive table-clean table-mkt">
                         <table id="table-auditoria"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th></tr></thead><tbody></tbody></table>
                     </div>
-                    <section aria-label="Uso de módulos en este navegador" style="margin-top:24px">
-                        <h4>Uso de módulos · últimos 7 días</h4>
-                        <p class="module-desc">Contadores agregados solo de este navegador. No se recopilan nombres, contraseñas, archivos ni valores de formularios. No es una medición empresarial consolidada.</p>
+                    <section aria-label="Uso del equipo" style="margin-top:24px">
+                        <h4>Qué se está usando · últimos 30 días</h4>
+                        <p class="module-desc">Entradas, módulos, pestañas y formularios de todo el equipo. No se guardan contraseñas, NSS ni lo que se escribe en los campos.</p>
                         <div class="table-responsive table-clean table-mkt">
-                            <table aria-label="Uso agregado local" id="table-uso-local"><thead><tr><th>Módulo o formulario</th><th>Acción</th><th>Rol</th><th>Eventos</th></tr></thead><tbody><tr><td colspan="4">Aún sin registros locales.</td></tr></tbody></table>
+                            <table aria-label="Uso del equipo" id="table-uso-local"><thead><tr><th>Módulo, pestaña o formulario</th><th>Acción</th><th>Rol</th><th>Veces</th></tr></thead><tbody><tr><td colspan="4">Aún sin registros.</td></tr></tbody></table>
+                        </div>
+                        <h4 style="margin-top:18px">Sin uso en este periodo</h4>
+                        <p id="uso-sin-registros" class="module-desc">Aún no hay datos para comparar.</p>
+                    </section>
+                    <section aria-label="Notas de prueba" style="margin-top:24px">
+                        <h4>Notas de prueba</h4>
+                        <p class="module-desc">Lo que el equipo marca con el botón Prueba. La captura muestra la pantalla que ellos eligieron.</p>
+                        <div class="table-responsive table-clean table-mkt">
+                            <table id="table-notas-prueba"><thead><tr><th>Fecha</th><th>Quién</th><th>Dónde</th><th>Comentario</th><th>Captura</th></tr></thead><tbody><tr><td colspan="5">Aún no hay notas.</td></tr></tbody></table>
                         </div>
                     </section>
                 </div>
@@ -793,6 +802,12 @@
             <form id="form-gestion-prospecto" class="form-grid">
                 <input type="hidden" id="ges-id">
                 <div id="ges-locked-fields" class="full-width form-grid-span"></div>
+                <div class="capture-tabs full-width" role="tablist">
+                    <button type="button" class="capture-tab active" data-paso-btn="contacto" onclick="cambiarPasoCaptura('form-gestion-prospecto','contacto',this)">Contacto</button>
+                    <button type="button" class="capture-tab" data-paso-btn="identidad" onclick="cambiarPasoCaptura('form-gestion-prospecto','identidad',this)">Identidad</button>
+                    <button type="button" class="capture-tab" data-paso-btn="adeudos" onclick="cambiarPasoCaptura('form-gestion-prospecto','adeudos',this)">Adeudos</button>
+                </div>
+                <div class="capture-pane form-grid" data-paso="contacto">
                 <div class="form-group full-width">
                     <label data-requisito="ase_direccion">Dirección de la propiedad</label>
                     <input type="text" id="ges-dir" class="form-control" placeholder="Calle, número, colonia, ciudad">
@@ -828,7 +843,8 @@
                 <div class="form-group"><label data-requisito="ase_estatus_propiedad">Estatus actual de la propiedad</label>
                     <select id="ges-estatus-propiedad" class="form-control"><option value="">Selecciona…</option><option>Invadida</option><option>Rentada</option><option>Sola</option><option>No se sabe</option></select>
                 </div>
-                <section id="ges-identidad-section" class="full-width advisor-intake">
+                </div>
+                <section id="ges-identidad-section" class="full-width advisor-intake capture-pane hidden" data-paso="identidad">
                     <div class="advisor-intake-heading">
                         <div><span>Identidad y comprobación de domicilio</span><strong>Se activa desde “En contacto”</strong></div>
                         <small>Los archivos quedan integrados al expediente digital de Regi.</small>
@@ -852,11 +868,13 @@
                         <div id="ges-escrituras-upload" class="full-width rh-upload-grid hidden"></div>
                     </div>
                 </section>
+                <div class="capture-pane form-grid hidden" data-paso="adeudos">
                 <div class="form-group"><label data-requisito="ase_adeudo_credito" data-requisito-secundario="ase_adeudo_credito_estado">Adeudo crédito</label><div class="debt-input-row"><input type="number" id="ges-adeudo-credito" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-credito-estado" class="form-control" aria-label="Estado adeudo crédito"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
                 <div class="form-group"><label data-requisito="ase_adeudo_agua" data-requisito-secundario="ase_adeudo_agua_estado">Adeudo agua</label><div class="debt-input-row"><input type="number" id="ges-adeudo-agua" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-agua-estado" class="form-control" aria-label="Estado adeudo agua"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
                 <div class="form-group"><label data-requisito="ase_adeudo_luz" data-requisito-secundario="ase_adeudo_luz_estado">Adeudo luz</label><div class="debt-input-row"><input type="number" id="ges-adeudo-luz" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-luz-estado" class="form-control" aria-label="Estado adeudo luz"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
                 <div class="form-group"><label data-requisito="ase_adeudo_predial" data-requisito-secundario="ase_adeudo_predial_estado">Adeudo predial</label><div class="debt-input-row"><input type="number" id="ges-adeudo-predial" class="form-control" min="0" step="0.01" value="0"><select id="ges-adeudo-predial-estado" class="form-control" aria-label="Estado adeudo predial"><option>Confirmado</option><option>Pendiente de revisar</option><option>No aplica</option></select></div></div>
                 <div class="form-group full-width"><label data-requisito="ase_precio_venta">Precio de venta estimado por el asesor</label><input type="number" id="ges-precio-venta-estimado" class="form-control" min="0" step="0.01" placeholder="Estimación inicial para análisis de Regina"></div>
+                </div>
                 <div class="form-group full-width modal-form-actions" id="ges-enviar-admin-wrap">
                     <button type="button" class="btn btn-success btn-toolbar" onclick="guardarYEnviarAAdministradora()">Guardar y enviar a administradora</button>
                 </div>
@@ -886,14 +904,19 @@
             </div>
             <form id="form-expediente-admin">
                 <input type="hidden" id="exp-id">
-                <div id="exp-fields" class="form-grid"></div>
-                <div id="exp-map-preview" class="form-group full-width rh-map-preview-wrap"></div>
-                <div class="form-group full-width">
+                <div class="capture-tabs full-width" role="tablist">
+                    <button type="button" class="capture-tab active" data-paso-btn="datos" onclick="cambiarPasoCaptura('form-expediente-admin','datos',this)">Datos</button>
+                    <button type="button" class="capture-tab" data-paso-btn="ubicacion" onclick="cambiarPasoCaptura('form-expediente-admin','ubicacion',this)">Ubicación</button>
+                    <button type="button" class="capture-tab" data-paso-btn="documentos" onclick="cambiarPasoCaptura('form-expediente-admin','documentos',this)">Documentos</button>
+                </div>
+                <div id="exp-fields" class="form-grid capture-pane" data-paso="datos"></div>
+                <div id="exp-map-preview" class="form-group full-width rh-map-preview-wrap capture-pane hidden" data-paso="ubicacion"></div>
+                <div class="form-group full-width capture-pane" data-paso="datos">
                     <label>Precio de compra</label>
                     <input type="number" id="exp-monto-adquisicion" class="form-control" min="0" step="0.01" placeholder="Ej. 450000">
                     <small class="field-hint">Dirección define en Configuración si este dato bloquea el envío al vendedor.</small>
                 </div>
-                <div id="exp-documentos-preview"></div>
+                <div id="exp-documentos-preview" class="capture-pane hidden" data-paso="documentos"></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="abrirComunicacionDesdeExpediente()">Comunicación del caso</button>
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-expediente-admin')">Cancelar</button>
@@ -1149,6 +1172,56 @@
             </form>
         </div>
     </div>
+    <div id="rh-prueba" class="rh-prueba hidden">
+        <button type="button" id="rh-prueba-fab" class="rh-prueba-fab" onclick="abrirNotaPrueba()">Prueba</button>
+        <form id="rh-prueba-panel" class="rh-prueba-panel" onsubmit="guardarNotaPrueba(event)">
+            <strong>Nota de prueba</strong>
+            <p>Cuenta qué falló o qué no te convence. No escribas contraseñas ni NSS.</p>
+            <textarea id="rh-prueba-texto" maxlength="800" placeholder="Qué estabas haciendo y qué esperabas"></textarea>
+            <input type="hidden" id="rh-prueba-captura" value="">
+            <img id="rh-prueba-preview" alt="" class="hidden">
+            <div class="rh-prueba-actions">
+                <button type="button" class="btn btn-outline btn-small" onclick="capturarNotaPrueba()">Incluir captura</button>
+                <button type="button" class="btn btn-outline btn-small" onclick="cerrarNotaPrueba()">Cerrar</button>
+                <button type="submit" class="btn btn-primary btn-small">Guardar</button>
+            </div>
+        </form>
+    </div>
+    <div id="nota-prueba-visor" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3>Captura de la nota</h3>
+                <button type="button" class="btn-close" onclick="closeModal('nota-prueba-visor')">&times;</button>
+            </div>
+            <img id="nota-prueba-visor-img" alt="Captura enviada desde el botón de prueba">
+        </div>
+    </div>
+    <div id="ia-widget" class="ia-widget hidden">
+        <button type="button" id="ia-fab" class="ia-fab" aria-label="Abrir Aurora">
+            <span id="ia-fab-avatar" class="ia-fab-avatar-slot"></span>
+            <span class="ia-fab-text"><span class="ia-fab-label">Aurora</span><span class="ia-fab-sub">Guía del sistema</span></span>
+        </button>
+        <div id="ia-panel-shell" class="luna-gemini-shell">
+            <div id="ia-panel" class="ia-panel">
+                <header class="ia-header">
+                    <div class="ia-header-bg" aria-hidden="true"></div>
+                    <span id="ia-header-avatar" class="ia-header-avatar-slot"></span>
+                    <div class="ia-header-text">
+                        <strong>Aurora</strong>
+                        <span class="ia-header-tag">Guía de Revive Hogar</span>
+                        <small id="ia-status">En línea</small>
+                    </div>
+                    <button type="button" id="ia-close" class="ia-close" aria-label="Cerrar Aurora">×</button>
+                </header>
+                <div id="ia-messages" class="ia-messages"></div>
+                <div id="ia-quick" class="ia-quick"></div>
+                <form id="ia-form" class="ia-form">
+                    <textarea id="ia-input" class="ia-input" rows="1" placeholder="Pregúntale a Aurora cómo funciona la app"></textarea>
+                    <button type="submit" class="ia-send" aria-label="Enviar">→</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div id="modal-pago-referido" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h3>Pago de referido</h3><button type="button" class="btn-close" onclick="closeModal('modal-pago-referido')">&times;</button></div>
@@ -1156,6 +1229,7 @@
                 <input type="hidden" id="ref-pago-entidad">
                 <p id="ref-pago-texto" class="module-desc full-width"></p>
                 <div class="form-group full-width"><label>Monto</label><input type="number" id="ref-pago-monto" class="form-control" min="0.01" step="0.01" required></div>
+                <div class="form-group full-width"><label>Cuenta que paga</label><select id="ref-pago-cuenta" class="form-control"></select></div>
                 <div class="form-group full-width modal-form-actions">
                     <button type="button" class="btn btn-outline btn-toolbar" onclick="closeModal('modal-pago-referido')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-toolbar">Registrar pago</button>
@@ -1169,27 +1243,31 @@
     <script src="js/modules.config.js?v=20261004c"></script>
     <script src="js/utils.js?v=20261004c"></script>
     <script src="js/maps.js"></script>
-    <script src="js/db.js?v=20261004c"></script>
+    <script src="js/db.js?v=20261029c"></script>
     <script src="js/services.js?v=20261004c"></script>
     <script src="js/archivos.js?v=20261004c"></script>
     <script src="js/expediente.js?v=20261004c"></script>
-    <script src="js/documents.js?v=20261004c"></script>
+    <script src="js/documents.js?v=20261029b"></script>
     <script src="js/configuracion.js?v=20261004c"></script>
     <script src="js/brand.js?v=20260709g"></script>
     <script src="js/proyectos.js?v=20261004c"></script>
     <script src="js/planner.js?v=20261004c"></script>
-    <script src="js/gastos.js?v=20261004c"></script>
+    <script src="js/gastos.js?v=20261029b"></script>
     <script src="js/gastos-empresa.js?v=20261004c"></script>
-    <script src="js/referidos.js?v=20261004c"></script>
-    <script src="js/caso-detalle.js?v=20261004c"></script>
-    <script src="js/recorrido.js?v=20261004c"></script>
-    <script src="js/render.js?v=20261004c"></script>
-    <script src="js/forms.js?v=20261004c"></script>
+    <script src="js/referidos.js?v=20261029b"></script>
+    <script src="js/caso-detalle.js?v=20261029c"></script>
+    <script src="js/recorrido.js?v=20261029b"></script>
+    <script src="js/render.js?v=20261029c"></script>
+    <script src="js/forms.js?v=20261029c"></script>
     <script src="js/compradores.js?v=20261027b"></script>
     <script src="js/titulares.js?v=20261027a"></script>
     <script src="js/operaciones-venta.js?v=20261029a"></script>
-    <script src="js/usage-metrics.js?v=20261027a"></script>
-    <script src="js/auth.js?v=20261004c"></script>
-    <script src="js/app.js?v=20261004c"></script>
+    <script src="js/usage-metrics.js?v=20261029c"></script>
+    <script src="js/prueba-nota.js?v=20261029c"></script>
+    <script src="js/auth.js?v=20261029c"></script>
+    <script src="js/luna.js?v=20261029b"></script>
+    <script src="js/luna-knowledge.js?v=20261029b"></script>
+    <script src="js/ia-assistant.js?v=20261029b"></script>
+    <script src="js/app.js?v=20261029b"></script>
 </body>
 </html>

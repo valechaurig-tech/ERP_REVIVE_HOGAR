@@ -188,7 +188,7 @@ function normalizarPresupuesto(p, casa, prospecto) {
     p.retornos = normalizarLista(p.retornos);
     p.pagosComprador = normalizarLista(p.pagosComprador);
     p.comisionVenta = p.comisionVenta || { tipo: 'Porcentaje', valor: 0 };
-    if (p.comisionVenta.tipo !== 'Porcentaje') p.comisionVenta.tipo = 'Porcentaje';
+    if (p.comisionVenta.tipo !== 'Monto' && p.comisionVenta.tipo !== 'Porcentaje') p.comisionVenta.tipo = 'Porcentaje';
     if (casa && !Number(p.ventaPropiedad || 0) && Number(casa.precioVenta || 0)) {
         p.ventaPropiedad = Number(casa.precioVenta);
         requiereGuardar = true;
@@ -395,10 +395,12 @@ function sincronizarPresupuestoProspecto(prospecto) {
         }
     });
     if (!Number(p.ventaPropiedad || 0) && precioVenta) p.ventaPropiedad = precioVenta;
-    p.comisionVenta = {
-        tipo: 'Porcentaje',
-        valor: d.tieneComisionVenta === 'Si' ? Number(d.comisionVentaValor || 0) : 0
-    };
+    if (p.comisionVenta?.tipo !== 'Monto') {
+        p.comisionVenta = {
+            tipo: 'Porcentaje',
+            valor: d.tieneComisionVenta === 'Si' ? Number(d.comisionVentaValor || 0) : 0
+        };
+    }
     guardarPresupuesto(p);
 }
 
@@ -418,11 +420,16 @@ function sincronizarCasaEnPresupuesto(casa) {
 }
 
 function recalcularComisionVentaPresupuesto(p) {
-    if (!p?.comisionVenta || p.comisionVenta.tipo !== 'Porcentaje') return;
+    if (!p?.comisionVenta) return;
     const partida = p.partidas.find(x => x.concepto === 'COMISIÓN POR VENTA');
     if (!partida) return;
-    partida.monto = Number(p.ventaPropiedad || 0) * (Number(p.comisionVenta.valor || 0) / 100);
-    partida.nota = `${Number(p.comisionVenta.valor || 0)}% de ${formatearMoneda(p.ventaPropiedad)}`;
+    if (p.comisionVenta.tipo === 'Monto') {
+        partida.monto = Number(p.comisionVenta.valor || 0);
+        partida.nota = `Monto fijo ${formatearMoneda(partida.monto)}`;
+    } else {
+        partida.monto = Number(p.ventaPropiedad || 0) * (Number(p.comisionVenta.valor || 0) / 100);
+        partida.nota = `${Number(p.comisionVenta.valor || 0)}% de ${formatearMoneda(p.ventaPropiedad)}`;
+    }
     partida.automatico = true;
 }
 
@@ -562,6 +569,16 @@ function renderDetalleGastos(casaId) {
     if (!casa || !p || !detalle) return;
     const r = calcularResumenPresupuesto(p);
     actualizarKpisGastos(r);
+    const partidaPropietario = p.partidas.find(x => x.concepto === 'PROPIETARIO');
+    const pagadoPropietario = partidaPropietario ? totalAplicadoPartida(p, partidaPropietario.id) : 0;
+    const faltaPropietario = Math.max(0, Number(partidaPropietario?.monto || 0) - pagadoPropietario);
+    const pagos = normalizarLista(p.pagosComprador);
+    const sumaPagos = pagos.reduce((s, x) => s + Number(x.monto || 0), 0);
+    const sumaApartados = pagos.filter(x => /apartado/i.test(x.concepto || '')).reduce((s, x) => s + Number(x.monto || 0), 0);
+    const apartadosDeclarados = Number(p.apartadosRecibidos || 0);
+    const recibidoComprador = sumaPagos + Math.max(0, apartadosDeclarados - sumaApartados);
+    const faltaAlFirmar = Math.max(0, Number(p.ventaPropiedad || 0) - recibidoComprador);
+    const apartadosCuadran = apartadosDeclarados <= 0 || Math.abs(sumaApartados - apartadosDeclarados) < 0.01;
 
     detalle.innerHTML = `
         <section class="fin-property-hero">
@@ -609,12 +626,18 @@ function renderDetalleGastos(casaId) {
         </section>
 
         <section class="fin-section">
-            <div class="fin-section-heading"><div><span>03</span><h4>Egresos reales</h4></div><small>Remodelación, administrativos, crédito y operación</small></div>
+            <div class="fin-section-heading"><div><span>03</span><h4>Egresos reales</h4></div><small>Cada cargo descuenta una partida. El propietario y las deudas no se mezclan.</small></div>
+            <div class="fin-closing-grid fin-closing-grid--compact">
+                <div class="fin-result-card"><span>Ya entregado al propietario</span><strong>${formatearMoneda(pagadoPropietario)}</strong><small>Sale de la partida PROPIETARIO</small></div>
+                <div class="fin-result-card"><span>Falta entregar al firmar</span><strong>${formatearMoneda(faltaPropietario)}</strong><small>Presupuesto del propietario menos lo ya pagado</small></div>
+            </div>
             <form class="fin-inline-form" onsubmit="agregarEgresoGasto(event)">
                 <input type="date" id="gasto-egreso-fecha" class="form-control" value="${hoyISO()}" required>
                 <select id="gasto-egreso-tipo" class="form-control">${RH_TIPOS_EGRESO.map(x => `<option>${x}</option>`).join('')}</select>
                 <select id="gasto-egreso-origen" class="form-control"><option>Revive</option><option>Socio</option><option>No aplica retorno</option></select>
                 <select id="gasto-egreso-partida" class="form-control" required><option value="">Descontar de…</option>${p.partidas.map(x => `<option value="${x.id}">${escapeHtml(x.concepto)} · resta ${formatearMoneda(Math.max(0, Number(x.monto || 0) - totalAplicadoPartida(p, x.id)))}</option>`).join('')}</select>
+                <select id="gasto-egreso-cuenta" class="form-control">${opcionesCuentaBancariaHtml()}</select>
+                <select id="gasto-egreso-referido" class="form-control">${opcionesReferidoEgresoHtml(p)}</select>
                 <input id="gasto-egreso-concepto" class="form-control" placeholder="Concepto" required>
                 <input id="gasto-egreso-nota" class="form-control" placeholder="Nota / comprobante">
                 <input type="number" id="gasto-egreso-monto" class="form-control" min="0.01" step="0.01" placeholder="$ Monto" required>
@@ -651,6 +674,13 @@ function renderDetalleGastos(casaId) {
             <div class="fin-closing-grid">
                 <label>Venta de propiedad<input type="number" class="form-control" value="${Number(p.ventaPropiedad || 0)}" onchange="actualizarDatoGasto('ventaPropiedad',this.value)"></label>
                 <label>Apartados recibidos<input type="number" class="form-control" value="${Number(p.apartadosRecibidos || 0)}" onchange="actualizarDatoGasto('apartadosRecibidos',this.value)"></label>
+                <label>Comisión de venta
+                    <select class="form-control" onchange="actualizarComisionVenta('tipo', this.value)">
+                        <option value="Porcentaje" ${p.comisionVenta?.tipo !== 'Monto' ? 'selected' : ''}>Porcentaje %</option>
+                        <option value="Monto" ${p.comisionVenta?.tipo === 'Monto' ? 'selected' : ''}>Monto fijo $</option>
+                    </select>
+                </label>
+                <label>${p.comisionVenta?.tipo === 'Monto' ? 'Monto de comisión' : '% de comisión'}<input type="number" min="0" step="0.01" class="form-control" value="${Number(p.comisionVenta?.valor || 0)}" onchange="actualizarComisionVenta('valor', this.value)"></label>
                 <label>Utilidad socios
                     <select class="form-control" onchange="actualizarDatoGasto('utilidadSociosTipo',this.value)">
                         <option value="Porcentaje" ${p.utilidadSociosTipo !== 'Monto' ? 'selected' : ''}>Porcentaje %</option>
@@ -665,6 +695,11 @@ function renderDetalleGastos(casaId) {
                 <div class="fin-result-card"><span>Utilidad socios</span><strong>${formatearMoneda(r.utilidadSocios)}</strong><small>${p.utilidadSociosTipo === 'Monto' ? 'Monto fijo' : '% sobre utilidad real'}</small></div>
                 <div class="fin-result-card fin-result-primary" title="Utilidad real menos la parte de socios"><span>Utilidad Revive</span><strong>${formatearMoneda(r.utilidadRevive)}</strong><small>Utilidad real − socios</small></div>
                 <div class="fin-result-card"><span>Saldo de caja trazado</span><strong>${formatearMoneda(r.saldoCaja)}</strong></div>
+            </div>
+            <div class="fin-closing-grid fin-closing-grid--compact">
+                <div class="fin-result-card"><span>Apartados desglosados</span><strong>${formatearMoneda(sumaApartados)}</strong><small>${apartadosCuadran ? 'Cuadra con lo declarado' : `Declarado ${formatearMoneda(apartadosDeclarados)}. Captura cada depósito con la palabra Apartado.`}</small></div>
+                <div class="fin-result-card"><span>Recibido del comprador</span><strong>${formatearMoneda(recibidoComprador)}</strong></div>
+                <div class="fin-result-card"><span>Resta por recibir</span><strong>${formatearMoneda(faltaAlFirmar)}</strong><small>Venta menos apartados y abonos</small></div>
             </div>
             <form class="fin-inline-form fin-inline-form--short" onsubmit="agregarPagoComprador(event)">
                 <input type="date" id="gasto-pago-fecha" class="form-control" value="${hoyISO()}" required>
@@ -748,23 +783,69 @@ function actualizarDatoGasto(campo, valor) {
     renderDetalleGastos(gastoPropiedadActivaId);
 }
 
+function opcionesCuentaBancariaHtml() {
+    const cuentas = typeof getCuentasBancarias === 'function' ? getCuentasBancarias() : [];
+    const opciones = cuentas.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(etiquetaCuentaBancaria(c))} · ${formatearMoneda(c.saldo || 0)}</option>`).join('');
+    return `<option value="">Sin cuenta bancaria</option>${opciones}`;
+}
+
+function opcionesReferidoEgresoHtml(p) {
+    const items = typeof getResumenReferidos === 'function'
+        ? getResumenReferidos().filter(x => x.entidadId === gastoPropiedadActivaId || x.presupuestoId === p.id || x.entidadId === p.casaId)
+        : [];
+    const opciones = items.map(x => `<option value="${escapeHtml(x.partidaId || '')}">${escapeHtml(x.referido)} · pendiente ${formatearMoneda(x.pendiente)}</option>`).join('');
+    return `<option value="">No es pago de referido</option>${opciones}`;
+}
+
+function moverSaldoCuenta(cuentaId, delta) {
+    if (!cuentaId || !delta) return;
+    const cuentas = DB.get('cuentasBancarias') || [];
+    const indice = cuentas.findIndex(c => c.id === cuentaId);
+    if (indice < 0) return;
+    cuentas[indice].saldo = Number(cuentas[indice].saldo || 0) + Number(delta);
+    cuentas[indice].actualizadoEn = new Date().toISOString();
+    DB.set('cuentasBancarias', cuentas);
+}
+
+function actualizarComisionVenta(campo, valor) {
+    const p = getPresupuestoCasa(gastoPropiedadActivaId);
+    if (!p) return;
+    p.comisionVenta = p.comisionVenta || { tipo: 'Porcentaje', valor: 0 };
+    if (campo === 'tipo') p.comisionVenta.tipo = valor === 'Monto' ? 'Monto' : 'Porcentaje';
+    else p.comisionVenta.valor = Math.max(0, Number(valor || 0));
+    recalcularComisionVentaPresupuesto(p);
+    guardarPresupuesto(p);
+    renderDetalleGastos(gastoPropiedadActivaId);
+}
+
 function agregarEgresoGasto(e) {
     e.preventDefault();
     const p = getPresupuestoCasa(gastoPropiedadActivaId);
     if (!p) return;
-    p.egresos.unshift({
+    const referidoPartida = document.getElementById('gasto-egreso-referido')?.value || '';
+    const cuentaId = document.getElementById('gasto-egreso-cuenta')?.value || '';
+    const egreso = {
         id: DB.getId(),
         fecha: document.getElementById('gasto-egreso-fecha').value,
         categoria: document.getElementById('gasto-egreso-tipo').value,
         origen: document.getElementById('gasto-egreso-origen').value,
-        partidaId: document.getElementById('gasto-egreso-partida').value,
+        partidaId: referidoPartida || document.getElementById('gasto-egreso-partida').value,
         concepto: document.getElementById('gasto-egreso-concepto').value.trim(),
         nota: document.getElementById('gasto-egreso-nota').value.trim(),
         monto: Math.max(0, Number(document.getElementById('gasto-egreso-monto').value || 0)),
         registradoPor: getUsuarioActual()
-    });
+    };
+    if (referidoPartida) {
+        egreso.categoria = 'Pago referido';
+        egreso.referido = true;
+    }
+    if (cuentaId) {
+        egreso.cuentaId = cuentaId;
+        moverSaldoCuenta(cuentaId, -egreso.monto);
+    }
+    p.egresos.unshift(egreso);
     guardarPresupuesto(p);
-    logAction(`Egreso registrado: ${p.egresos[0].concepto}`);
+    logAction(`Egreso registrado: ${egreso.concepto}`);
     renderDetalleGastos(gastoPropiedadActivaId);
 }
 
@@ -863,6 +944,7 @@ async function eliminarMovimientoGasto(tipo, id) {
     const campo = { egreso: 'egresos', inversion: 'inversionistas', retorno: 'retornos', pago: 'pagosComprador' }[tipo];
     if (!campo) return;
     const movimiento = p[campo].find(x => x.id === id);
+    if (movimiento?.cuentaId && campo === 'egresos') moverSaldoCuenta(movimiento.cuentaId, Number(movimiento.monto || 0));
     p[campo] = p[campo].filter(x => x.id !== id);
     guardarPresupuesto(p);
     if (movimiento) logAction(`Movimiento financiero eliminado: ${movimiento.concepto || movimiento.nombre || tipo}`);

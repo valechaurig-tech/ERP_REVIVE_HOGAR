@@ -3,6 +3,19 @@
  */
 let solicitarEnvioAdministradora = false;
 
+function cambiarPasoCaptura(formId, paso, boton) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.querySelectorAll('[data-paso]').forEach(el => {
+        el.classList.toggle('hidden', el.dataset.paso !== paso);
+    });
+    form.querySelectorAll('.capture-tab').forEach(btn => {
+        btn.classList.toggle('active', boton ? btn === boton : btn.dataset.pasoBtn === paso);
+    });
+    const zona = formId === 'form-gestion-prospecto' || formId === 'form-expediente-admin' ? 'captura:' + paso : '';
+    if (zona && window.RH_USAGE?.anotar) window.RH_USAGE.anotar('tab_open', zona);
+}
+
 function bindAllForms() {
     bindFormSubmit('form-campana', guardarCampana);
     bindFormSubmit('form-prospecto', guardarProspecto);

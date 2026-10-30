@@ -32,4 +32,7 @@ const v = JSON.parse(raw);
 v[old] = { 'module_open|Direccion|mod-gastos': 1 };
 storage.set('rh_usage_counts_v1', JSON.stringify(v));
 assert.equal(metrics.report().some(row => row.day === old), false);
-console.log('PASS: 7 pruebas de métricas locales, retención de siete días y privacidad');
+assert.equal(metrics.anotar('tab_open', 'Valle Latina 145'), false);
+assert.equal(metrics.anotar('form_open', 'comentario libre del cliente'), false);
+assert.equal(metrics.report().reduce((sum, x) => sum + x.count, 0), 3);
+console.log('PASS: métricas locales, retención de siete días y privacidad');

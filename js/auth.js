@@ -185,7 +185,8 @@ function showModule(modId, navElement, bypass = false) {
     next.classList.add('module-enter');
     activeModuleId = modId;
     actualizarBreadcrumbs(modId);
-    window.RH_USAGE?.record('module_open', modId, currentUser?.rol);
+    if (window.RH_USAGE?.anotar) window.RH_USAGE.anotar('module_open', modId);
+    else window.RH_USAGE?.record('module_open', modId, currentUser?.rol);
 
     if (!bypass && navElement) {
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
@@ -232,6 +233,7 @@ async function logout() {
     rhLogoutEnCurso = true;
     try {
         // Registrar la salida antes de sincronizar, para no perder la auditoría.
+        if (window.RH_USAGE?.flush) window.RH_USAGE.flush();
         logAction(`Cierre de sesión: ${currentUser ? currentUser.displayName : 'Sistema'}`);
         await DB.flush();
         document.getElementById('app-screen').style.display = 'none';
@@ -241,6 +243,7 @@ async function logout() {
         allowedModuleIds = [];
         vendedorVistaId = null;
         if (typeof mostrarIAWidget === 'function') mostrarIAWidget(false);
+        if (typeof mostrarNotaPrueba === 'function') mostrarNotaPrueba(false);
         if (clockInterval) clearInterval(clockInterval);
         return true;
     } catch (error) {
@@ -302,6 +305,8 @@ function bindLoginForm() {
         logAction(`Inicio de sesión: ${user.displayName}`);
         addHistory('sesion', 'Inicio de sesión', user.displayName);
         document.getElementById('login-password').value = '';
+        if (window.RH_USAGE?.anotar) window.RH_USAGE.anotar('session_start', 'app');
+        if (typeof mostrarNotaPrueba === 'function') mostrarNotaPrueba(true);
         buildSidebar();
         if (typeof iniciarSesionIA === 'function') iniciarSesionIA();
         updateClock();

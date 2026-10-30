@@ -125,6 +125,7 @@ async function renderCatalogoPipeline() {
                 <p class="rh-casa-card-meta">${badgeEstatusPipeline(c.estatusPipeline)} · ${n} foto${n === 1 ? '' : 's'}${publico ? ' · Público' : ''}</p>
                 <div class="celda-acciones">
                     <button type="button" class="btn btn-primary btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}','recorrido')">Abrir recorrido</button>
+                    <button type="button" class="btn btn-outline btn-small" onclick="abrirDetalleCasa('${escapeHtml(c.id)}','expediente')">Ver documentos</button>
                     ${n ? `<a class="btn btn-outline btn-small" href="tour.html#${encodeURIComponent(c.id)}" target="_blank" rel="noopener">Ver tour</a>` : ''}
                 </div>
             </div>

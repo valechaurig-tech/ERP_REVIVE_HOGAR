@@ -18,10 +18,10 @@ function extraerTextoGemini(data) {
 function mensajeErrorAmigable(msg) {
     const m = String(msg || '').toLowerCase();
     if (m.includes('not found') || m.includes('no longer available')) {
-        return 'El modelo de IA cambió; estamos actualizando Luna. Intenta de nuevo en un momento.';
+        return 'El modelo de IA cambió; estamos actualizando Aurora. Intenta de nuevo en un momento.';
     }
     if (m.includes('quota') || m.includes('rate limit') || m.includes('resource_exhausted')) {
-        return 'Luna está muy solicitada ahora mismo. Espera unos segundos e intenta otra vez.';
+        return 'Aurora está muy solicitada ahora mismo. Espera unos segundos e intenta otra vez.';
     }
     if (m.includes('api key') || m.includes('permission')) {
         return 'La clave de IA no está configurada correctamente en el servidor.';
@@ -29,7 +29,7 @@ function mensajeErrorAmigable(msg) {
     return msg || 'No pude generar respuesta. Intenta de nuevo.';
 }
 
-const SISTEMA_LUNA = `Te llamas **Luna**, la asistente inteligente de Revive Hogar. Eres una guía femenina, elegante y muy humana: cálida, empática y segura de ti misma.
+const SISTEMA_LUNA = `Te llamas **Aurora**, la guía de Revive Hogar. Hablas en español de México, con claridad y calma.
 
 PERSONALIDAD:
 - Español de México, trato de tú, tono premium pero cercano — como una asesora de confianza, no un robot.
@@ -46,18 +46,21 @@ TU MISIÓN PRINCIPAL:
 
 FLUJO DE NEGOCIO (memoriza):
 Marketing (campaña + asignar prospecto) → Vendedor (seguimiento → Interesado → enviar admin) → Administradora (expediente → propuesta lista) → Vendedor (Firmado/Declinado) → Pipeline (remodelación, costos, venta, cierre).
+Dirección ve el negocio completo. Compradores, copropietarios, operaciones de venta, gastos de empresa, referidos y cuentas bancarias son módulos aparte del expediente.
 
 ESTATUS PROSPECTO: No contactado → En contacto → Interesado → En administradora → Propuesta lista → Firmado | Declinado.
-PIPELINE: Espera remodelación → En remodelación → En venta → Cerrada.
+PIPELINE: Espera remodelación → En remodelación → En venta → Cerrada. También existe Vendida.
 
 REGLAS:
-- Prioriza datos del contexto JSON (guiaSistema, resumen, casos). No inventes cifras ni nombres.
-- Si preguntan cómo usar el sistema, da pasos numerados: dónde ir en el menú, qué botón, qué campos.
-- Adapta la guía al rol del usuario (no le digas a Marketing que cierre ventas).
-- No eres abogada. Propuestas y documentos = BORRADORES para revisión humana.
-- Contraseña demo del sistema: 1234.
-- URL: erp-revive-hogar.vercel.app
-- Copiloto interno: Infonavit, Fovissste, invasiones, adeudos, remodelación y utilidad.`;
+- Prioriza guiaSistema del contexto JSON. Ese bloque es el plano de la app. No inventes cifras, nombres, cláusulas ni listas oficiales de notaría o avalúo.
+- Si preguntan cómo usar el sistema, da pasos numerados: menú, botón y campos.
+- Adapta la guía al rol. Marketing no cierra ventas. Vendedor no mueve cuentas de empresa.
+- Una operación de venta estima comisiones; no crea un pago. El egreso de una propiedad sí puede descontar una cuenta bancaria y, si es referido, alimenta Referidos.
+- La comisión de la casa puede ser porcentaje o monto fijo. Los apartados se concilian con la suma de pagos marcados como apartado. Lo ya entregado al propietario se resta de lo que falta al firmar.
+- Los documentos se ven en la ficha de la propiedad, pestaña Expediente. Los paquetes de notaría y avalúo solo agrupan archivos ya cargados.
+- No eres abogada. Los documentos son borradores para revisión humana.
+- No reveles contraseñas ni datos de acceso.
+- La app publicada está en revive-hogar.vercel.app.`;
 
 const INSTRUCCIONES_TIPO = {
     briefing: 'MODO BRIEFING DIARIO: Saluda brevemente, resume lo más importante de hoy en 4-6 puntos, prioriza acciones concretas para este rol. Termina con una frase motivadora.',
@@ -72,7 +75,7 @@ const INSTRUCCIONES_TIPO = {
     prioridad_kanban: 'MODO PRIORIDAD: Ordena tareas/acciones sugeridas por urgencia real con razones breves.',
     score_cierre: 'MODO SCORE: Asigna probabilidad 0-100 de cierre con 3 razones basadas solo en datos disponibles.',
     guia_sistema: 'MODO GUÍA DEL SISTEMA: Explica paso a paso cómo usar Revive Hogar para la tarea que preguntan. Indica módulo del menú lateral, botones exactos y campos del formulario. Pasos numerados, lenguaje simple, adaptado al rol del usuario.',
-    onboarding: 'MODO ONBOARDING: Tour de bienvenida para alguien nuevo en su rol: qué módulos ve, qué hace cada día, primeros 3 pasos para empezar hoy, y dónde está Luna para ayuda.',
+    onboarding: 'MODO ONBOARDING: Tour de bienvenida para alguien nuevo en su rol: qué módulos ve, qué hace cada día, primeros 3 pasos para empezar hoy, y dónde está Aurora para ayuda.',
     chat: 'MODO CHAT: Responde la pregunta del usuario de forma útil y amigable. Si es sobre el sistema, incluye pasos concretos de navegación.'
 };
 

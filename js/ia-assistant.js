@@ -1,5 +1,5 @@
 /**
- * Revive Hogar — Luna, asistente IA (chat + copiloto)
+ * Revive Hogar — Aurora, asistente del sistema
  */
 
 const IA_HISTORIAL_MAX = 40;
@@ -96,7 +96,7 @@ function iniciarSesionIA() {
     const rol = currentUser?.rol || 'Direccion';
     const saludo = IA_SALUDOS[rol] || IA_SALUDOS.Direccion;
     agregarMensajeIA('assistant',
-        `¡Hola, **${nombre}**! Soy **Luna**, tu guía inteligente en Revive Hogar. ✨\n\n${saludo}\n\nPregúntame *"¿cómo hago…?"* o usa los accesos rápidos — conozco todo el flujo del sistema.`
+        `¡Hola, **${nombre}**! Soy **Aurora**, tu guía en Revive Hogar.\n\n${saludo}\n\nPregúntame *"¿cómo hago…?"* o usa los accesos rápidos. Conozco los módulos, los roles y el orden del trabajo.`
     );
     renderIAQuickActions();
     setIAEstado('En línea · lista para ayudarte');
@@ -355,7 +355,7 @@ async function consultarIA({ mensaje, tipo, contextoExtra, abrirPanel }) {
 
     agregarMensajeIA('user', mensaje);
     iaEnviando = true;
-    setIAEstado('Luna está pensando…');
+    setIAEstado('Aurora está pensando…');
     agregarMensajeIA('assistant', '…', 'ia-msg--typing');
 
     const history = iaHistorial

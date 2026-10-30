@@ -2,8 +2,8 @@
  * Luna — asistente IA de Revive Hogar (avatar femenino premium + marco Gemini)
  */
 
-const LUNA_NOMBRE = 'Luna';
-const LUNA_TAGLINE = 'Tu guía inteligente del hogar';
+const LUNA_NOMBRE = 'Aurora';
+const LUNA_TAGLINE = 'Tu guía en Revive Hogar';
 
 function getLunaSvg(className, opts) {
     const o = opts || {};
@@ -70,24 +70,28 @@ function getLunaGeminiFrameHtml(innerHtml, variant) {
     </span>`;
 }
 
+function getAuroraOrbHtml(size) {
+    const s = size || 'md';
+    return `<span class="aurora-orb aurora-orb--${s}" aria-hidden="true">
+        <span class="aurora-orb__glow"></span>
+        <span class="aurora-orb__disc"><img src="assets/aurora-orb.png?v=20261029b" alt="" draggable="false" decoding="async"></span>
+    </span>`;
+}
+
 function getLunaAvatarHtml(size) {
     const s = size || 'md';
-    const frameVariant = s === 'lg' ? 'header' : (s === 'xs' ? 'chat' : 'md');
-    const svg = getLunaSvg('luna-svg luna-svg--' + s, { animated: s !== 'xs' });
-    const frame = getLunaGeminiFrameHtml(svg, frameVariant);
-    return `<span class="luna-avatar luna-avatar--${s}">${frame}</span>`;
+    return `<span class="luna-avatar luna-avatar--${s}">${getAuroraOrbHtml(s)}</span>`;
 }
 
 function getLunaFabHtml() {
-    return getLunaGeminiFrameHtml(
-        getLunaSvg('luna-svg luna-svg--fab', { animated: true }),
-        'fab'
-    );
+    return getAuroraOrbHtml('fab');
 }
 
 function getLunaMiniHtml() {
     return getLunaAvatarHtml('xs');
 }
+
+const getAuroraAvatarHtml = getLunaAvatarHtml;
 
 /* Compatibilidad temporal */
 const getRivaSvg = getLunaSvg;

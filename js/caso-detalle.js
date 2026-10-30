@@ -89,6 +89,7 @@ function abrirComunicacionDesdeExpediente() {
 function cambiarTabDetalleCasa(tab) {
 
     detalleTabActiva = tab;
+    if (window.RH_USAGE?.anotar) window.RH_USAGE.anotar('tab_open', 'detalle:' + tab);
 
     document.querySelectorAll('.detalle-tab').forEach(btn => {
 
@@ -527,6 +528,10 @@ function renderDetalleExpediente(caso, p) {
             <div class="exp-progress-bar"><i style="width:${porcentaje}%"></i></div>
             <b>${porcentaje}%</b>
         </div>
+        <div class="celda-acciones" style="margin:12px 0">
+            <button type="button" class="btn btn-outline btn-small" onclick="abrirKitDocumental('${escapeHtml(data.id)}','notaria')">Paquete de notaría</button>
+            <button type="button" class="btn btn-outline btn-small" onclick="abrirKitDocumental('${escapeHtml(data.id)}','avaluo')">Paquete de avalúo</button>
+        </div>
         <div class="detalle-grid">
             <div class="detalle-kv"><span>Nombre validado</span><strong>${escapeHtml(personales.nombreCompleto || data.nombreCompleto || '—')}</strong></div>
             <div class="detalle-kv"><span>IDMEX</span><strong>${escapeHtml(personales.idmex || '—')}</strong></div>
@@ -812,6 +817,21 @@ function abrirDetalleProspectoComunicacion(prospectoId) {
 
     abrirDetalleProspecto(prospectoId, 'comunicacion');
 
+}
+
+function abrirKitDocumental(entidadId, kit) {
+    const tipos = kit === 'avaluo'
+        ? ['ine_frente', 'ine_reverso', 'escritura_original', 'recibo_predial', 'recibos_cfe_6m']
+        : ['ine_frente', 'ine_reverso', 'acta_nacimiento', 'curp', 'constancia_fiscal', 'escritura_original', 'boleta_registral', 'aviso_transmision', 'recibo_predial', 'recibo_agua', 'contrato_firmado', 'privacidad_firmado'];
+    const catalogo = typeof RH_DOCUMENTOS_EXPEDIENTE !== 'undefined' ? RH_DOCUMENTOS_EXPEDIENTE : [];
+    const titulo = kit === 'avaluo' ? 'Paquete de avalúo' : 'Paquete de notaría';
+    const filas = tipos.map(tipo => {
+        const doc = catalogo.find(d => d.tipo === tipo);
+        const archivo = typeof getArchivoProspecto === 'function' ? getArchivoProspecto(entidadId, tipo) : null;
+        return `<tr><td>${escapeHtml(doc?.nombre || tipo)}</td><td>${archivo ? 'Cargado' : 'Falta en el expediente'}</td></tr>`;
+    }).join('');
+    const html = `<h1>${titulo}</h1><p>Estos documentos ya viven en el expediente. El paquete no agrega requisitos que el despacho no haya enviado.</p><table><thead><tr><th>Documento</th><th>Estado</th></tr></thead><tbody>${filas}</tbody></table>`;
+    if (typeof imprimirDocumentoHtml === 'function') imprimirDocumentoHtml(html, titulo, false);
 }
 
 

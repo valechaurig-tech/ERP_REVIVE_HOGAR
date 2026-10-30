@@ -7,7 +7,8 @@ const DB_KEYS = [
     'campanas', 'prospectos', 'casas', 'usuariosLogin',
     'alertas', 'historial', 'auditoria', 'tareas',
     'presupuestos', 'archivos', 'configuracion', 'gastosEmpresa', 'presupuestoEmpresa',
-    'cuentasBancarias', 'compradores', 'copropietarios', 'operacionesVenta'
+    'cuentasBancarias', 'compradores', 'copropietarios', 'operacionesVenta',
+    'actividadUso', 'notasPrueba'
 ];
 
 const DB_LIMITS = {

@@ -107,6 +107,8 @@ function registrarPagoReferido(entidadId) {
         montoInput.max = String(item.pendiente);
         montoInput.value = String(item.pendiente);
     }
+    const cuenta = document.getElementById('ref-pago-cuenta');
+    if (cuenta && typeof opcionesCuentaBancariaHtml === 'function') cuenta.innerHTML = opcionesCuentaBancariaHtml();
     document.getElementById('modal-pago-referido')?.classList.add('active');
 }
 
@@ -130,8 +132,12 @@ function confirmarPagoReferido(e) {
         concepto: `Comisión a ${item.referido}`,
         nota: 'Registrado desde Referidos y Comisiones',
         monto,
+        cuentaId: document.getElementById('ref-pago-cuenta')?.value || '',
         registradoPor: getUsuarioActual()
     });
+    if (presupuesto.egresos[0].cuentaId && typeof moverSaldoCuenta === 'function') {
+        moverSaldoCuenta(presupuesto.egresos[0].cuentaId, -monto);
+    }
     guardarPresupuesto(presupuesto);
     logAction(`Pago referido: ${item.referido} — ${formatearMoneda(monto)}`);
     closeModal('modal-pago-referido');
