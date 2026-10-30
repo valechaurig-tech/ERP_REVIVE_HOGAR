@@ -7,7 +7,7 @@ const read = p => readFileSync(new URL('../'+p, import.meta.url),'utf8');
 const html=read('index.html'),css=read('css/responsive-redesign.css'),script=read('js/mobile-ui.js');
 for(const path of ['css/responsive-redesign.css','js/mobile-ui.js']){
   assert(existsSync(new URL('../'+path,import.meta.url)),path+' no existe');
-  assert(html.includes('src="'+path+'"')||html.includes('href="'+path+'"'),'HTML no incluye '+path);
+  assert(html.includes('src="'+path+'?')||html.includes('href="'+path+'?'),'HTML no incluye '+path);
 }
 for(const id of ['app-screen','sidebar','mod-dashboard','mod-compradores','mod-operaciones','mod-pipeline','mod-gastos','mod-referidos','mod-usuarios']){
   assert(html.includes('id="'+id+'"'),'Falta módulo original: '+id);
