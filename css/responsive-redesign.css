@@ -365,3 +365,18 @@ body > .modal :is(input,select,textarea){max-width:100%}
 @media (max-width:360px){
   #app-screen .topbar-user{display:none!important}
 }
+
+/* Refinamientos verificados sobre capturas reales del navegador. */
+#app-screen .brand-lockup--topbar .brand-revive{color:#19394d;font-weight:750}
+#app-screen .brand-lockup--topbar .brand-hogar{color:#0a779c;font-weight:850}
+#app-screen .table-responsive td button:not([class]){
+  border:1px solid #cce0e9;border-radius:8px;background:#eaf5fa;
+  color:#075878;padding:7px 10px;font:inherit;font-weight:700;cursor:pointer
+}
+@media(max-width:480px){
+  #app-screen .mkt-analytics-grid,
+  #app-screen .mkt-analytics-grid--compact,
+  #app-screen .planner-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+}
