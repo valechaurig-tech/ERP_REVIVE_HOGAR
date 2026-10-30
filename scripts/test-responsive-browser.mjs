@@ -23,6 +23,8 @@ try {
     for(const width of [320,390,768,1024]){
         const page=await browser.newPage({viewport:{width,height:850},deviceScaleFactor:1});
         page.on('dialog',d=>d.dismiss());
+        page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
+        page.on('response',r=>{if(r.url().includes('mobile-ui.js'))console.log('MOBILE_SCRIPT',r.status(),r.url());});
         // Únicamente contenido local de la rama. No consultar ni escribir en Supabase.
         await page.route('**/*', route => {
             const u=route.request().url();
@@ -30,7 +32,17 @@ try {
             else route.abort();
         });
         await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
-        await page.waitForSelector('#rh-mobile-menu',{state:'attached'});
+        await page.waitForTimeout(750);
+        const diag=await page.evaluate(()=>({
+            url:location.href,
+            htmlTitle:document.title,
+            app:!!document.getElementById('app-screen'),
+            topbar:!!document.querySelector('#app-screen .topbar-left'),
+            menu:!!document.getElementById('rh-mobile-menu'),
+            script:document.querySelector('script[src*="mobile-ui"]')?.src || null
+        }));
+        console.log('UI DIAGNOSTIC',width,diag);
+        assert(diag.menu,'No se ejecutó js/mobile-ui.js');
         await page.evaluate(() => {
             document.getElementById('login-screen').style.display='none';
             const app=document.getElementById('app-screen');
