@@ -1,0 +1,29 @@
+name: Revive Hogar — QA de rediseño móvil aislado
+on:
+  push:
+    branches:
+      - work/responsive-redesign-2026-10-29
+permissions:
+  contents: read
+jobs:
+  responsive-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Verificar interfaz responsive sin tocar datos reales
+        run: node scripts/test-responsive-ui.mjs
+      - name: Probar sincronización segura (mocks)
+        run: node scripts/test-db-sync.mjs
+      - name: Probar clientes y titulares (mocks)
+        run: |
+          node scripts/test-compradores.mjs
+          node scripts/test-titulares.mjs
+      - name: Probar formularios y privacidad (mocks)
+        run: |
+          node scripts/test-form-errors.mjs
+          node scripts/test-usage-metrics.mjs
+      - name: Probar aislamiento de Preview
+        run: node scripts/test-preview-isolation.mjs
