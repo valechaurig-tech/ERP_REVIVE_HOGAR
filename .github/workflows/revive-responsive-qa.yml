@@ -27,3 +27,17 @@ jobs:
           node scripts/test-usage-metrics.mjs
       - name: Probar aislamiento de Preview
         run: node scripts/test-preview-isolation.mjs
+
+      - name: Preparar navegador de comprobación aislada
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verificar interfaz en 320, 390, 768 y 1024 px
+        run: node scripts/test-responsive-browser.mjs
+      - name: Guardar capturas para revisión visual
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: revive-responsive-screenshots
+          path: artifacts/*.png
+          if-no-files-found: ignore
