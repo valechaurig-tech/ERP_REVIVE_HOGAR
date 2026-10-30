@@ -6,6 +6,7 @@
 (() => {
     'use strict';
 
+    function iniciarUIResponsive() {
     const MOBILE_QUERY = '(max-width: 900px)';
     const app = document.getElementById('app-screen');
     const topbar = app?.querySelector('.topbar-left');
@@ -147,4 +148,10 @@
         observer.disconnect();
         sidebarObserver.disconnect();
     }, {once:true});
+    }
+    // js/app.js inicializa la marca en DOMContentLoaded y reemplaza
+    // #topbar-brand.innerHTML: insertar el menú DESPUÉS de esa inicialización.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', iniciarUIResponsive, {once:true});
+    } else iniciarUIResponsive();
 })();
