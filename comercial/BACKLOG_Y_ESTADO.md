@@ -10,6 +10,14 @@
 - Muchas fichas se anuncian bajo Áurea Bienes Raíces/EasyBroker. Verificar relación comercial, propiedad de los activos, permisos de marketing y reparto de comisiones.
 - Antecedentes técnicos: documentos `REVIVE_HOGAR_PLAN_MAESTRO_RECUPERADO.md`, `REVIVE_HOGAR_AUDITORIA_VERCEL_2026-10-26.md`, y transcripción del recorrido de la app. Hay ramas previas de rescate de Vercel y rediseño. **No reemplazar Vercel con main de GitHub ni usar esta rama para cambios del ERP.**
 
+## Actualización de prioridad — 2026-11-05
+
+- **Comisión informada = 2%**; calcular sobre base de precio final conforme contrato y validar impuestos, reparto y pago.
+- **Primer objetivo comercial: encontrar las viviendas con menor dificultad de cierre y mayor velocidad esperable**, aunque generen menor comisión.
+- **Precandidatas:** RHV039, RHV029, RVH010, RVH012 y RHV043, con condiciones por validar. No aprobar campañas automáticamente.
+- **Anomalías de inventario:** RHV043 precio público diferente; RHV051 posible duplicado con RVH014 vendida; RHV045 posible duplicado con RVH026 apartada; RHV036/RHV048 direcciones similares; RHV033 ID repetido.
+- Fuentes, análisis y metodología en [investigación del piloto](./INVESTIGACION_PILOTO_VENTAS_RAPIDAS_2026-11-05.md).
+
 ## Etapa 0 — gobernanza (AHORA)
 
 - [x] Crear sección comercial separada del software dentro del mismo GitHub.
