@@ -24,7 +24,8 @@
 
 1. [Marco operativo y responsabilidades](./MARCO_OPERATIVO.md)
 2. [Sistema futuro de contenidos y comentarios](./SISTEMA_CONTENIDOS_Y_GROK.md)
-3. [Estado inicial, decisiones pendientes y backlog](./BACKLOG_Y_ESTADO.md)
+3. [Investigación inicial: comisión 2% y piloto de venta rápida](./INVESTIGACION_PILOTO_VENTAS_RAPIDAS_2026-11-05.md)
+4. [Estado inicial, decisiones pendientes y backlog](./BACKLOG_Y_ESTADO.md)
 
 ## Regla principal
 
@@ -42,3 +43,7 @@ Este repositorio puede ser **público**. No subir expedientes, teléfonos partic
 - No fusionar esta rama a `main` sin revisión.
 
 Última actualización: 2026-11-05.
+
+## Nueva prioridad comercial del 5 de noviembre
+
+Comisión de referencia informada: **2%** por operación (base contractual y reparto por confirmar). Seleccionar primero las propiedades **más fáciles y rápidas de cerrar**, nunca solo las más caras. La primera investigación tiene cinco precandidatas que deben superar verificación de estatus, crédito, documentos, comparables y autorización. Ver [investigación del piloto](./INVESTIGACION_PILOTO_VENTAS_RAPIDAS_2026-11-05.md).
