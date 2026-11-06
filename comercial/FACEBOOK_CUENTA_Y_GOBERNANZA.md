@@ -1,6 +1,17 @@
 # Revive Hogar — ¿Desde qué Facebook operar?
 **Corte 2026-11-05 | Estado: DECISIÓN PENDIENTE.** No se ha conectado una cuenta ni autorizado publicaciones.
 
+## Resultado operativo recibido de Grok (5 noviembre 2026)
+
+- La sesión autorizada de Facebook en la computadora de Grok **sí está abierta**.
+- El operador **no verificó** acceso a una Página Revive Hogar ni a una de Áurea; tampoco confirmó perfil auténtico designado para grupos.
+- La sesión muestra otros proyectos y páginas, **excluidos** de la estrategia inmobiliaria.
+- **NO_VERIFICADA no equivale a INEXISTENTE**. Comprobar con Valeria y Dirección si existe Página en otra cuenta/portafolio antes de crear.
+- Se recomienda un activo empresarial propio de Revive Hogar (si no existe), con control total de una persona real de Dirección y respaldo, sin reutilizar otras marcas.
+- La inspección de grupos públicos puede avanzarse como tarea de solo lectura si Dirección la autoriza, aunque la cuenta definitiva aún esté pendiente.
+
+Registro completo: [Fase 0 y propuesta](./RESULTADO_GROK_FASE_0_Y_DECISION_FACEBOOK_2026-11-05.md).
+
 ## Recomendación de arquitectura
 
 **Identidad comercial oficial:** una Página de Facebook legítima de Revive Hogar, administrada desde Meta Business Suite/portafolio empresarial con accesos individuales y el mínimo privilegio. **No crear una Página duplicada si ya existe una oficial.**
