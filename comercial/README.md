@@ -29,7 +29,12 @@
 5. [Grupos Facebook, comunidades y señales de demanda](./CANALES_GRUPOS_Y_SENALES_DEMANDA_2026-11-05.md)
 6. [Grok: prompts cortos de bajo consumo (USAR ESTOS)](./GROK_PROMPTS_CORTOS.md)
 7. [Grok: SOP detallado para configurar una vez](./GROK_OPERADOR_ECONOMICO_EN_TOKENS.md)
-4. [Estado inicial, decisiones pendientes y backlog](./BACKLOG_Y_ESTADO.md)
+8. [Instrucción maestra para Grok](./GROK_INSTRUCCION_MAESTRA_V1_2026-11-05.md)
+9. [Cuenta de Facebook: elección y gobernanza](./FACEBOOK_CUENTA_Y_GOBERNANZA.md)
+10. [Estado inicial, decisiones pendientes y backlog](./BACKLOG_Y_ESTADO.md)
+
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
 
 ## Regla principal
 
