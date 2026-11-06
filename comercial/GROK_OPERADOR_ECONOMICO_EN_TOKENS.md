@@ -4,6 +4,11 @@
 
 **IMPORTANTE:** para ejecución cotidiana leer SOLO [GROK_PROMPTS_CORTOS.md](./GROK_PROMPTS_CORTOS.md). Este manual es configuración y referencia, no debe recargarse entero en cada ejecución para no gastar tokens.
 
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
+
+**Bloqueo:** RVH012 La Fortuna NO disponible; prohibido prospectar o promocionar. RHV041 Valle de los Encinos es propuesta de reemplazo pendiente de validación.
+
 ## 0. Una orden, una función
 
 **ChatGPT investiga y decide todo lo estratégico:** mercados, selección de casas, precios y discrepancias, anuncios, imágenes, copies, selección de CTA, familias de comentarios, análisis de rendimiento y mejora. **No delegar estas tareas a Grok ni pedir que analice el mercado de nuevo.**
