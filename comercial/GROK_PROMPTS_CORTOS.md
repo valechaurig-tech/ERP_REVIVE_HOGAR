@@ -2,6 +2,11 @@
 **Estado: únicamente exploración y verificación de grupos. NO publicar.**
 **Instrucción de sesión única (leer solo al activar el bot por primera vez):** Grok es navegador/operador; ChatGPT hace análisis, precios, imágenes, textos y estrategia. No actuar sobre cuentas sin permiso. Nunca inventar reglas, leads o publicaciones.
 
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
+
+**IMPORTANTE:** Grok no debe ofrecer La Fortuna/RVH012 ni reutilizar sus publicaciones. RHV041 queda candidata pendiente de aprobación.
+
 ## A. Jalisco — lote inicial (copiar exactamente)
 
 > Busca en Facebook **Grupos**, con cuenta autorizada: "Valle de los Encinos Tlajomulco", "casas en venta Tlajomulco", "casas Infonavit Guadalajara". Revisa **máximo 5 grupos** con actividad reciente: URL, si permiten anuncios de casas, restricciones, si hay posts públicos de gente que BUSCA comprar (no vendedores). **NO** unirte, publicar, comentar ni escribir mensajes. Responde 1 línea por grupo: `URL|APTO/NO_APTO/NO_VERIFICABLE|regla|actividad|nota`; añade hasta 3 URLs públicas de posts de búsqueda. Sin análisis ni texto extra. Termina.
