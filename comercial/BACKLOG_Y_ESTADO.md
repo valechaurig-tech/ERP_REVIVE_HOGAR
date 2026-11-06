@@ -14,9 +14,15 @@
 
 - **Comisión informada = 2%**; calcular sobre base de precio final conforme contrato y validar impuestos, reparto y pago.
 - **Primer objetivo comercial: encontrar las viviendas con menor dificultad de cierre y mayor velocidad esperable**, aunque generen menor comisión.
-- **Precandidatas:** RHV039, RHV029, RVH010, RVH012 y RHV043, con condiciones por validar. No aprobar campañas automáticamente.
+- **Precandidatas:** RHV039, RHV029, RVH010, RHV041 y RHV043, con condiciones por validar. No aprobar campañas automáticamente.
 - **Anomalías de inventario:** RHV043 precio público diferente; RHV051 posible duplicado con RVH014 vendida; RHV045 posible duplicado con RVH026 apartada; RHV036/RHV048 direcciones similares; RHV033 ID repetido.
 - Fuentes, análisis y metodología en [investigación del piloto](./INVESTIGACION_PILOTO_VENTAS_RAPIDAS_2026-11-05.md).
+
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
+
+- [x] Se prepara instrucción maestra para Grok y guía de elección de Facebook; no se ha seleccionado todavía una cuenta ni autorizado publicaciones.
+- [ ] Dirección confirma y corrige el estado de RVH012 La Fortuna en la hoja oficial.
 
 ## Etapa 0 — gobernanza (AHORA)
 
