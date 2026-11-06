@@ -4,6 +4,11 @@
 **Rama aislada:** `work/mesa-comercial-revive-hogar-2026-11-05`
 **Área:** `/comercial/` — no modificar código del ERP ni realizar merge/deploy.
 
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
+
+**Regla bloqueante para Grok:** nunca buscar, publicar o contestar sobre RVH012 La Fortuna, aunque el inventario o un portal aún diga disponible. Nunca sustituirla silenciosamente por otra vivienda; la nueva candidata RHV041 requiere aprobación.
+
 ## 0. LECTURA ÚNICA Y FUENTE DE VERDAD
 
 Al comienzo de una sesión NUEVA:
@@ -69,8 +74,8 @@ Grok reporta URLs e incidencias; ChatGPT interpreta resultados, crea mejores mat
 - Hoja de inventario verificada el 5-nov-2026: **52 fichas**, **24 marcadas disponibles**, **20 apartadas**, **8 vendidas**. Pendiente revalidación de cada una.
 - Primer foco: **Tlajomulco / El Salto / vivienda de entrada**. Bahía de Banderas como segunda línea.
 - Comisión comunicada: 2% (teórica antes de reparto, gastos e impuestos).
-- **RHV041 Valle de los Encinos**: candidata interesante por material visual/ficha consistente; NO aprobada comercialmente.
-- **RHV039 Quintas del Valle, RHV029 Valle de Tejeda, RVH010 La Purísima, RVH012 La Fortuna y RHV043 Los Cántaros**: precandidatas, varias con discrepancias, NO listas para publicar.
+- **RHV041 Valle de los Encinos**: candidata de reemplazo de La Fortuna; interesante por material visual/ficha consistente; NO aprobada comercialmente.
+- **RHV039 Quintas del Valle, RHV029 Valle de Tejeda, RVH010 La Purísima, RHV041 Valle de los Encinos y RHV043 Los Cántaros**: precandidatas, varias con discrepancias, NO listas para publicar.
 - Alertas: RHV029 precio/superficie/baños difieren entre fuentes; RHV043 diferentes precios entre canales; RVH012 precios contradictorios; RVH018 domicilio; RHV051↔RVH014 y RHV045↔RVH026 posibles duplicados contradictorios; RHV033 ID repetido.
 - En muchos anuncios se usa marca Áurea Bienes Raíces. **No afirmar que Revive Hogar y Áurea sean la misma empresa** ni usar identidades/fotos/contactos ajenos sin autorización.
 
