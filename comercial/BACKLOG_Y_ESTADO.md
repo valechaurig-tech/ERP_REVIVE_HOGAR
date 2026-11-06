@@ -24,6 +24,16 @@
 - [x] Se prepara instrucción maestra para Grok y guía de elección de Facebook; no se ha seleccionado todavía una cuenta ni autorizado publicaciones.
 - [ ] Dirección confirma y corrige el estado de RVH012 La Fortuna en la hoja oficial.
 
+## Informe de Grok sobre cuenta Facebook — 2026-11-05
+
+- [x] Grok auditó sesión ya autorizada de Facebook; no identificó Páginas Revive Hogar/Áurea en la sesión. **No es prueba de que ninguna exista en otra cuenta**.
+- [x] Separadas de esta operación las Páginas de otros proyectos presentes en la sesión.
+- [x] Preparada recomendación de Página institucional propia y perfil auténtico autorizado donde grupos no acepten Páginas.
+- [x] Guardada [respuesta de Fase 0 y decisión Facebook](./RESULTADO_GROK_FASE_0_Y_DECISION_FACEBOOK_2026-11-05.md).
+- [ ] Valeria/Dirección confirma si ya hay Página Revive Hogar y quién debe tener control total; si no existe, autorizar creación.
+- [ ] Definir canal empresarial de atención (Messenger/WhatsApp Business) y permisos de grupo.
+- [ ] A Grok solo le corresponde navegación de reconocimiento, no creación autónoma ni publicaciones.
+
 ## Etapa 0 — gobernanza (AHORA)
 
 - [x] Crear sección comercial separada del software dentro del mismo GitHub.
