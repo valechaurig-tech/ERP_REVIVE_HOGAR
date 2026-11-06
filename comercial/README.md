@@ -25,6 +25,10 @@
 1. [Marco operativo y responsabilidades](./MARCO_OPERATIVO.md)
 2. [Sistema futuro de contenidos y comentarios](./SISTEMA_CONTENIDOS_Y_GROK.md)
 3. [Investigación inicial: comisión 2% y piloto de venta rápida](./INVESTIGACION_PILOTO_VENTAS_RAPIDAS_2026-11-05.md)
+4. [Investigación ampliada del mercado y anomalías de anuncios](./INVESTIGACION_MERCADO_Y_PRIORIZACION_2026-11-05.md)
+5. [Grupos Facebook, comunidades y señales de demanda](./CANALES_GRUPOS_Y_SENALES_DEMANDA_2026-11-05.md)
+6. [Grok: prompts cortos de bajo consumo (USAR ESTOS)](./GROK_PROMPTS_CORTOS.md)
+7. [Grok: SOP detallado para configurar una vez](./GROK_OPERADOR_ECONOMICO_EN_TOKENS.md)
 4. [Estado inicial, decisiones pendientes y backlog](./BACKLOG_Y_ESTADO.md)
 
 ## Regla principal
