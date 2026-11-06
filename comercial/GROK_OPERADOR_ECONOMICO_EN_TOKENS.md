@@ -2,6 +2,8 @@
 **Revive Hogar · v0.1 · 2026-11-05**  
 **Estado actual: solo investigación visual y recopilación de enlaces, sin publicación autorizada.**
 
+**IMPORTANTE:** para ejecución cotidiana leer SOLO [GROK_PROMPTS_CORTOS.md](./GROK_PROMPTS_CORTOS.md). Este manual es configuración y referencia, no debe recargarse entero en cada ejecución para no gastar tokens.
+
 ## 0. Una orden, una función
 
 **ChatGPT investiga y decide todo lo estratégico:** mercados, selección de casas, precios y discrepancias, anuncios, imágenes, copies, selección de CTA, familias de comentarios, análisis de rendimiento y mejora. **No delegar estas tareas a Grok ni pedir que analice el mercado de nuevo.**
