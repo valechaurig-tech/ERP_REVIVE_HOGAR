@@ -29,6 +29,17 @@
 - [ ] Confirmar relación Revive Hogar / Áurea y permisos para publicar.
 - [ ] Confirmar marcas, tonos, logos, fotografías y canales autorizados.
 
+## Investigación externa ampliada — 5-nov-2026
+
+- [x] Contrastados anuncios públicos y precios en EasyBroker/Inmuebles24 de varias propiedades: RHV041 datos coinciden y tiene 17 fotos; RHV029 discrepancia grave de precio/medidas/baño; RVH012 dos precios en la misma ficha y enlace EasyBroker no accesible; RHV043 valores divergentes entre portales; RVH018 domicilio contradictorio.
+- [x] Preparada cola de revisión por fricción de venta, sin inventar probabilidad de cierre ni ventas.
+- [x] Identificados enlaces de grupos mediante directorios externos, principalmente Nayarit y un grupo Jalisco; reglas y actividad de Facebook **no verificados** al no acceder a sesión.
+- [x] Redactados prompts cortos para que Grok solo navegue e informe, sin repetir la investigación.
+- [ ] Confirmar los 5 primeros inmuebles y las discrepancias con la dirección; comprobar qué tipo de crédito aceptan y visitas.
+- [ ] Grok revisa visualmente grupos bajo cuenta autorizada, en lotes cortos.
+
+Referencias: [mercado](./INVESTIGACION_MERCADO_Y_PRIORIZACION_2026-11-05.md), [grupos](./CANALES_GRUPOS_Y_SENALES_DEMANDA_2026-11-05.md), [prompts baratos](./GROK_PROMPTS_CORTOS.md).
+
 ## Etapa 1 — inventario listo para venta (PENDIENTE)
 
 - [ ] Reconfirmar vigencia/estatus por propiedad.
