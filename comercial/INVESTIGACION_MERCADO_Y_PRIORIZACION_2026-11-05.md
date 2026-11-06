@@ -4,6 +4,9 @@
 **Naturaleza:** investigación documental y de oferta publicada, NO avalúo, validación jurídica ni previsión estadística de velocidad de venta.  
 **Autorización:** investigar sí, publicar/no contactar/no modificar ERP todavía.
 
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
+
 ## Objetivo ejecutivo
 
 Priorizar viviendas con **menor fricción para concretar venta real** y mayor probabilidad observable de conversión, no elegir por ticket. **Comisión de referencia informada = 2% del valor de la operación**; calcular como referencia bruta, confirmar quién la recibe, base, descuentos, impuestos, momento de devengo, cobro efectivo y eventuales repartos.
@@ -40,7 +43,7 @@ Sí existe un mercado identificable de vivienda de entrada, pero ninguna fuente 
 | **RHV041 Valle de los Encinos** | Disponible; $720,000; 2 rec; 60 m² | EasyBroker $720,000, 2 rec, 60 m² y 17 fotos | **Candidato sólido para validar primero**, sujeto a crédito/estado/legalidad/visitas |
 | **RHV029 Valle de Tejeda** | Disponible; $599,000; 65 m²; 1.5 baños | EasyBroker $590,000; **44.74 m² y 1 baño**, 3 fotos | **RETENIDO:** corregir precio, superficie y baños antes de campaña |
 | **RHV043 Los Cántaros** | Disponible; $690,000 | EasyBroker $720,000; Inmuebles24 $690,000; sitio principal Áurea mostró $690,000 | **RETENIDO:** resolver divergencia entre canales y foto ilustrativa |
-| **RVH012 La Fortuna** | Disponible; $680,000 | Inmuebles24 $680,000 en título y **$620,000 en descripción**; URL EasyBroker dada por hoja no accesible (404 en revisión) | **RETENIDO:** confirmar precio actual, estado, enlace y ficha final |
+| **RVH012 La Fortuna** | Hoja la marcaba disponible; **usuario indica NO DISPONIBLE**; $680,000 | Inmuebles24 $680,000 en título y **$620,000 en descripción**; URL EasyBroker dada por hoja no accesible (404 en revisión) | **EXCLUIDO** por no disponible; divergencias anteriores quedan como historial, no reactivar sin confirmación escrita |
 | **RVH018 Hacienda Santa Fe** | Disponible; $980,000; domicilio registrado en hoja difiere | EasyBroker $980,000; 49 m², 14 fotos, **domicilio publicitado distinto** | **RETENIDO:** comprobar que el inmueble/folio corresponde a la misma unidad |
 | **RHV051 Los Fresnos vs RVH014 Circuito Aguacate** | RHV051 disponible / RVH014 vendida; dirección aparentemente coincidente | No se ha comprobado que sean dos unidades distintas | **RETENIDO RHV051** hasta acreditar diferencia |
 | **RHV045 Real del Valle vs RVH026 Santa Martha** | RHV045 disponible / RVH026 apartada; descripciones/domicilio similares | No se ha comprobado si son dos unidades distintas | **RETENIDO RHV045** |
