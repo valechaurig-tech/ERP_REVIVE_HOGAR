@@ -36,6 +36,12 @@
 
 > **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
 
+## Decisión Facebook — Informe Grok Fase 0 (2026-11-05)
+
+Grok confirmó **una sesión autorizada en su equipo**, pero **no** identificó una Página Revive Hogar ni Áurea que administre. Otras Páginas de proyectos no deben usarse para inmuebles. **No significa que la página no exista en otra cuenta**.
+
+**Propuesta:** reutilizar Página legítima de Revive Hogar si Dirección confirma su existencia; en otro caso crear Página empresarial propia con administradores reales designados. Para grupos sin páginas, solo perfil auténtico y autorizado. Todavía no se ha elegido ni creado cuenta, ni habilitado publicaciones. Ver [informe Grok Fase 0](./RESULTADO_GROK_FASE_0_Y_DECISION_FACEBOOK_2026-11-05.md) y [política de identidad](./FACEBOOK_CUENTA_Y_GOBERNANZA.md).
+
 ## Regla principal
 
 **Vender propiedades es la misión.** No optimizar el volumen de publicaciones en detrimento de prospectos calificados, visitas, ofertas y cierres. Evitar automatización masiva o repetitiva.
