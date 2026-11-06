@@ -3,6 +3,9 @@
 **Estado:** análisis exploratorio; sin campañas activas; sin autorización de publicación.
 **Fuente operativa:** hoja compartida por la dirección «Inventario propiedades Revive Hogar», pestaña PROPUESTA. Se verificó acceso directo mediante Google Drive. NO duplicar su contenido completo ni información privada en este repositorio público.
 
+
+> **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
+
 ## 1. Nueva regla de negocio
 
 - **Comisión informada por el usuario: 2% del valor de venta**, pendiente de validar base contractual, qué operaciones están autorizadas, reparto, impuestos, descuentos y momento de pago. Los cálculos siguientes representan **comisión teórica bruta**, no utilidad ni ingreso garantizado.
@@ -25,7 +28,7 @@
 | RHV039 | Quintas del Valle | $590,000 | $11,800 | 2 recámaras, 62 m², ficha pública al mismo precio; comparable público cercano en $596,700 con 43 m², no necesariamente misma condición | Crédito aceptado, estatus, piso, conservación, documentación, acceso a visitas |
 | RHV029 | Valle de Tejeda | $599,000 | $11,980 | Rango cercano a mediana de colonia en estudio ITESO (datos 2025); 2 recámaras, 1.5 baños indicados en la hoja | Confirmar metraje y dimensiones inconsistentes, fotos, condiciones de crédito, disponibilidad |
 | RVH010 | La Purísima / El Salto | $640,000 | $12,800 | Dos recámaras y 68 m² en hoja; otra oferta pública en zona de $620,000 y 41 m², no estrictamente comparable | Aclarar municipio mal clasificado en hoja, comparación por piso/estado, créditos aceptados |
-| RVH012 | La Fortuna | $680,000 | $13,600 | Dúplex planta baja, dos recámaras; rango de entrada relativamente asequible | Falta superficie en hoja, confirmar crédito, estado físico, materiales, propietario |
+| RHV041 | Valle de los Encinos | $720,000 | $14,400 | Oferta pública y hoja coinciden en precio, 2 recámaras y 60 m²; fotos disponibles, inmueble en planta alta | Confirmar disponibilidad vigente, créditos, documentación, fotos reales y visitas |
 | RHV043 | Los Cántaros | $690,000 | $13,800 | Dos recámaras, 72 m²; colonia visible en mercado económico | **CONFLICTO:** ficha pública consultada muestra $720,000. Aclarar precio oficial, imágenes y autorización; no usar imágenes marcadas ilustrativas como fotografías reales |
 
 Estos NO son los cinco «más rápidos» demostrados; son el primer universo para validar mercado y facilidad de cierre. No fijar ranking definitivo sin datos de embudo y oferta comparable real.
