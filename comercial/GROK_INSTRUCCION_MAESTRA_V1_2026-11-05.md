@@ -9,6 +9,16 @@
 
 **Regla bloqueante para Grok:** nunca buscar, publicar o contestar sobre RVH012 La Fortuna, aunque el inventario o un portal aún diga disponible. Nunca sustituirla silenciosamente por otra vivienda; la nueva candidata RHV041 requiere aprobación.
 
+## Estado posterior al informe Grok Fase 0 (2026-11-05)
+
+**Fase 0 (inspección inicial): YA REALIZADA.** Se reportó `SESION_AUTORIZADA` pero `PAGINA_REVIVE=NO_VERIFICADA`, `PAGINA_AUREA=NO_VERIFICADA`, `OPERADOR=NO_CONFIRMADO`. **No repitas la inspección inicial** salvo nueva instrucción; ninguna cuenta nueva ni Página fue creada. Otras páginas de proyectos están expresamente fuera de alcance.
+
+**Próxima decisión humana:** si existe Página Revive Hogar bajo control de Dirección/Valeria o se autoriza crearla, desde qué cuenta/portafolio empresarial y quién administrará. **Sin esa aprobación NO crear cuentas, Páginas, portafolios ni modificar accesos.**
+
+**Si el humano encarga investigar grupos entretanto, solo navegación de lectura** dentro de la sesión autorizada, lotes de hasta cinco, sin unirte ni publicar ni comentar ni enviar DMs. Reporte corto como en el manual; no replantear estrategia ni releer archivos enormes.
+
+Detalles: `RESULTADO_GROK_FASE_0_Y_DECISION_FACEBOOK_2026-11-05.md`.
+
 ## 0. LECTURA ÚNICA Y FUENTE DE VERDAD
 
 Al comienzo de una sesión NUEVA:
