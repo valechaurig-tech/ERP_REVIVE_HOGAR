@@ -63,6 +63,10 @@ Material ya creado en la rama (NO en producción, ni publicado en Facebook):
 
 > **ACTUALIZACIÓN OPERATIVA 2026-11-05:** El responsable comercial informó que **RVH012 La Fortuna ya NO está disponible**. Queda **EXCLUIDA** de búsquedas, anuncios, comentarios y selección de inmuebles. No se asume motivo (vendida/apartada/retirada). La hoja original todavía podía marcarla como disponible: solicitar conciliación sin alterar ni inventar estatus. **Sustitución inicial: RHV041 Valle de los Encinos ($720,000; comisión bruta teórica $14,400 al 2%), pendiente de confirmación comercial.**
 
+## Canal oficial de prospectos — decisión 2026-11-06
+
+Dirección indicó el **enlace único de WhatsApp para atender prospectos: https://wa.link/4c0irc**. Toda campaña **futura y aprobada** debe apuntar allí; registrar cada lead en el sistema privado (no en archivos públicos). Antes de lanzar, comprobar destino en un teléfono, atención real y permisos de uso. La Página de Facebook y la autorización de publicaciones siguen pendientes.
+
 ## Decisión Facebook — Informe Grok Fase 0 (2026-11-05)
 
 Grok confirmó **una sesión autorizada en su equipo**, pero **no** identificó una Página Revive Hogar ni Áurea que administre. Otras Páginas de proyectos no deben usarse para inmuebles. **No significa que la página no exista en otra cuenta**.
