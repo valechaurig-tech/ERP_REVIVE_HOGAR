@@ -1,7 +1,11 @@
 # REVIVE HOGAR — MESA COMERCIAL
 
 **Creación:** 2026-11-05  
-**Estado:** fundación organizativa; no hay campañas ni publicaciones aprobadas.
+**Estado:** mesa de estrategia + artes en borrador; **hay evidencia visual de al menos un post de RHV041 ya visible en Facebook**, pendiente de auditoría y de confirmación de aprobación.
+
+## URGENTE — 7 NOV 2026 · POST RHV041 YA OBSERVADO
+
+**Dirección mostró una captura de una publicación visible bajo nombre Revive Hogar.** El copy V1 con «tenemos registrada esta opción» quedó RECHAZADO. No publicar ni replicar más piezas hasta confirmar disponibilidad/precio/fotos y autorización; para localizar y corregir el **post existente**, ver [incidencia RHV041](./OPERACION/INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md). [Estándar editorial V2](./OPERACION/ESTANDAR_COPY_EMOCIONAL_V2_2026-11-07.md) y [QR oficial vectorizado](./OPERACION/ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg). La captura por sí sola no confirma qué perfil o Página fue usada.
 
 ## Dos frentes, un solo proyecto
 
