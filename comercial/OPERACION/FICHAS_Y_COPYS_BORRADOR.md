@@ -18,40 +18,34 @@
 
 ### P01 · RHV041 · Valle de los Encinos, Tlajomulco
 
-**Ficha:** [Áurea / EasyBroker](https://aurea-bienes-raices.easybroker.com/property/departamento-en-planta-alta-en-venta-valle-de-los-encinos-tlajomulco-de-zu)  
-**Precio anunciado y registrado:** $720,000 MXN · 2 recámaras · 1 baño · 60 m² · 1 estacionamiento · planta alta. La ficha pública la describe como remodelada; **reconfirmar estado actual y disponibilidad**.  
-**Gancho elegido:** espacio de dos recámaras y precio específico, sin prometer crédito ni plusvalía.
+**V2 REEMPLAZA TODOS LOS TEXTOS P01 ANTERIORES.** La V1 con «tenemos registrada esta opción» se considera obsoleta. Se observó ya una publicación en grupo (captura Dirección, 7-nov); no volver a publicar. [Ver incidencia y protocolo de edición](./INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md).
 
-**POST CORTO · Facebook (BORRADOR):**
+**Datos todavía por confirmar antes de mantener la campaña:** $720,000 MXN, dos recámaras, un baño, 60m² de construcción, un estacionamiento, dúplex planta alta; derechos fotográficos/visitas. Fuente de ficha externa [Áurea/EasyBroker](https://aurea-bienes-raices.easybroker.com/property/departamento-en-planta-alta-en-venta-valle-de-los-encinos-tlajomulco-de-zu).
 
-> 🏡 **¿Buscas una vivienda de 2 recámaras en Tlajomulco?**
->
-> 📍 Valle de los Encinos · 💰 **$720,000 MXN**
-> 🛏️ 2 recámaras · 🚿 1 baño · 🚗 1 estacionamiento
-> 📐 60 m² de construcción · departamento tipo dúplex en planta alta
->
-> 📩 Escríbenos para conocer la ficha y verificar disponibilidad: {{CONTACTO_EMPRESARIAL_APROBADO}}
-> *Precio y disponibilidad sujetos a confirmación.*
+**COPY V2A PROPUESTO — NO PUBLICAR SIN APROBACIÓN:**
 
-**POST LARGO · Página (BORRADOR):**
+🏡 **¿Y si aquí comienza tu próxima etapa?** 💛
 
-> ✨ **Un espacio funcional para dar el siguiente paso.**
->
-> En Valle de los Encinos, Tlajomulco, tenemos registrada esta opción en planta alta de **60 m²**, con dos recámaras, baño completo, sala-comedor, cocina, área de lavado y un estacionamiento.
->
-> 💰 Precio de referencia: **$720,000 MXN**.
->
-> 🏡 ¿Te interesa conocer las fotografías reales y las condiciones de compra? Escríbenos a {{CONTACTO_EMPRESARIAL_APROBADO}} y un asesor confirmará detalles antes de coordinar una visita.
->
-> *Información comercial por confirmar; no se ofrecen créditos preaprobados.*
+Si sueñas con tener un espacio propio en Tlajomulco, esta opción en **Valle de los Encinos** merece que la conozcas.
 
-**COMENTARIO DE DEMANDA (solo en hilo público permitido):**
+✨ **2 recámaras** para hacerlas tuyas
+🚗 1 estacionamiento
+🚿 1 baño
+📐 60 m² de construcción
+🏠 Dúplex en planta alta
 
-> ¡Hola! 👋 Si todavía buscas una opción en Tlajomulco, tenemos registrada una vivienda de 2 recámaras en Valle de los Encinos, en el rango de **$720 mil**. 🏡 ¿Te sirve esa zona? Si te interesa, podemos compartirte la ficha y confirmar disponibilidad.
+💰 **$720,000 MXN** (precio de referencia)
 
-**CTA:** “¿Te sirve esa zona?” (microcompromiso; sin solicitar teléfono en público).
+**A veces, el primer paso hacia tu hogar es simplemente preguntar.**
 
-**DISEÑO PROPUESTO:** fotografía REAL del espacio más atractivo (por seleccionar) en 4:5; cabecera “Valle de los Encinos”, precio prominente, banda de iconos `2 rec / 1 baño / 60 m²`; QR/CTA empresarial solo después de aprobación. No reemplazar foto con una imagen creada.
+📲 **Escríbenos por WhatsApp y descubre más:**
+https://wa.link/4c0irc
+
+*Precio y disponibilidad sujetos a confirmación.*
+
+**Respuesta a interesado tras validación y permiso del grupo:** «¡Hola! 💛 Si buscas por Tlajomulco, podemos compartirte detalles de una opción en Valle de los Encinos, tipo dúplex en planta alta, con dos recámaras y precio referencial de $720,000. Antes de avanzar confirmamos disponibilidad. Escríbenos por WhatsApp: https://wa.link/4c0irc».
+
+**Diseño:** fotos auténticas y autorizadas, marca real, precio confirmado, QR pequeño [SVG oficial](./ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg), sin tapar la fotografía.
 
 ### P02 · RHV039 · Quintas del Valle / Santa Cruz del Valle
 
