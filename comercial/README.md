@@ -1,5 +1,8 @@
 # REVIVE HOGAR — MESA COMERCIAL
 
+**MESA VISUAL COMPARTIDA ACTUALIZADA — 7 NOV 2026:** Las 5 muestras del Lote 02 se subieron con imágenes incrustadas a [Google Docs, misma carpeta comercial](https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit). Dirección aprobó el **ESTILO**, no la autenticidad de las viviendas: las fachadas generadas son ilustrativas, rotuladas y NO PUBLICABLES. Los QR generados eran incorrectos y fueron sustituidos por el original aportado; las 5 muestras resultantes se pudieron decodificar como https://wa.link/4c0irc. Falta obtener fotos REALES autorizadas y comprobar logo verdadero, precio y disponibilidad antes de publicar. Leer [ESTADO COMPLETO](./OPERACION/ESTADO_LOTE_02_5_MUESTRAS_GOOGLE_DOCS_2026-11-07.md) antes del Lote 02. El viejo fichero Drive de copys se renombró a **HISTORICO_OBSOLETO_NO_PUBLICAR**. No afirmar cinco posts publicados ni usar renders como fotos de propiedades reales.
+
+
 **Creación:** 2026-11-05  
 **Estado:** mesa de estrategia + artes en borrador; **hay evidencia visual de al menos un post de RHV041 ya visible en Facebook**, pendiente de auditoría y de confirmación de aprobación.
 
