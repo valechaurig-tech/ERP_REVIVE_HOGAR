@@ -1,6 +1,14 @@
 # Revive Hogar — ¿Desde qué Facebook operar?
 **Corte 2026-11-05 | Estado: DECISIÓN PENDIENTE.** No se ha conectado una cuenta ni autorizado publicaciones.
 
+## Canal comercial confirmado por Dirección — 2026-11-06
+
+**Enlace único de WhatsApp para campañas y consultas de Revive Hogar:** **https://wa.link/4c0irc** (aportado y autorizado por el usuario). Usar este enlace exactamente en el CTA final de los futuros anuncios, diseños, mensajes y publicaciones aprobados. No sustituir por números personales, otro wa.me, otro acortador, Messenger como destino prioritario ni enlaces inventados sin nueva decisión de Dirección.
+
+**Alcance de la confirmación:** está aprobado el **enlace de destino**, no se ha verificado independientemente su redirección ni el titular del número, ni se ha autorizado publicar. Antes del primer lanzamiento, responsable humano debe abrir y comprobar que conecta al WhatsApp correcto, que recibe mensajes, y que hay asesor que responde; mantener protección de datos personales.
+
+**Estado de Página/operador Facebook:** sigue pendiente; designar cuenta administradora auténtica. La confirmación del enlace NO resuelve esta decisión.
+
 ## Resultado operativo recibido de Grok (5 noviembre 2026)
 
 - La sesión autorizada de Facebook en la computadora de Grok **sí está abierta**.
