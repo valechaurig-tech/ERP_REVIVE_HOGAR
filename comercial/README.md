@@ -20,6 +20,12 @@
 
 **Equipo comercial = autoridad de negocio.** Confirma disponibilidad y precio, documentación y autorización para promocionar cada inmueble, derechos de uso de fotografías, comisiones y reparto, recibe y atiende prospectos, coordina visitas, negocia y cierra operaciones. Toda modificación sensible requiere aprobación humana.
 
+## Entrega nueva — Artes fotográficos finales de muestra y copys por casa (6 nov 2026)
+
+**Ya están en Drive:** cuatro artes de RHV041 (3 piezas feed 1080×1350 y 1 historia 1080×1920), un JPG comparativo y PNG del logo **oficial** recibido por Dirección, elaborado desde el PDF. [Ver lote 01 con enlaces a imágenes y las cinco publicaciones](./OPERACION/LOTE_01_ARTES_REALES_Y_COPYS_2026-11-06.md). Los textos de RHV039, RVH023, RHV053 y RHV049 están preparados, **sin arte fotográfico** hasta recibir sus imágenes auténticas. No hay permisos de publicación otorgados: todos los artes siguen como borradores.
+
+[Carpeta privada de medios RHV041](https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T) | [Documento de copys en Drive](https://drive.google.com/file/d/1bsW2yE-F0SghGrQq4XzpwLz0GiBOSNHp/view) | [ZIP de archivos para Grok](https://drive.google.com/file/d/139D7evJc-eccjQUHBncnuODtwi1raR38/view)
+
 ## Revisión visual verificada — 6-nov-2026
 
 **ACTUALIZACIÓN:** Drive ya contiene **17 fotografías/portadas de RHV041**, en [carpeta privada RHV041](https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T). Se han visualizado varios archivos y generado una muestra PNG real 1080×1350 descargable en la conversación, no cargada al repositorio. **No publicar:** faltan aprobación de medios, datos vigentes, cuenta y canal empresarial. Leer [auditoría de mesa](./OPERACION/AUDITORIA_MESA_2026-11-06.md) por delante de notas históricas.
