@@ -20,6 +20,22 @@
 
 **Equipo comercial = autoridad de negocio.** Confirma disponibilidad y precio, documentación y autorización para promocionar cada inmueble, derechos de uso de fotografías, comisiones y reparto, recibe y atiende prospectos, coordina visitas, negocia y cierra operaciones. Toda modificación sensible requiere aprobación humana.
 
+## Mesa OPERATIVA lista para consulta de Grok (actualizada 6-nov-2026)
+
+**Antes de todo:** [ABRIR: inicio rápido Grok](./OPERACION/START_GROK.md).
+
+Material ya creado en la rama (NO en producción, ni publicado en Facebook):
+- [CATÁLOGO completo de inmuebles marcados disponibles, precios y links de fichas](./OPERACION/CATALOGO_OPERATIVO.md)
+- [CATÁLOGO JSON procesable](./OPERACION/CATALOGO_OPERATIVO.json) / [CSV para Excel](./OPERACION/CATALOGO_OPERATIVO.csv)
+- [Copys de Facebook, publicaciones con emojis y respuestas por intención](./OPERACION/FICHAS_Y_COPYS_BORRADOR.md)
+- [Galerías públicas y pautas de diseño/fotografías](./OPERACION/FOTOGRAFIAS_Y_DISENO.md)
+- [Paquetes independientes RHV041, RHV039, RVH023, RHV053 y RHV049](./OPERACION/START_GROK.md#2-material-que-ya-te-dejamos)
+- [Plantilla de aprobación por campaña](./OPERACION/PLANTILLA_APROBACION_CAMPANA.md)
+
+**Estado real de fotografías:** las fichas públicas tienen galerías enlazadas, pero los JPG/PNG originales NO están todavía subidos a GitHub. La hoja dice «FOTOS» sin URL para la mayoría; falta material autorizado. **Un enlace de galería no equivale a haber cargado fotos**. Solo crear diseños finales a partir de originales autorizados.
+
+**Reglas principales:** La Fortuna RVH012 no disponible; ninguna otra propiedad de la hoja está aprobada para publicar. Grok ya tiene acceso según informa el usuario, pero debe confirmar nombre y permisos de la identidad autorizada antes de actuar.
+
 ## Índice de la mesa
 
 1. [Marco operativo y responsabilidades](./MARCO_OPERATIVO.md)
