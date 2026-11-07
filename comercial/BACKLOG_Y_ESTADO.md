@@ -2,6 +2,17 @@
 
 **Corte:** 2026-11-05. Documento de continuidad, no informe de ventas.
 
+## Incidencia P0 — 7-nov-2026
+
+- [x] Dirección aportó captura de un post real de RHV041 en grupo de Facebook, bajo nombre Revive Hogar; el copy derivaba de V1, ahora rechazado.
+- [x] Estándar editorial V2 con copy A/B, arte real, CTA WhatsApp y QR pequeño.
+- [x] [Incidencia operativa con instrucciones exactas](./OPERACION/INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md) y [QR SVG](./OPERACION/ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg), comprobado como https://wa.link/4c0irc.
+- [ ] Grok obtiene URL permanente del post, grupo y la identidad real que publicó.
+- [ ] Responsable comercial valida precio/disponibilidad y permisos de uso fotográfico.
+- [ ] Dirección aprueba edición específica de publicación existente a V2A.
+- [ ] Grok/administrador autorizado modifica solo el post existente y confirma con URL/captura; si falta validación, escalar pausa/retiro.
+- [ ] Nada de publicaciones adicionales o campañas hasta resolver.
+
 ## Punto de partida documental
 
 - Sistema: repositorio existente `valechaurig-tech/ERP_REVIVE_HOGAR` y producción `https://revive-hogar.vercel.app`. Esta mesa NO modifica el ERP.
