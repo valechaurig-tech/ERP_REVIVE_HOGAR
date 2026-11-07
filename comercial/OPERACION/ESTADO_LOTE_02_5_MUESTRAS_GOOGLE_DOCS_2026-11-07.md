@@ -1,43 +1,49 @@
-# RHV | LOTE 02 — 5 MUESTRAS CARGADAS EN DRIVE · 7 NOV 2026
+# LOTE 02 — CINCO ARTES CON FOTOGRAFÍAS DE FUENTES REALES · 7-NOV-2026
 
-**Mesa visual NUEVA, con las cinco imágenes reales como archivos insertados en Google Docs:**
-https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit
+**Este documento sustituye las referencias anteriores. No existen imágenes de fachadas inventadas en la mesa compartida.**
 
-**Documento antiguo de coordinación de RHV041 actualizado:** https://docs.google.com/document/d/12zbAGI9NPJHjUfFREw1sYkeDXLDe0y1lA8ctSRnNc3g/edit
+## Reglas absolutas y prioridad
 
-**Carpeta comercial** https://drive.google.com/drive/folders/14RVjxQAgac9nmQkWzYtfcGMw3-zd8OrY
-- Nuevo documento LOTE 02 movido a esta carpeta, con **5 ilustraciones** insertadas.
-- Archivo antiguo de copys renombrado **HISTORICO_OBSOLETO_NO_PUBLICAR_COPYS_Y_PLAN_COMERCIAL_5_PROPIEDADES_BORRADOR.md** para impedir confusión editorial.
+Leer y obedecer antes de cualquier acción [REGLA ABSOLUTA DE FOTOS REALES Y DATOS VERIFICADOS](../REGLA_ABSOLUTA_FOTOS_REALES_Y_DATOS_VERIFICADOS_2026-11-07.md). No se admite ninguna excepción por urgencia comercial.
 
-## Importante: autorización DE ESTILO ≠ autorización de fotos
+**Mesa real actual con cinco artes y cinco copys insertados:** https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit
 
-Dirección eligió el diseño para cinco inmuebles y pidió subirlos a Grok. Se comprobó que las fachadas en los PNG generados **son sintéticas** (creadas por IA), **NO representan una fotografía verificada de cada propiedad**. Por seguridad de la publicidad inmobiliaria real, las imágenes subidas a Docs están rotuladas **«CONCEPTO VISUAL · FOTO ILUSTRATIVA»** y **NO PUEDEN SER PUBLICADAS COMO ANUNCIOS CON FOTO DE LA CASA**.
+**Carpeta comercial:** https://drive.google.com/drive/folders/14RVjxQAgac9nmQkWzYtfcGMw3-zd8OrY
 
-El logo de los PNG también es una interpretación generativa y debe ser sustituido/contrastado con el archivo oficial en PDF/PNG antes de aprobar anuncios. Las versiones generativas iniciales contenían QR no legibles. **Se sustituyó el QR por el original del usuario en cada una de las cinco y se decodificó con un lector informático en las cinco imágenes:** https://wa.link/4c0irc.
+**Mesa anterior RHV041 también corregida:** https://docs.google.com/document/d/12zbAGI9NPJHjUfFREw1sYkeDXLDe0y1lA8ctSRnNc3g/edit
 
-## Cinco piezas de referencia ya insertadas en documento compartido
+**Histórico de copys:** `HISTORICO_OBSOLETO_NO_PUBLICAR_COPYS_Y_PLAN_COMERCIAL_5_PROPIEDADES_BORRADOR.md`, NO REUTILIZAR.
 
-| ID | Zona | Precio de referencia | Archivo en Google Doc |
+## Resultado de la corrección
+
+- Se retiraron y verificaron como eliminadas del documento las cinco fotos de fachadas generadas con IA.
+- Se recuperó el **PNG oficial del logo Revive Hogar extraído de su PDF**, no se usó logotipo artificial: https://drive.google.com/file/d/1quHkuZoOjWVYkwaMW-A66xaKt4W4gbCJ/view
+- Se localizaron carpetas FOTOS reales incluidas como HIPERVÍNCULOS de la columna K del Excel proporcionado por Dirección.
+- Se descargaron fotografías reales desde esas fuentes y se crearon cinco piezas PNG 1080×1350 **sin inventar ni modificar arquitectura**, ajustando imagen en su marco visual.
+- Para RHV039, carpeta K rechaza acceso de la cuenta conectada (404). Se tomaron solo imágenes de la ficha auténtica de Áurea/EasyBroker EB-WQ3586, pero son capturas Street View con fecha de toma **no confirmada**. Se bloquea publicar RHV039 hasta conseguir fotografía reciente y derechos.
+- Los cinco QR fueron comprobados automáticamente; todos decodifican como `https://wa.link/4c0irc`.
+- Se subieron los cinco artes finales de revisión y cinco textos a Google Docs; verificados cinco elementos de imagen, cinco IDs y cinco enlaces al WhatsApp.
+
+## Matriz de las cinco piezas
+
+| Código | Imagen insertada y origen | Precio del inventario | Estado de publicación |
 |---|---|---:|---|
-| RHV039 | Quintas del Valle | $590,000 | Sí, imagen con QR correcto y marca FOTO ILUSTRATIVA |
-| RHV053 | Lomas de Quito | $810,000 | Sí, imagen con QR correcto y marca FOTO ILUSTRATIVA |
-| RVH023 | Los Abedules | $820,000 | Sí, imagen con QR correcto y marca FOTO ILUSTRATIVA |
-| RHV049 | Hacienda los Eucaliptos | $990,000 | Sí, imagen con QR correcto y marca FOTO ILUSTRATIVA |
-| RHV052 | Orquídeas / Lomas del Sur | $850,000 | Sí, imagen con QR correcto y marca FOTO ILUSTRATIVA |
+| RHV039 Quintas del Valle | Dos imágenes del anuncio oficial Áurea / EB-WQ3586, Street View sin fecha comprobada | $590,000 | **BLOQUEADO** hasta foto reciente y autorización |
+| RHV053 Lomas de Quito | `_0000_Fachada.jpg` carpeta Drive oficial [fila 53](https://drive.google.com/drive/folders/1a5C0T4QOPdc7CcVf54dwzhyYEOs7LicP) | $810,000 | FOTO REAL, **pendiente confirmación comercial** |
+| RVH023 Los Abedules | `_0001_Fachada.jpg` carpeta Drive oficial [fila 24](https://drive.google.com/drive/folders/1rx8i_u_GNriTmsYkF4b-f5rRu5eNu68P) | $820,000 | FOTO REAL, **pendiente confirmación comercial** |
+| RHV049 Hacienda los Eucaliptos | `1 FACHADA.png` carpeta Drive oficial [fila 49](https://drive.google.com/drive/folders/1KE9pqzdaWIfN8HQni-xMTHx0U3aBvykx) | $990,000 | FOTO REAL, **pendiente confirmación comercial** |
+| RHV052 Orquídeas / Lomas del Sur | `2 FACHADA.png` carpeta Drive oficial [fila 52](https://drive.google.com/drive/folders/1VXlQf1AmsmYg-BuDZX8g8lHaOBaj5LqC) | $850,000 | FOTO REAL, **pendiente confirmación comercial** |
 
-**Los Cántaros RHV043** no forma parte de estas cinco; permanece bloqueado por precio divergente y falta de fotografía real. La Fortuna RVH012 NO DISPONIBLE.
+**RVH023 no es RHV040**. La segunda está VENDIDA en el Excel, aunque hay listados públicos similares.
 
-## Instrucción exacta a Grok (prioridad de la jornada)
+**El estado de `DISPONIBLE` de la hoja o `EN VENTA` en un anuncio no demuestra disponibilidad de hoy.** La autorización para uso bajo Revive Hogar y precio vigente debe confirmarse con Valeria/Dirección/Áurea.
 
-1. Abrir el documento nuevo con 5 imágenes y el [Lote 02 de copys](./LOTE_02_CINCO_CASAS_EMOCIONAL_2026-11-07.md). No leer, copiar ni publicar material del archivo **HISTORICO_OBSOLETO**.
-2. Mantener la distribución visual, jerarquía, colores, tipografía, ubicación del precio, CTA, marca y QR **como estilo aprobado por Dirección**.
-3. Para cada código, recuperar desde su propietario/asesor o carpeta empresarial **fotografía REAL de ese mismo inmueble y permiso de utilización**. No reutilizar foto de RHV041 ni fotos/portadas ilustrativas de otros anuncios.
-4. Solicitar al asesor comercial confirmación del **precio, disponibilidad y datos vigentes** y entregar foto auténtica (sin retoques engañosos) y el logo oficial real.
-5. Integrar a ese diseño la foto auténtica y logo oficial; conservar el QR original correcto y verificarlo al tamaño del arte de Facebook. Eliminar el sello «FOTO ILUSTRATIVA» **solo cuando realmente sea una foto verificada y autorizada**. No etiquetar como real una imagen artificial.
-6. Como Grok no debe inventar ni crear una campaña nueva por su cuenta, **puede entregar foto real, código, evidencia y enlace a la mesa para que ChatGPT arme arte final**, o ejecutar una plantilla exacta aprobada por Dirección.
-7. Solo después de validación de los puntos anteriores y reglas del grupo, publicar como Revive Hogar y devolver URL permanente del post por inmueble/grupo. No declarar que la publicación ya está activa por la sola existencia de archivos en Drive. No hacer posts masivos idénticos ni usar páginas de CurioRush/SpectClar.
+## Permiso exacto para Grok
 
-**Estado reportable:** `5_MUESTRAS_SUBIDAS_A_GOOGLE_DOCS`; `0_ARTES_PUBLICABLES_CON_FOTOGRAFÍA_VALIDADA` a esta revisión; `0_NUEVOS_POSTS_CONFIRMADOS_POR_ESTA_OPERACIÓN`.
+1. Accede al Google Doc del lote real y no vuelvas a utilizar imágenes de la carpeta falsa anterior.
+2. Puedes revisar visualmente los cinco artes y textos y compartirlos con Dirección. No modificar fotografías ni reescribir hechos no verificados.
+3. **Solo cuando tengas confirmación comercial vigente por código** (disponibilidad/precio y permisos de fotografías) y publicación autorizada para el grupo/cuenta, publica *esa* unidad aprobada.
+4. Para RHV039: **no publicar hasta foto original vigente** (Street View antiguo no cumple nivel de evidencia).
+5. Responde por propiedad con `ID|FOTO_ORIGINAL_OK|PRECIO_CONFIRMADO|DISPONIBLE_CONFIRMADO|PERMISO_IMAGEN|CUENTA|GRUPO|URL_POST_O_BLOQUEO`. No usar inventos, guiones ni `OK` sin evidencia.
 
-## Nota RHV041
-El usuario y Grok reportaron que existen **seis** publicaciones previas de RHV041. La mesa histórica ya contiene la corrección y el copy emocional; **las seis URLs y su texto final no se han facilitado** y no deben inventarse. La ficha de RHV041 no debe confundirse con los cinco inmuebles nuevos.
+**Entregable actual:** 5 artes y textos en Drive, **0 confirmaciones nuevas de publicación realizadas por ChatGPT**.
