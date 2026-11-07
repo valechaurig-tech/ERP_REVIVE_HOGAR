@@ -2,6 +2,16 @@
 **Archivo único de arranque. Fecha 2026-11-06. Objetivo: ahorrar tokens.**
 **GitHub original:** `valechaurig-tech/ERP_REVIVE_HOGAR`, rama `work/mesa-comercial-revive-hogar-2026-11-05`, carpeta `/comercial/OPERACION/`.
 
+## ÚLTIMA ENTREGA VERIFICADA — LOTE DE PUBLICACIONES (6 nov 2026)
+
+**RHV041 YA TIENE CUATRO DISEÑOS REALES GUARDADOS EN DRIVE**, no solo una demostración en el chat. Logo oficial de PDF y fotografías originales de la casa, sin recrear estancias por IA. Los links precisos y los textos están en [LOTE 01 — artes y 5 publicaciones](./LOTE_01_ARTES_REALES_Y_COPYS_2026-11-06.md). La carpeta comercial privada RHV041 también contiene ZIP, comparativa y logo.
+
+**NO SUBIR NADA A FACEBOOK TODAVÍA:** los archivos se llaman `BORRADOR_` porque la disponibilidad, precio, autorización fotográfica, cuenta empresarial y texto definitivo siguen pendientes. La mera existencia de un archivo en Drive NO autoriza publicación.
+
+**RHV039, RVH023, RHV053 y RHV049:** sus copys con emojis están terminados y enlazados desde LOTE 01, pero **NO hay fotografías originales de esas viviendas en Drive**. Si Dirección pide reunir fotos, recuperar con permiso y reportar ubicación; no crear fotos falsas ni reutilizar RHV041.
+
+**Regla de eficiencia:** para una tarea de publicidad solo lee `LOTE_01_ARTES_REALES_Y_COPYS_2026-11-06.md` y, si procede, el paquete de una sola vivienda. No releer toda esta instrucción maestra ni volver a investigar mercado.
+
 ## Última revisión real de archivos — 6 nov 2026
 
 **ACTUALIZACIÓN PRIORITARIA SOBRE FOTOS:** Ya existe una **carpeta privada Drive de RHV041 con 17 imágenes reales/portadas**: https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T . ChatGPT comprobó los 17 archivos y generó una vista previa PNG real en la conversación; **el PNG no está todavía en GitHub ni en Drive**. No repitas descarga de la misma galería ni digas que las fotos siguen faltando. Lee [auditoría actualizada](./AUDITORIA_MESA_2026-11-06.md).
