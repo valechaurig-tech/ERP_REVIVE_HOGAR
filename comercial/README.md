@@ -20,6 +20,10 @@
 
 **Equipo comercial = autoridad de negocio.** Confirma disponibilidad y precio, documentación y autorización para promocionar cada inmueble, derechos de uso de fotografías, comisiones y reparto, recibe y atiende prospectos, coordina visitas, negocia y cierra operaciones. Toda modificación sensible requiere aprobación humana.
 
+## Revisión visual verificada — 6-nov-2026
+
+**ACTUALIZACIÓN:** Drive ya contiene **17 fotografías/portadas de RHV041**, en [carpeta privada RHV041](https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T). Se han visualizado varios archivos y generado una muestra PNG real 1080×1350 descargable en la conversación, no cargada al repositorio. **No publicar:** faltan aprobación de medios, datos vigentes, cuenta y canal empresarial. Leer [auditoría de mesa](./OPERACION/AUDITORIA_MESA_2026-11-06.md) por delante de notas históricas.
+
 ## Mesa OPERATIVA lista para consulta de Grok (actualizada 6-nov-2026)
 
 **Antes de todo:** [ABRIR: inicio rápido Grok](./OPERACION/START_GROK.md).
