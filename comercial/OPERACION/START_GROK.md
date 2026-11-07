@@ -1,4 +1,8 @@
 # LEER PRIMERO — Revive Hogar Comercial para Grok
+
+**V2 / CONTROL 2026-11-07:** Foto de Dirección muestra un post ya visible de RHV041. La V1 con «tenemos registrada» está RECHAZADA/OBSOLETA. **No crear más posts.** Abrir la [incidencia y corrección](./INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md), validar precio/disponibilidad/fotos y pedir permiso de edición del post existente. [Estándar editorial V2](./ESTANDAR_COPY_EMOCIONAL_V2_2026-11-07.md). El QR original de WhatsApp, reconstruido como vector escaneable: [SVG](./ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg).
+
+**Prioridad exclusiva mientras no exista validación comercial:** investigar EN SOLO LECTURA el permalink del post visto por Dirección; no editar, duplicar ni publicar automáticamente. La captura indica autor Revive Hogar, pero falta confirmar si es Página legítima y los permisos. Los textos anteriores en los paquetes/Drive son históricos y no prevalecen sobre V2.
 **Archivo único de arranque. Fecha 2026-11-06. Objetivo: ahorrar tokens.**
 **GitHub original:** `valechaurig-tech/ERP_REVIVE_HOGAR`, rama `work/mesa-comercial-revive-hogar-2026-11-05`, carpeta `/comercial/OPERACION/`.
 
