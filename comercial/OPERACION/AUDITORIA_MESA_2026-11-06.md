@@ -1,5 +1,7 @@
 # Auditoría de la mesa comercial Revive Hogar — 6 de noviembre de 2026
 
+> **Actualización posterior, 2026-11-07:** una captura del usuario evidencia al menos UNA publicación RHV041 ya visible en un grupo bajo Revive Hogar, a pesar de lo que indicaba esta auditoría del 6-nov. No se ha verificado autorización ni enlace permanente. El texto V1 está RECHAZADO. [Incidencia vigente](./INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md). No asumir que aún no se publicó.
+
 **Resultado:** mesa documental funcional; material RHV041 recuperado y vista previa real generada en conversación. No autorizar publicaciones todavía.
 
 ## Estado verificado contra GitHub y Drive
