@@ -2,6 +2,12 @@
 **Archivo único de arranque. Fecha 2026-11-06. Objetivo: ahorrar tokens.**
 **GitHub original:** `valechaurig-tech/ERP_REVIVE_HOGAR`, rama `work/mesa-comercial-revive-hogar-2026-11-05`, carpeta `/comercial/OPERACION/`.
 
+## Última revisión real de archivos — 6 nov 2026
+
+**ACTUALIZACIÓN PRIORITARIA SOBRE FOTOS:** Ya existe una **carpeta privada Drive de RHV041 con 17 imágenes reales/portadas**: https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T . ChatGPT comprobó los 17 archivos y generó una vista previa PNG real en la conversación; **el PNG no está todavía en GitHub ni en Drive**. No repitas descarga de la misma galería ni digas que las fotos siguen faltando. Lee [auditoría actualizada](./AUDITORIA_MESA_2026-11-06.md).
+
+**IMPORTANTE:** el usuario dice que concedió acceso a Grok, pero la identidad real de Facebook y privilegios exactos no están comprobados en esta mesa. No publicar sin autorización por campaña.
+
 ## 1. Quién hace qué
 
 **ChatGPT:** investigación, ranking, comparables, estrategia, fotos/diseño, imágenes publicitarias, copys, emojis, comentarios, respuestas y optimización.
