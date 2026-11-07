@@ -28,20 +28,30 @@
 
 [**Documento maestro completo con 5 anuncios, objeciones y comentarios contextuales en Drive**](https://drive.google.com/file/d/1bsW2yE-F0SghGrQq4XzpwLz0GiBOSNHp/view) — el archivo también está en el ZIP. Los textos de otras cuatro propiedades no deben activarse hasta tener **fotografías reales descargadas y autorizadas**.
 
-### RHV041 · Valle de los Encinos · BORRADOR CON ARTE
+### RHV041 · Valle de los Encinos · V2A PROPUESTA, V1 OBSOLETA
 
-🏡 **¿Buscas vivienda en Tlajomulco por alrededor de $720 mil?**
+**CORRECCIÓN 2026-11-07:** Dirección rechazó la V1 que comenzaba «¿Buscas vivienda...?» por fría y burocrática. Ya hay evidencia fotográfica de un post visible; no publicar otra vez. Leer [incidencia](./INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md). **El documento maestro y ZIP de Drive creados el 6-nov conservan texto HISTÓRICO y NO deben reutilizarse como material vigente.** La nueva V2 es la que sigue, aún sujeta a aprobación comercial.
 
-En **Valle de los Encinos** tenemos registrada esta opción tipo dúplex **en planta alta**, para quienes buscan un espacio funcional con dos recámaras.
+🏡 **¿Y si aquí comienza tu próxima etapa?** 💛
 
-📍 Valle de los Encinos, Tlajomulco de Zúñiga  
-💰 **$720,000 MXN** (precio de referencia)  
-🛏️ **2 recámaras** · 🚿 **1 baño** · 📐 **60 m² de construcción**  
-🚗 **1 estacionamiento** · 🪜 **Planta alta**
+Si sueñas con tener un espacio propio en Tlajomulco, esta opción en **Valle de los Encinos** merece que la conozcas.
 
-📩 **¿Te queda bien esa zona?** Escríbenos por inbox y te compartimos la ficha para confirmar disponibilidad y condiciones de compra.
+✨ **2 recámaras** para hacerlas tuyas
+🚗 1 estacionamiento
+🚿 1 baño
+📐 60 m² de construcción
+🏠 Dúplex en planta alta
+
+💰 **$720,000 MXN** (precio de referencia)
+
+**A veces, el primer paso hacia tu hogar es simplemente preguntar.**
+
+📲 **Escríbenos por WhatsApp y descubre más:**
+https://wa.link/4c0irc
 
 *Precio y disponibilidad sujetos a confirmación.*
+
+**Arte:** reutilizar solo fotos autorizadas, logo real y **QR pequeño** verificado desde imagen del usuario, guardado [como SVG en mesa](./ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg). No incorporar otro QR ni alterar foto sin aprobación.
 
 ### RHV039 · Quintas del Valle · $590,000 · ARTE FOTOGRÁFICO BLOQUEADO
 
