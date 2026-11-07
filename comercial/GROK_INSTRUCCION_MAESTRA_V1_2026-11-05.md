@@ -1,5 +1,8 @@
 # REVIVE HOGAR — INSTRUCCIÓN MAESTRA PARA GROK BOT
 
+**MESA VISUAL COMPARTIDA ACTUALIZADA — 7 NOV 2026:** Las 5 muestras del Lote 02 se subieron con imágenes incrustadas a [Google Docs, misma carpeta comercial](https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit). Dirección aprobó el **ESTILO**, no la autenticidad de las viviendas: las fachadas generadas son ilustrativas, rotuladas y NO PUBLICABLES. Los QR generados eran incorrectos y fueron sustituidos por el original aportado; las 5 muestras resultantes se pudieron decodificar como https://wa.link/4c0irc. Falta obtener fotos REALES autorizadas y comprobar logo verdadero, precio y disponibilidad antes de publicar. Leer [ESTADO COMPLETO](./OPERACION/ESTADO_LOTE_02_5_MUESTRAS_GOOGLE_DOCS_2026-11-07.md) antes del Lote 02. El viejo fichero Drive de copys se renombró a **HISTORICO_OBSOLETO_NO_PUBLICAR**. No afirmar cinco posts publicados ni usar renders como fotos de propiedades reales.
+
+
 > **ORDEN ACTUAL 7 NOV 2026 — LOTE 02:** Dirección autorizó preparar y distribuir otras **cinco propiedades** con copy emocional, fotos reales, QR pequeño, CTA WhatsApp. [Leer LOTE 02](./OPERACION/LOTE_02_CINCO_CASAS_EMOCIONAL_2026-11-07.md) para cinco copies definitivos de propuesta. No usar copy viejo de Drive/ZIP. Antes de cada publicación, **confirmar** estatus, precio, fotos del mismo inmueble con derechos, perfil/Página real y reglas del grupo. En caso de datos faltantes, suspender esa vivienda y reportar. RHV043 bloqueada por precio discrepante e imagen ilustrativa; nunca inventar. No repetir RHV041. No afirmar publicado sin permalink ni invertir en Ads.
 
 
