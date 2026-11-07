@@ -2,6 +2,17 @@
 
 **Corte:** 2026-11-05. Documento de continuidad, no informe de ventas.
 
+## LOTE 02 — cinco inmuebles para distribuir, orden de Dirección 7-nov-2026
+
+- [x] Copys comerciales V2 de cinco propiedades adicionales a RHV041; [ver LOTE 02](./OPERACION/LOTE_02_CINCO_CASAS_EMOCIONAL_2026-11-07.md).
+- [x] Orden, verificación documental externa de precios de referencia y guía de fotografías reales + QR oficial.
+- [ ] Obtener/verificar fotografías auténticas y permisos de distribución para RHV039, RHV053, RVH023, RHV049, RHV043. No constan en Drive como assets completos.
+- [ ] Confirmar precio, disponibilidad actual y responsable de atención de cada inmueble.
+- [ ] Resolver diferencia $690k/$720k de RHV043 y sustituir portada ilustrativa por foto REAL, de lo contrario NO PUBLICAR.
+- [ ] Crear artes 1080×1350 con foto auténtica autorizada, marca oficial y QR pequeño; no afirmar que están terminados.
+- [ ] Verificar cuenta, reglas de grupos y registrar URL real de cada Facebook post.
+- [ ] No difundir La Fortuna ni repetir el test de RHV041.
+
 ## Incidencia P0 — 7-nov-2026
 
 - [x] Dirección aportó captura de un post real de RHV041 en grupo de Facebook, bajo nombre Revive Hogar; el copy derivaba de V1, ahora rechazado.
