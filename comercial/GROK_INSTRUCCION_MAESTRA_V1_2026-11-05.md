@@ -1,5 +1,8 @@
 # REVIVE HOGAR — INSTRUCCIÓN MAESTRA PARA GROK BOT
 
+> **ORDEN ACTUAL 7 NOV 2026 — LOTE 02:** Dirección autorizó preparar y distribuir otras **cinco propiedades** con copy emocional, fotos reales, QR pequeño, CTA WhatsApp. [Leer LOTE 02](./OPERACION/LOTE_02_CINCO_CASAS_EMOCIONAL_2026-11-07.md) para cinco copies definitivos de propuesta. No usar copy viejo de Drive/ZIP. Antes de cada publicación, **confirmar** estatus, precio, fotos del mismo inmueble con derechos, perfil/Página real y reglas del grupo. En caso de datos faltantes, suspender esa vivienda y reportar. RHV043 bloqueada por precio discrepante e imagen ilustrativa; nunca inventar. No repetir RHV041. No afirmar publicado sin permalink ni invertir en Ads.
+
+
 > **PRIORIDAD P0 2026-11-07:** Dirección mostró una publicación YA VISIBLE de RHV041 en Facebook bajo «Revive Hogar»; V1 de redacción fue rechazada. La mesa aún no contiene aprobación documental de RHV041. Consultar SOLO [incidencia y protocolo](./OPERACION/INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md), [copy estándar V2](./OPERACION/ESTANDAR_COPY_EMOCIONAL_V2_2026-11-07.md) y [START_GROK](./OPERACION/START_GROK.md). **No copiar la V1 de Drive, ZIP o archivos antiguos. No crear otra publicación.** Localiza enlace de la existente y confirma datos/permisos antes de editar con V2A aprobada. QR exacto del usuario: [SVG](./OPERACION/ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg). La captura no acredita por sí sola que Grok tenga permisos de Página.
 **Versión:** 1.0 | **Fecha:** 2026-11-05 | **Responsable de estrategia:** ChatGPT | **Responsable de operación autorizada:** Grok Bot.
 **Repositorio de trabajo:** `valechaurig-tech/ERP_REVIVE_HOGAR`
