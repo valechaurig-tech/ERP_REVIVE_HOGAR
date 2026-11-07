@@ -24,6 +24,12 @@
 - [x] Se prepara instrucción maestra para Grok y guía de elección de Facebook; no se ha seleccionado todavía una cuenta ni autorizado publicaciones.
 - [ ] Dirección confirma y corrige el estado de RVH012 La Fortuna en la hoja oficial.
 
+## Canal de contacto comercial — 2026-11-06
+
+- [x] Dirección entregó CTA oficial de WhatsApp para Revive Hogar: **https://wa.link/4c0irc**. Fijarlo en los futuros materiales aprobados, evitando teléfonos o links alternos.
+- [ ] Comprobar en un celular que redirige a la línea correcta y que una persona atenderá; verificar flujo de prospectos y privacidad.
+- [ ] Continúan pendientes permisos de Página, disponibilidad de propiedades y autorización de cada publicación.
+
 ## Informe de Grok sobre cuenta Facebook — 2026-11-05
 
 - [x] Grok auditó sesión ya autorizada de Facebook; no identificó Páginas Revive Hogar/Áurea en la sesión. **No es prueba de que ninguna exista en otra cuenta**.
