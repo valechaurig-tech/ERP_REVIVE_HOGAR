@@ -3,6 +3,12 @@
 **Creación:** 2026-11-05  
 **Estado:** mesa de estrategia + artes en borrador; **hay evidencia visual de al menos un post de RHV041 ya visible en Facebook**, pendiente de auditoría y de confirmación de aprobación.
 
+## Campaña comercial solicitada — LOTE 02 / cinco propiedades adicionales (7-nov-2026)
+
+Dirección pidió preparar y distribuir **cinco anuncios adicionales a RHV041**, con textos emocionales, deseos de usos para recámaras, fotografías genuinas, QR pequeño y WhatsApp único. La entrega editorial de las cinco está aquí: [LOTE 02, cinco publicaciones emocionales](./OPERACION/LOTE_02_CINCO_CASAS_EMOCIONAL_2026-11-07.md).
+
+**No se ha confirmado su publicación en Facebook:** la mesa cuenta con copys, datos de fuentes y dirección de arte, pero las **fotografías originales de estos cinco inmuebles aún no están guardadas en el Drive conectado** y RHV043 tiene un conflicto de precio e imagen ilustrativa. Grok debe obtener/confirmar los originales autorizados por inmueble y revisar disponibilidad/precio/identidad/grupo antes de subir. Publicación general solicitada, ejecución condicionada a veracidad. No gastar presupuesto en anuncios sin orden.
+
 ## URGENTE — 7 NOV 2026 · POST RHV041 YA OBSERVADO
 
 **Dirección mostró una captura de una publicación visible bajo nombre Revive Hogar.** El copy V1 con «tenemos registrada esta opción» quedó RECHAZADO. No publicar ni replicar más piezas hasta confirmar disponibilidad/precio/fotos y autorización; para localizar y corregir el **post existente**, ver [incidencia RHV041](./OPERACION/INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md). [Estándar editorial V2](./OPERACION/ESTANDAR_COPY_EMOCIONAL_V2_2026-11-07.md) y [QR oficial vectorizado](./OPERACION/ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg). La captura por sí sola no confirma qué perfil o Página fue usada.
