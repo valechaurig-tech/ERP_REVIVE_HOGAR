@@ -24,6 +24,10 @@
 7. Empezar con **cero pesos de anuncios**: validar inventario y demanda orgánica antes de invertir; una Página sin seguidores no sustituye una estrategia de comunidades.
 8. Esta configuración **no habilita automáticamente la automatización**: cada grupo/cuenta requiere reglas, permiso y capacidades reales de Grok, y autorización de materiales.
 
+## Decisión posterior de Dirección — canal de mensajes (2026-11-06)
+
+**Resuelto: CTA de WhatsApp = https://wa.link/4c0irc**, indicado expresamente por el usuario para Revive Hogar. Queda aprobado como destino de futuros materiales; falta comprobar la redirección correcta y atención antes de publicar. **No** autoriza publicar, crear Página ni contactar prospectos. La decisión de identidad Facebook continúa pendiente.
+
 ## 3. Decisión que debe tomar Dirección (solo una)
 
 - **Existe una Página Revive Hogar** controlada por Valeria u otra persona: recuperar acceso legítimo y reutilizarla.
