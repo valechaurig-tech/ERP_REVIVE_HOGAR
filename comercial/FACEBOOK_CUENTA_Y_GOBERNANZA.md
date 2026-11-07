@@ -1,6 +1,10 @@
 # Revive Hogar — ¿Desde qué Facebook operar?
 **Corte 2026-11-05 | Estado: DECISIÓN PENDIENTE.** No se ha conectado una cuenta ni autorizado publicaciones.
 
+## Evidencia posterior de publicación (2026-11-07)
+
+Captura aportada por Dirección muestra un post dentro de grupo de Facebook con autor visible **Revive Hogar**. No acredita por sí sola si es una Página, perfil, acceso de Grok, titularidad ni aprobación de campaña; el informe Fase 0 de «Página no verificada» es histórico. Antes de acciones nuevas, pedir a Grok URL del post y de la identidad publicadora y documentar autorización. [Incidencia RHV041](./OPERACION/INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md).
+
 ## Canal comercial confirmado por Dirección — 2026-11-06
 
 **Enlace único de WhatsApp para campañas y consultas de Revive Hogar:** **https://wa.link/4c0irc** (aportado y autorizado por el usuario). Usar este enlace exactamente en el CTA final de los futuros anuncios, diseños, mensajes y publicaciones aprobados. No sustituir por números personales, otro wa.me, otro acortador, Messenger como destino prioritario ni enlaces inventados sin nueva decisión de Dirección.
