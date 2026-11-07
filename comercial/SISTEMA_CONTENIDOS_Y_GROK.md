@@ -6,6 +6,8 @@
 
 ChatGPT será responsable de:
 - Crear **todo el concepto visual**: anuncio por propiedad, fotos de portada, versiones para feed/stories/reels, carruseles, comparativas verificadas, y variantes adaptadas a cada canal.
+**CTA comercial oficial aprobado 2026-11-06:** https://wa.link/4c0irc. En copys, artes y paquetes para Grok, usar este enlace literal y no un contacto alterno. Confirmación aportada por Dirección; aún se debe probar la redirección y capacidad de atención antes de publicar. **No equivale a autorización de publicación.**
+
 - Producir **texto y publicidad**: título, gancho, cuerpo, beneficios demostrables, contexto local, objeciones, CTA, datos indispensables, variantes A/B.
 - Diseñar **familias de comentarios y respuestas**, así como el prompt operativo y criterios para que Grok seleccione la respuesta apropiada.
 - Investigar mercado y competencia actuales, grupos relevantes, formatos de distribución, comportamiento del público, financiamientos inmobiliarios mexicanos y prácticas de alto desempeño; usar fuentes actuales y distinguir hipótesis de hechos.
