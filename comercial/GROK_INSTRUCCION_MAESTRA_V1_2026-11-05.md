@@ -9,6 +9,12 @@
 
 **Regla bloqueante para Grok:** nunca buscar, publicar o contestar sobre RVH012 La Fortuna, aunque el inventario o un portal aún diga disponible. Nunca sustituirla silenciosamente por otra vivienda; la nueva candidata RHV041 requiere aprobación.
 
+## CTA autorizado para contacto — actualización 2026-11-06
+
+**Único enlace oficial de contacto para Revive Hogar (aprobado por el usuario): https://wa.link/4c0irc.** Úsalo tal cual en los materiales de publicación cuando Dirección apruebe la campaña, sin alterarlo ni inventar teléfonos. El enlace está aprobado como destino, **NO como autorización para publicar, comentar ni enviar mensajes**. No ha sido validada externamente su redirección y debe realizarse una prueba humana antes de la primera campaña. No mezclar números ni marcas de Áurea u otros proyectos.
+
+**Fase 0 sigue completada; cuenta/página Facebook pendiente.** No repetir auditoría ni crear Página sin permiso; siguiente labor autorizable es investigación de grupos en lectura.
+
 ## Estado posterior al informe Grok Fase 0 (2026-11-05)
 
 **Fase 0 (inspección inicial): YA REALIZADA.** Se reportó `SESION_AUTORIZADA` pero `PAGINA_REVIVE=NO_VERIFICADA`, `PAGINA_AUREA=NO_VERIFICADA`, `OPERADOR=NO_CONFIRMADO`. **No repitas la inspección inicial** salvo nueva instrucción; ninguna cuenta nueva ni Página fue creada. Otras páginas de proyectos están expresamente fuera de alcance.
