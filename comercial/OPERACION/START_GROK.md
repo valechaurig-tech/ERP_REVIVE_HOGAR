@@ -16,7 +16,8 @@
 - [Catálogo legible](./CATALOGO_OPERATIVO.md): **24 fichas marcadas disponibles por hoja**, incluida **RVH012 La Fortuna NO DISPONIBLE por corrección del usuario**. Quedan 23 fichas que podrían evaluarse, ninguna autorizada todavía.
 - [Catálogo JSON](./CATALOGO_OPERATIVO.json): lectura de `estado_operativo`, precio e hipervínculo de ficha/fotos. `estado_operativo` prevalece sobre la hoja.
 - [Borradores editoriales y biblioteca de comentarios](./FICHAS_Y_COPYS_BORRADOR.md): hechos, emojis, anuncios y respuestas por situaciones.
-- [Foto y dirección creativa](./FOTOGRAFIAS_Y_DISENO.md): enlaces a galerías reales, reglas y materiales que faltan. Fotos **NO descargadas ni copiadas**.
+- [Foto y dirección creativa](./FOTOGRAFIAS_Y_DISENO.md): enlaces a galerías reales y reglas. **ACTUALIZACIÓN:** cinco imágenes auténticas de la ficha pública RHV041 fueron importadas a Canva como activos de prueba; aún no hay autorización de redistribución.
+- [Muestra visual RHV041, enlaces a fotos reales y copy](./DEMOS/RHV041_FOTOS_REALES_Y_MUESTRA_PREVIA_2026-11-06.md): borrador de anuncio presentado al responsable. No publicarlo; archivo HTML de vista previa entregado en chat.
 - [Autorización](./PLANTILLA_APROBACION_CAMPANA.md): una por cada campaña, aún vacía.
 - Paquetes cortos individuales: [RHV041](./PAQUETES/RHV041.md), [RHV039](./PAQUETES/RHV039.md), [RVH023](./PAQUETES/RVH023.md), [RHV053](./PAQUETES/RHV053.md), [RHV049](./PAQUETES/RHV049.md).
 - [Investigación de grupos](../CANALES_GRUPOS_Y_SENALES_DEMANDA_2026-11-05.md).
