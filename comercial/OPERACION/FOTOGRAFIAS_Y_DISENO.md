@@ -2,6 +2,16 @@
 
 **Estado al 6-nov-2026: inventario de galerías públicas documentado; 0 fotografías JPG/PNG originales transferidas a GitHub; 0 artes finales publicados.** El repositorio es público. No copiar material privado/propietario sin licencia o autorización.
 
+## ESTADO ACTUAL VERIFICADO — 6 NOV 2026 (prevalece sobre notas históricas)
+
+- **Sí existe carpeta privada con 17 archivos de RHV041** en Drive: [REVIVE HOGAR / MATERIAL COMERCIAL / RHV041](https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T).
+- Archivo fotográfico comprobado: **12 JPEG y 5 PNG** (los PNG incluyen portadas/collages), descargadas parcialmente y analizadas en conversación.
+- Se generó un **PNG de muestra 1080 × 1350 con fotos incrustadas** y entregado en la conversación. **Todavía NO se subió ese PNG final a Drive/GitHub** ni es aprobación de marketing.
+- Las fotos **no fueron modificadas para ocultar desgaste**; en vistas interiores se observan detalles de acabados. No afirmar «totalmente remodelada» ni «lista para habitar» sin validación comercial.
+- El repositorio GitHub público deliberadamente **NO** almacena las fotos privadas. **Permiso comercial y logotipo oficial todavía no confirmados**.
+- El texto inicial que sigue debajo refleja una fotografía histórica anterior a la nueva carpeta. Tomar el estado de esta sección como el más reciente.
+- [Auditoría de mesa](./AUDITORIA_MESA_2026-11-06.md).
+
 ## Diferencia fundamental
 
 - La columna **FOTOGRAFÍAS** de la hoja casi siempre dice `FOTOS` y **NO tiene enlace directo** a un álbum descargable. Las celdas K de los cinco inmuebles piloto carecen de vínculos de Drive en el dato leído.
