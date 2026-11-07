@@ -1,6 +1,6 @@
 # REVIVE HOGAR · LOTE 02 · CINCO PUBLICACIONES DE VENTA — VERSIÓN EMOCIONAL
 **Fecha:** 7 de noviembre 2026 · **ID campaña:** RVH-5-20261107 · **Dirección:** ordenó preparar y comenzar a distribuir los cinco inmuebles principales, con fotos reales y QR pequeño.  
-**Estado:** CREATIVIDAD FINAL PROPUESTA / EJECUCIÓN CONDICIONADA A VERIFICACIÓN COMERCIAL. **NO afirmar que ya se publicó en Facebook**.
+**Estado actualizado 7-NOV:** CINCO ARTES CON FOTOS REALES Y LOGO ORIGINAL INSERTADOS EN [DRIVE](https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit). Todas las imágenes ficticias anteriores fueron RETIRADAS. **No hay confirmación de publicación en Facebook.** Vigente [POLÍTICA P0](../REGLA_ABSOLUTA_FOTOS_REALES_Y_DATOS_VERIFICADOS_2026-11-07.md): no publicar sin disponibilidad, precio, derechos, identidad y grupo confirmados. RHV039 NO PUBLICAR con Street View de fecha desconocida.
 **Referencia general:** [Estándar V2](./ESTANDAR_COPY_EMOCIONAL_V2_2026-11-07.md) y [QR exacto de WhatsApp](./ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg).
 
 ## Decisión editorial vinculante de Dirección
@@ -40,7 +40,7 @@ Piensa en llegar a un espacio que ya puedes llamar tuyo: una recámara para desc
 
 
 **Portada de arte:** foto REAL de esta ficha, no fotos de otros departamentos con nombre parecido. Composición de vivienda real 75% + título «TU PRIMER HOGAR EMPIEZA AQUÍ» + precio grande + QR pequeño.
-**Fuente de galería:** https://aurea-bienes-raices.easybroker.com/property/departamento-en-venta-quintas-del-valle (EB-WQ3586; ver 4 fotos). **No confundir** con otras fichas «Quintas del Valle» (hay varios inmuebles). Permiso de uso: por confirmar.
+**Fuente fotográfica provisional:** https://aurea-bienes-raices.easybroker.com/property/departamento-en-venta-quintas-del-valle (EB-WQ3586, cuatro fotos de Street View auténticamente publicadas por Áurea/EasyBroker). La [carpeta original K del Excel](https://drive.google.com/drive/folders/1jF5x9gchkFkSkbQkF7Qs0vDjwHqZRsPq) es 404 con el acceso conectado. **BLOQUEADA PARA PUBLICACIÓN:** no se confirmó la fecha de esas fotografías ni autorización de reutilización, por lo que Grok debe obtener fotos recientes oficiales antes de publicar. No confundir con otras viviendas del mismo desarrollo.
 **Control:** precio fuente web $590k, pero existe otro agregador que muestra $520k para una ficha potencialmente vinculada. Confirmar con responsable la unidad/folio y precio antes de subir.
 
 ---
@@ -80,7 +80,7 @@ Tu habitación favorita, un rincón para trabajar, un espacio para la familia…
 
 
 **Portada:** foto REAL de estancia o fachada, la que tenga mejor lectura; mensaje «IMAGINA TU VIDA AQUÍ», precio visible y QR pequeño.
-**Fuente fotográfica:** https://aurea-bienes-raices.easybroker.com/property/departamento-en-venta-en-los-abedules-comodidad-y-excelente-conectividad (EB-WQ1320). Inventario trae otra URL histórica; confirmar correspondencia de folio con casa exacta y permisos antes de usar.
+**CORRECCIÓN CRÍTICA:** EB-WQ1320 corresponde a otra ficha de Los Abedules vinculada a RHV040, marcada **VENDIDA** en Excel. **No usar EB-WQ1320 ni fotos de RHV040.** La foto real de RVH023 proviene exclusivamente de la [carpeta K de FOTOGRAFÍAS de la fila 24](https://drive.google.com/drive/folders/1rx8i_u_GNriTmsYkF4b-f5rRu5eNu68P), archivo `_0001_Fachada.jpg`, y la ficha propia https://aurea-bienes-raices.easybroker.com/property/departamento-en-venta-con-excelente-ubicacion-en-los-abedules?agent=aureab_2&lang=es. Verificar su vigencia y permiso antes de publicar.
 **Control:** no declarar que está cerca de escuelas, supermercados o transporte a minutos sin validar distancias.
 
 ---
@@ -121,7 +121,7 @@ Dos recámaras para organizar tus sueños a tu manera: una para descansar y otra
 
 **Precio conflictivo:** en portada de catálogo de Áurea / Inmuebles24 figura **$690,000**, pero su ficha EB-WQ4372 y Pincali muestran **$720,000**; **no elegir arbitrariamente**. El primero de los tres medios en ficha dice expresamente «Imagen ilustrativa. El resultado final puede variar». **Esa imagen NO puede usarse para mostrar el inmueble real**. Hay que validar y obtener fotos auténticas de esa vivienda.
 **Fuentes:** https://aurea-bienes-raices.easybroker.com/property/casa-duplex-en-venta-los-cantaros-tlajomulco-de-zuniga y https://www.inmuebles24.com/propiedades/clasificado/veclcain--casa-duplex-en-venta-los-cantaros-tlajomulco-de-150736942.html .
-**Estado hasta corregir ficha:** `BLOQUEADA_DATOS`; Grok **NO PUBLICA** este copy ni crea arte con imagen ilustrativa.
+**Estado hasta corregir ficha:** `BLOQUEADA_DATOS`; Grok **NO PUBLICA** este copy ni crea arte con imagen ilustrativa. **La quinta pieza real en Drive es RHV052, no RHV043.**
 
 ---
 
@@ -169,8 +169,8 @@ Composición: **foto real protagonista 70-80%**, zona arriba o banda inferior, *
 ## Control calidad al 7-nov-2026
 - [x] 5 textos de venta propios, gancho emocional, emojis moderados y WhatsApp exacto.
 - [x] Fuentes públicas de fichas y guía visual + QR.
-- [ ] Validación de precio y disponibilidad con responsable humano por inmueble (crítica).
-- [ ] Autorización de uso de fotos auténticas por los propietarios/Áurea.
-- [ ] Arte fotográfico final 1080x1350 de cada casa **NO CREADO por falta de originales autorizados**.
+- [ ] Validación **vigente al 7-nov-2026** de precio, disponibilidad y derechos de cada inmueble con responsable humano (crítica).
+- [ ] Autorización acreditada de uso de fotos auténticas por propietarios/Áurea bajo la identidad Revive Hogar.
+- [x] Cinco artes 1080×1350 de fuentes fotográficas reales insertados en Drive; las imágenes anteriores de IA fueron retiradas. **RH V039 conserva bloqueo de fecha/autoridad de Street View**. **Pendiente legal/comercial:** confirmar vigencia/permiso de difusión por inmueble.
 - [ ] Grok confirma acceso y reglas de los grupos.
 - [ ] Evidencia de 5 publicaciones reales en Facebook.
