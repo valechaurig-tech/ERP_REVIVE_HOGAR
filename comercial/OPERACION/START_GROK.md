@@ -1,5 +1,15 @@
 # LEER PRIMERO — Revive Hogar Comercial para Grok
 
+## NUEVA ORDEN DE DIRECCIÓN — 7 NOV 2026 · LOTE 02 (PREVALECE SOBRE BLOQUEOS DE «NINGUNA CAMPAÑA»)
+
+Dirección **pidió preparar y comenzar a distribuir otras 5 propiedades prioritarias**, sin repetir RHV041, con enfoque emocional, consejos de usos de las dos recámaras, emojis moderados, WhatsApp https://wa.link/4c0irc y QR pequeño. **Esta orden autoriza iniciar la ejecución del LOTE 02 una vez verificados** precio, disponibilidad, derechos de foto real y reglas del destino. No se solicita nuevo permiso creativo general, pero **no** habilita mentir, publicar unidades bloqueadas, usar fotos ilustrativas ni proceder con datos faltantes.
+
+**LEER PRIMERO [LOTE 02 COMPLETO](./LOTE_02_CINCO_CASAS_EMOCIONAL_2026-11-07.md)**; solo después la ficha individual si hace falta. Ahí están cinco copys finales propuestos, orden, enlaces de fuentes, indicaciones de fotografía auténtica, tamaño de imagen, QR, bloqueos y formato de reporte. Los textos del lote 01 y anteriores son obsoletos; no reutilizarlos. **RHV043 Los Cántaros sigue bloqueada por diferencia $690k/$720k e imagen de portada ilustrativa; NO PUBLICAR sin resolverla.**
+
+**IMPORTANTE:** No confundas escribir/publicar en GitHub con publicar en Facebook; devuelve URLs permanentes reales para cada publicación, o estados de bloqueo. No dupliques RHV041 ni actúes desde páginas de otros proyectos.
+
+
+
 **V2 / CONTROL 2026-11-07:** Foto de Dirección muestra un post ya visible de RHV041. La V1 con «tenemos registrada» está RECHAZADA/OBSOLETA. **No crear más posts.** Abrir la [incidencia y corrección](./INCIDENCIA_PUBLICACION_Y_CORRECCION_RHV041_2026-11-07.md), validar precio/disponibilidad/fotos y pedir permiso de edición del post existente. [Estándar editorial V2](./ESTANDAR_COPY_EMOCIONAL_V2_2026-11-07.md). El QR original de WhatsApp, reconstruido como vector escaneable: [SVG](./ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg).
 
 **Prioridad exclusiva mientras no exista validación comercial:** investigar EN SOLO LECTURA el permalink del post visto por Dirección; no editar, duplicar ni publicar automáticamente. La captura indica autor Revive Hogar, pero falta confirmar si es Página legítima y los permisos. Los textos anteriores en los paquetes/Drive son históricos y no prevalecen sobre V2.
