@@ -2,6 +2,10 @@
 
 **Estado al 6-nov-2026: inventario de galerías públicas documentado; 0 fotografías JPG/PNG originales transferidas a GitHub; 0 artes finales publicados.** El repositorio es público. No copiar material privado/propietario sin licencia o autorización.
 
+## Pauta de QR pequeño — 7-nov-2026
+
+Dirección proporcionó el QR de WhatsApp y solicitó incluirlo en tamaño pequeño en el siguiente contenido. Su imagen fue decodificada como **https://wa.link/4c0irc** y convertida sin alterar el patrón a [SVG vectorial escaneable](./ACTIVOS/QR_WHATSAPP_REVIVE_HOGAR.svg), con margen blanco de seguridad. Colocarlo en esquina inferior sin invadir la foto ni el titular; en arte feed de 1080px sugerido ~170-190px incluyendo margen. **Verificar escaneo en teléfono al tamaño de publicación.** Logo oficial real y fotos de propiedad deben prevalecer. No modificar la publicación existente con un arte nuevo sin aprobación.
+
 ## ESTADO ACTUAL VERIFICADO — 6 NOV 2026 (prevalece sobre notas históricas)
 
 - **Sí existe carpeta privada con 17 archivos de RHV041** en Drive: [REVIVE HOGAR / MATERIAL COMERCIAL / RHV041](https://drive.google.com/drive/folders/1_lZE7-MJaRlR0WfAhZV571t7RRZACU1T).
