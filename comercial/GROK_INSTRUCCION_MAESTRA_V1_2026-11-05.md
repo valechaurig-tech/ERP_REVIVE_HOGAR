@@ -19,6 +19,12 @@
 
 Detalles: `RESULTADO_GROK_FASE_0_Y_DECISION_FACEBOOK_2026-11-05.md`.
 
+## ACTUALIZACIÓN DEL 6-NOV-2026 — MESA REAL DE OPERACIÓN
+
+La documentación dejó de ser solo estratégica. La mesa contiene **catálogo operativo de 24 fichas**, precio y estatus por casa, enlace a foto/ficha, 5 paquetes de anuncios con emojis, respuestas y normas de imagen. **Antes de trabajar leer solo `comercial/OPERACION/START_GROK.md`**, después el paquete específico solicitado; NO repetir investigación comercial. Los JPG/PNG originales no se han subido todavía: reportar falta de permiso/archivo, no inventar que están cargados. **RVH012 La Fortuna queda excluida** por no disponible y prevalece sobre el estado antiguo de la hoja.
+
+La cuenta de Facebook a la que el usuario concedió acceso debe identificarse por URL pública y derechos efectivos antes de publicar; acceso NO significa autorización general de publicidad.
+
 ## 0. LECTURA ÚNICA Y FUENTE DE VERDAD
 
 Al comienzo de una sesión NUEVA:
