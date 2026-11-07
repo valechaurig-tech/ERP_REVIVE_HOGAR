@@ -1,4 +1,6 @@
 # Prompts cortos para Grok — ejecutar SIN releer el plan completo
+
+**ACTUALIZACIÓN 2026-11-06: EXISTE UNA MESA OPERATIVA CON DATOS Y CONTENIDOS.** Abrir primero `comercial/OPERACION/START_GROK.md` (rama `work/mesa-comercial-revive-hogar-2026-11-05`). Allí están catálogo CSV/JSON, precios, galerías de fichas, 5 paquetes de anuncios con emojis, respuestas y estados bloqueantes. NO volver a pedir a ChatGPT estos materiales ni inventarlos. Fotografías originales aún por incorporar con autorización.
 **Estado: únicamente exploración y verificación de grupos. NO publicar.**
 **Instrucción de sesión única (leer solo al activar el bot por primera vez):** Grok es navegador/operador; ChatGPT hace análisis, precios, imágenes, textos y estrategia. No actuar sobre cuentas sin permiso. Nunca inventar reglas, leads o publicaciones.
 
