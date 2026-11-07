@@ -38,7 +38,6 @@ Piensa en llegar a un espacio que ya puedes llamar tuyo: una recámara para desc
 **Los grandes comienzos también empiezan con un mensaje.**
 📲 **Descubre los detalles:** https://wa.link/4c0irc
 
-*Precio y disponibilidad sujetos a confirmación.*
 
 **Portada de arte:** foto REAL de esta ficha, no fotos de otros departamentos con nombre parecido. Composición de vivienda real 75% + título «TU PRIMER HOGAR EMPIEZA AQUÍ» + precio grande + QR pequeño.
 **Fuente de galería:** https://aurea-bienes-raices.easybroker.com/property/departamento-en-venta-quintas-del-valle (EB-WQ3586; ver 4 fotos). **No confundir** con otras fichas «Quintas del Valle» (hay varios inmuebles). Permiso de uso: por confirmar.
@@ -59,7 +58,6 @@ Una recámara para tus mejores descansos y otra que puedes imaginar como estudio
 **¿Te gustaría conocer las posibilidades?**
 📲 **Escríbenos por WhatsApp:** https://wa.link/4c0irc
 
-*Precio y disponibilidad sujetos a confirmación.*
 
 **Portada:** fachada REAL más vistosa con tipografía «UN ESPACIO PARA TUS PLANES»; hero + dato 2 recámaras + precio + QR pequeño.
 **Fuente:** https://aurea-bienes-raices.easybroker.com/property/casa-en-venta-en-lomas-de-quito y ficha equivalente Áurea en Pincali. La ficha sigue apareciendo públicamente a $810k/69.75m², pero la URL de origen falló en algunas consultas; confirmar que ficha/foto corresponde a la unidad del inventario.
@@ -80,7 +78,6 @@ Tu habitación favorita, un rincón para trabajar, un espacio para la familia…
 **¿Quieres verlo con más detalle?**
 📲 **Conversemos por WhatsApp:** https://wa.link/4c0irc
 
-*Precio y disponibilidad sujetos a confirmación.*
 
 **Portada:** foto REAL de estancia o fachada, la que tenga mejor lectura; mensaje «IMAGINA TU VIDA AQUÍ», precio visible y QR pequeño.
 **Fuente fotográfica:** https://aurea-bienes-raices.easybroker.com/property/departamento-en-venta-en-los-abedules-comodidad-y-excelente-conectividad (EB-WQ1320). Inventario trae otra URL histórica; confirmar correspondencia de folio con casa exacta y permisos antes de usar.
@@ -101,7 +98,6 @@ Piensa en una habitación para descansar, otra para alguien especial y un espaci
 **Da el primer paso y conoce más.**
 📲 **WhatsApp Revive Hogar:** https://wa.link/4c0irc
 
-*Precio y disponibilidad sujetos a confirmación.*
 
 **Portada:** foto REAL con mejor atractivo; titular «UN LUGAR PARA TU PRÓXIMA ETAPA» + precio protagonista + QR pequeño.
 **Fuente:** https://aurea-bienes-raices.easybroker.com/property/casa-en-venta-en-los-eucaliptos-excelente-ubicacion y portal principal Áurea que muestra $990k, 78m², 2 recámaras. Permisos pendientes.
@@ -122,13 +118,14 @@ Dos recámaras para organizar tus sueños a tu manera: una para descansar y otra
 **Si te interesa esta zona, conoce las opciones.**
 📲 **Escríbenos:** https://wa.link/4c0irc
 
-*Precio y disponibilidad sujetos a confirmación.*
 
 **Precio conflictivo:** en portada de catálogo de Áurea / Inmuebles24 figura **$690,000**, pero su ficha EB-WQ4372 y Pincali muestran **$720,000**; **no elegir arbitrariamente**. El primero de los tres medios en ficha dice expresamente «Imagen ilustrativa. El resultado final puede variar». **Esa imagen NO puede usarse para mostrar el inmueble real**. Hay que validar y obtener fotos auténticas de esa vivienda.
 **Fuentes:** https://aurea-bienes-raices.easybroker.com/property/casa-duplex-en-venta-los-cantaros-tlajomulco-de-zuniga y https://www.inmuebles24.com/propiedades/clasificado/veclcain--casa-duplex-en-venta-los-cantaros-tlajomulco-de-150736942.html .
 **Estado hasta corregir ficha:** `BLOQUEADA_DATOS`; Grok **NO PUBLICA** este copy ni crea arte con imagen ilustrativa.
 
 ---
+
+**Cierre editorial:** al superar la verificación comercial previa, no agregar la frase fría «precio y disponibilidad sujetos a confirmación» al cuerpo del anuncio. **Si no se puede validar, no publicar.** Las características materiales y condiciones del inmueble se comunican con transparencia en la ficha y antes de la visita; nunca usar reservas genéricas para legitimar información dudosa.
 
 ## Dirección de arte final (obligatoria para CINCO)
 
