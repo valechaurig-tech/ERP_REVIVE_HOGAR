@@ -127,6 +127,26 @@ Dos recámaras para organizar tus sueños a tu manera: una para descansar y otra
 
 **Cierre editorial:** al superar la verificación comercial previa, no agregar la frase fría «precio y disponibilidad sujetos a confirmación» al cuerpo del anuncio. **Si no se puede validar, no publicar.** Las características materiales y condiciones del inmueble se comunican con transparencia en la ficha y antes de la visita; nunca usar reservas genéricas para legitimar información dudosa.
 
+## RESPALDO AUTOMÁTICO (en lugar de RHV043 si sigue bloqueada) · RHV052 · Orquídeas / Lomas del Sur
+
+**RHV043 tiene dos bloqueos reales; no retrasar toda la campaña por esa vivienda.** Si no se resuelve antes de la ejecución, Grok puede sustituirla **únicamente por RHV052**, tras confirmar su folio, precio vigente, disponibilidad y fotografías auténticas autorizadas. Es una opción de **1 recámara**, precio $850,000 MXN, aprox. 65 m² y un cajón, diferente del modelo de dos recámaras; enfoque de primer hogar / independencia.
+
+🏡 **Tu propio espacio. Tu ritmo. Tus planes.** 💛
+
+A veces no necesitas imaginar una casa enorme para comenzar una gran etapa. Piensa en un lugar para descansar, celebrar tus logros y crear una rutina a tu manera. ✨
+
+📍 **Lomas del Sur, Tlajomulco**
+💰 **$850,000 MXN** (referencia)
+🛏️ 1 recámara · 🚿 1 baño · 🚗 1 estacionamiento · 📐 65 m²
+
+**¿Te gustaría conocerlo?**
+📲 **WhatsApp Revive Hogar:** https://wa.link/4c0irc
+
+**Fotografía:** original REAL de la propiedad RHV052, fuente https://aurea-bienes-raices.easybroker.com/property/casa-en-venta-en-orquideas-lomas-del-sur. Imagen, derechos y disponibilidad sin verificar. NO publicar sin confirmación.
+**Regla:** nunca atribuir 2 recámaras ni los metros de otro inmueble; si RHV052 tampoco se valida, publicar máximo cuatro y reportar por qué no se pudo completar el quinto.
+
+---
+
 ## Dirección de arte final (obligatoria para CINCO)
 
 **Formato feed:** 1080 x 1350 px. **Historia opcional:** 1080 x 1920 px.  
