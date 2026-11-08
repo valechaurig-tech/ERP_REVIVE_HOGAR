@@ -1,5 +1,8 @@
 # Revive Hogar — Entrega visual V3 con 4 fotografías auténticas por propiedad
 
+> **KIT ACTUAL V4 — 7 NOV 2026 (PREVALECE SOBRE V1/V2/V3 Y CUALQUIER INSTRUCCIÓN INFERIOR):** Dirección aprobó anuncio con una fachada REAL + tres espacios REALES DIFERENTES, logotipo oficial, teléfonos **3323280727** en el diseño, QR legible y `https://wa.link/4c0irc` solamente en el copy. **ZIP OFICIAL:** https://drive.google.com/file/d/12wsNIln9d-64HsGiv-F6GRva92J0yg33/view · **MESA VISUAL CON LAS CINCO PIEZAS:** https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit. **Orden a GROK:** publicar en grupos compatibles RHV053, RVH023, RHV049, RHV052 (primer lote acotado, no duplicados); **RHV041 solo actualizar publicaciones existentes cuando se pueda** y no duplicarla en grupos ya cubiertos. RHV039 y La Fortuna siguen excluidas. Usar PNG V4 y TXT V4 del mismo código; nunca imágenes generadas con IA ni textos históricos. Registrar enlace permanente por post. Ver [MANUAL V4](./KIT_PUBLICACION_V4_CINCO_PROPIEDADES_2026-11-07.md). **NO** solicitar nuevas autorizaciones de material del Drive ni consultar portales externos. El QR fue leído para wa.link, pero no se comprobó externamente que el acortador corresponda al número: si hay inconsistencias en la recepción de mensajes, detener.
+
+
 **Fecha:** 7 de noviembre de 2026 · **Prioridad:** instrucción gráfica vigente.  
 **Mesa de ejecución V3 con imágenes y copys exactos:** https://docs.google.com/document/d/12ZfJklOPtar4VWtYC4jSwB9Whrk9zz3ngbN9jxrA_gI/edit  
 **ZIP de los cuatro artes PNG + cuatro textos y auditoría de fuentes:** https://drive.google.com/file/d/1XQ2jeUDwJ05Bdci1mTIZhG5ohfpWXjf-/view  
