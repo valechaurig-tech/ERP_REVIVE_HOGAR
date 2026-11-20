@@ -53,6 +53,9 @@ function escenario({ cuentaSeleccionada = '', monto = '100.00', tipo = 'ingreso'
   };
   vm.createContext(contexto);
   vm.runInContext(codigo, contexto, { filename: 'gastos-empresa.js', timeout: 2500 });
+  // La lógica se comprueba sin intentar pintar la interfaz completa en Node.
+  contexto.renderGastosEmpresa = () => {};
+  contexto.renderListaCuentasBancarias = () => {};
   return { contexto, datos, escrituras, mensajes };
 }
 
