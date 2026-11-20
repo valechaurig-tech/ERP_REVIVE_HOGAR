@@ -38,7 +38,7 @@ const RH_METODOS_PAGO_EMPRESA = [
 
 const RH_BANCOS_EMPRESA = [
     'BBVA', 'Banorte', 'Santander', 'Banamex / Citibanamex',
-    'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro'
+    'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro', 'Efectivo'
 ];
 
 const RH_EMPRESA_VISTAS = ['resumen', 'movimientos', 'presupuesto'];
