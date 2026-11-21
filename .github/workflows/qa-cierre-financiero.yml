@@ -1,0 +1,27 @@
+name: "Revive | QA Cierre Financiero"
+on:
+  pull_request:
+    branches:
+      - "work/responsive-redesign-2026-10-29"
+    paths:
+      - "api/finanzas.js"
+      - "js/gastos-empresa.js"
+      - "scripts/test-*.mjs"
+      - ".github/workflows/qa-cierre-financiero.yml"
+permissions:
+  contents: read
+jobs:
+  finance-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Sintaxis
+        run: |
+          node --check api/finanzas.js
+          node --check js/gastos-empresa.js
+      - name: Validaciones seguras sin credenciales
+        run: node --test scripts/test-finanzas-api.mjs scripts/test-corte-diario.mjs scripts/test-finanzas-integridad.mjs scripts/test-admin-cierre-seguro.mjs scripts/test-uso-local.mjs
