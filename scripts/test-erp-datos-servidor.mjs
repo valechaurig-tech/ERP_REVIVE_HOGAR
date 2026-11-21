@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
+const require=createRequire(import.meta.url);
 const source=readFileSync(new URL('../api/datos.js',import.meta.url),'utf8');
 function setup({method='GET',collection='usuariosLogin',login=false,role='Direccion',authenticated=true,
   payload,origin=true,sello='2026-11-21T10:00:00Z'}={}){
