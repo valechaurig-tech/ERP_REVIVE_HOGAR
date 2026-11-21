@@ -451,6 +451,20 @@ function abrirModalMovimientoEmpresa(id) {
     document.getElementById('emp-mov-id').value = mov?.id || '';
     document.getElementById('emp-mov-fecha').value = mov?.fecha || hoyISO();
     document.getElementById('emp-mov-tipo').value = tipo;
+    // Clasificación de la empresa sin alterar el esquema del formulario publicado.
+    if(!document.getElementById('emp-mov-empresa')){
+        const concepto=document.getElementById('emp-mov-concepto');
+        const grupo=concepto?.closest('.form-group');
+        if(grupo?.parentNode){
+            const campo=document.createElement('div');
+            campo.className='form-group';
+            campo.innerHTML='<label for="emp-mov-empresa">Empresa (opcional)</label>'+
+                '<input id="emp-mov-empresa" class="form-control" type="text" maxlength="120" placeholder="Empresa a la que corresponde">';
+            grupo.parentNode.insertBefore(campo,grupo.nextSibling);
+        }
+    }
+    const empresa=document.getElementById('emp-mov-empresa');
+    if(empresa)empresa.value=mov?.empresa||'';
     document.getElementById('emp-mov-concepto').value = mov?.concepto || '';
     document.getElementById('emp-mov-proveedor').value = mov?.proveedor || '';
     document.getElementById('emp-mov-monto').value = mov?.monto != null ? mov.monto : '';
@@ -491,6 +505,7 @@ function guardarMovimientoEmpresa(event) {
         categoria: document.getElementById('emp-mov-categoria')?.value || '',
         concepto: document.getElementById('emp-mov-concepto')?.value.trim() || '',
         proveedor: document.getElementById('emp-mov-proveedor')?.value.trim() || '',
+        empresa: document.getElementById('emp-mov-empresa')?.value.trim() || '',
         monto: Math.max(0, Number(document.getElementById('emp-mov-monto')?.value || 0)),
         metodoPago: document.getElementById('emp-mov-metodo')?.value || '',
         banco: document.getElementById('emp-mov-banco')?.value || cuenta?.banco || '',
