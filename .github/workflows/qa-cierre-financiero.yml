@@ -1,4 +1,4 @@
-name: "Revive | regresión completa"
+name: "Revive | QA integral y seguridad"
 on:
   pull_request:
     branches:
@@ -11,29 +11,29 @@ on:
 permissions:
   contents: read
 jobs:
-  pruebas-unitarias:
-    runs-on: ubuntu-latest
+  unitarios:
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - name: Sintaxis JavaScript
+      - name: Sintaxis de acceso seguro
         run: |
-          node --check api/finanzas.js
-          node --check api/uso.js
-          node --check js/gastos-empresa.js
-          node --check js/render.js
-          node --check js/usage-metrics.js
-      - name: Pruebas sin navegador
+          node --check api/datos.js
+          node --check api/archivos.js
+          node --check js/auth.js
+          node --check js/db.js
+          node --check js/archivos.js
+      - name: Regresiones sin credenciales
         shell: bash
         run: |
           mapfile -t tests < <(find scripts -maxdepth 1 -name 'test-*.mjs' ! -name 'test-responsive-browser.mjs' | sort)
           node --test "${tests[@]}"
-  interfaz-responsiva:
+  responsive:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
