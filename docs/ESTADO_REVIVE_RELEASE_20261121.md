@@ -23,7 +23,7 @@ Este despliegue se construyó conservando las referencias SHA1 de 98 archivos ex
 | RH-1 | Transferencias entre cuentas | nuevo | Pendiente de diseño e implementación atómica de traspasos |
 | RH-2 | Recepción confirmada | resuelto | Cerrado; sin fallo funcional |
 | RH-3 | Corte diario por cuenta como formato Vale/Alexis | nuevo | Pendiente de conciliación de saldos iniciales y reporte |
-| RH-4 | Administradora: no deja avanzar | nuevo | Se corrigieron protecciones y orientación de validaciones, pero la causa específica y su resolución real aún requieren reproducción con un caso de prueba aislado |
+| RH-4 | Administradora: no deja avanzar | en_revision | Se corrigieron protecciones y orientación de validaciones, pero la causa específica y su resolución real aún requieren reproducción con un caso de prueba aislado |
 
 No se recibieron reportes nuevos durante esta revisión. Los reportes históricos RH-3/4 ya están en la nueva bandeja con sus capturas.
 
