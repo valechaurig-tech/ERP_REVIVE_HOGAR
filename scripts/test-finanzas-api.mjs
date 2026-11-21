@@ -17,6 +17,8 @@ async function responder({user=true,role='Direccion',body=null,method='GET',orig
        return {ok:user,status:user?200:401,json:async()=>({userId:'usuario-1'})};
      if(String(url).includes('rh_records?'))
        return {ok:true,status:200,text:async()=>JSON.stringify([{data:{id:'usuario-1',rol:role,activo:true}}])};
+     if(String(url).includes('rpc/rh_fin_confirmar_apertura'))
+       return {ok:true,status:200,text:async()=>JSON.stringify(true)};
      if(String(url).includes('rpc/rh_fin_registrar_traspaso'))
        return {ok:true,status:200,text:async()=>JSON.stringify('b1a21111-1111-4111-8111-111111111111')};
      if(String(url).includes('rh_fin_transferencias?'))return {ok:true,status:200,text:async()=>JSON.stringify([])};
@@ -73,4 +75,15 @@ test('GET devuelve estructuras para corte, nunca contraseña',async()=>{
  assert.equal(r.res.statusCode,200);
  assert.deepEqual(Object.keys(r.res.data).sort(),['aperturas','limite','transferencias']);
  assert.equal(JSON.stringify(r.res.data).includes('usuario-1'),false);
+});
+
+test('solo Dirección puede confirmar una apertura conciliada explícitamente',async()=>{
+ const body={action:'confirmar_apertura',cuentaId:'cuenta-1',fecha:'2026-11-21',
+   saldo:'-100.29',confirmado:true};
+ const ok=await responder({method:'POST',body});
+ assert.equal(ok.res.statusCode,200);
+ assert.equal(ok.hits.filter(x=>x.url.includes('rpc/rh_fin_confirmar_apertura')).length,1);
+ const no=await responder({method:'POST',body:{...body,confirmado:false}});
+ assert.equal(no.res.statusCode,400);
+ assert.equal(no.hits.some(x=>x.url.includes('rpc/rh_fin_confirmar_apertura')),false);
 });
