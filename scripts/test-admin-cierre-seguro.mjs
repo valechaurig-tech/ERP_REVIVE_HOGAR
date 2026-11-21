@@ -17,7 +17,8 @@ function setup({ bloqueos = [], errores = [], borrador = false } = {}) {
   const contexto = {
     window:{ alert: msg => mensajes.push(msg) },
     document:{ getElementById:id=>id === 'modal-expediente-admin' ?
-      { querySelector:()=>null } : {value:campos.get(id)??''}},
+      { querySelector:()=>null } : id === 'form-expediente-admin' ?
+      {querySelectorAll:()=>[]} : {value:campos.get(id)??''}},
     DB:{get:k=>db[k]||[],set:(k,v)=>{db[k]=v;efectos.push('db:'+k)}},
     currentUser:{rol:'Administradora'},
     RH_ESTATUS_PROSPECTO:{PROPUESTA_LISTA:'Propuesta lista'},
