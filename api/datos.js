@@ -138,7 +138,7 @@ module.exports=async function handler(req,res){
   check(COLLECTIONS.has(collection),400,'Colección no permitida.');
   if(req.method==='GET'&&collection==='usuariosLogin'&&url.searchParams.get('login')==='1'){
    const rows=await getRows(conf,'usuariosLogin','&limit=200');
-   return json(res,200,{rows:rows.filter(r=>r.data?.id).map(r=>({
+   return json(res,200,{rows:rows.filter(r=>r.data?.id&&r.data.activo!==false).map(r=>({
     record_id:r.record_id,
     data:perfilPublico(r.data),
     updated_at:r.updated_at
