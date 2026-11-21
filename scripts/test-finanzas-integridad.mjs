@@ -23,6 +23,7 @@ function escenario({ cuentaSeleccionada = '', monto = '100.00', tipo = 'ingreso'
     'emp-mov-categoria': 'Otros ingresos',
     'emp-mov-concepto': concepto,
     'emp-mov-proveedor': '',
+    'emp-mov-empresa': 'Revive Hogar',
     'emp-mov-monto': monto,
     'emp-mov-metodo': 'Transferencia',
     'emp-mov-banco': 'BBVA',
@@ -87,6 +88,7 @@ test('ingreso válido: guarda movimiento y actualiza solo la cuenta seleccionada
   s.contexto.guardarMovimientoEmpresa({ preventDefault() {} });
   assert.equal(s.datos.gastosEmpresa.length, 1);
   assert.equal(s.datos.gastosEmpresa[0].cuentaId, 'c1');
+  assert.equal(s.datos.gastosEmpresa[0].empresa, 'Revive Hogar');
   assert.equal(s.datos.cuentasBancarias[0].saldo, 1100);
   assert.deepEqual(s.escrituras, ['cuentasBancarias', 'gastosEmpresa']);
 });
