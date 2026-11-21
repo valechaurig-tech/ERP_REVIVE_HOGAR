@@ -351,6 +351,21 @@ function imprimirContratosTrasAceptacion(prospectoId) {
     logAction(`Contratos impresos tras aceptación: ${p.nombreCompleto}`);
 }
 
+// Ayuda al usuario a corregir el paso que bloquea el envío, sin modificar datos.
+function informarBloqueoExpediente(titulo, detalles, paso = 'datos') {
+    const faltantes = Array.from(new Set((detalles || []).map(String).filter(Boolean)));
+    const ir = paso === 'documentos' ? 'documentos' : 'datos';
+    if (typeof cambiarPasoCaptura === 'function') cambiarPasoCaptura('form-expediente-admin', ir);
+    window.alert(titulo + ':\n• ' + faltantes.join('\n• ') +
+        '\n\nEl expediente aún no se envió. Puedes guardar un borrador y completarlo después.');
+    const modal = document.getElementById('modal-expediente-admin');
+    if (modal) {
+        const campo = modal.querySelector('.capture-pane:not(.hidden) [aria-invalid="true"]') ||
+            modal.querySelector('.capture-pane:not(.hidden) input:invalid, .capture-pane:not(.hidden) select:invalid');
+        if (campo?.focus) campo.focus();
+    }
+}
+
 function guardarExpedienteAdmin(e) {
     e.preventDefault();
     const finalizar = e.submitter?.dataset?.accion !== 'borrador';
@@ -358,7 +373,9 @@ function guardarExpedienteAdmin(e) {
     const prospectos = DB.get('prospectos');
     const idx = prospectos.findIndex(p => p.id === id);
     if (idx < 0) return;
-    const p = prospectos[idx];
+    // Trabajar sobre una copia: si la validación falla, NO mutar el expediente real.
+    const original = prospectos[idx];
+    const p = { ...original, datosExpediente: { ...(original.datosExpediente || {}) } };
 
     p.tipoCredito = document.getElementById('exp-tipo-credito')?.value || p.tipoCredito;
     p.tieneEscrituras = document.getElementById('exp-escrituras')?.value || p.tieneEscrituras;
@@ -375,9 +392,9 @@ function guardarExpedienteAdmin(e) {
     p.adeudoPredialEstado = document.getElementById('exp-adeudo-predial-estado')?.value || p.adeudoPredialEstado;
     p.montoAdquisicion = normalizarAdeudo(document.getElementById('exp-monto-adquisicion')?.value);
     guardarDatosExpedienteAdmin(p);
-    if (typeof sincronizarPresupuestoProspecto === 'function') sincronizarPresupuestoProspecto(p);
 
     if (!finalizar) {
+        if (typeof sincronizarPresupuestoProspecto === 'function') sincronizarPresupuestoProspecto(p);
         agregarEventoProspecto(p, 'Expediente', 'Borrador actualizado por administradora');
         prospectos[idx] = p;
         DB.set('prospectos', prospectos);
@@ -393,27 +410,30 @@ function guardarExpedienteAdmin(e) {
             ...validarReglasObligatorias(p, 'administradora_documentos')
         ];
         if (faltantesConfigurados.length) {
-            alert('Dirección configuró estos requisitos como obligatorios:\n• ' + Array.from(new Set(faltantesConfigurados)).join('\n• '));
+            informarBloqueoExpediente('Faltan requisitos obligatorios', faltantesConfigurados,
+                validarReglasObligatorias(p, 'administradora_documentos').length ? 'documentos' : 'datos');
             return;
         }
     }
     if (typeof recolectarDatosDocumento === 'function' && typeof validarCoherenciaDocumento === 'function') {
         const erroresCoherencia = validarCoherenciaDocumento('oferta', recolectarDatosDocumento(p));
         if (erroresCoherencia.length) {
-            alert('Corrige la coherencia financiera antes de enviar:\n• ' + erroresCoherencia.join('\n• '));
+            informarBloqueoExpediente('Revisa las cifras antes de enviar', erroresCoherencia, 'datos');
             return;
         }
     }
     if (p.datosExpediente?.tieneReferido === 'Si') {
         if (!p.datosExpediente.referidoNombre || !Number(p.datosExpediente.referidoComision || 0)) {
-            alert('Marcaste que hay referido: captura el nombre y la comisión antes de enviar.');
+            informarBloqueoExpediente('Comisión del referido incompleta',
+                ['Captura nombre y comisión del referido antes de enviar.'], 'datos');
             return;
         }
     }
     if (p.datosExpediente?.tieneComisionVenta === 'Si') {
         const pct = Number(p.datosExpediente.comisionVentaValor || 0);
         if (!pct || pct > 100) {
-            alert('La comisión por venta debe ser un porcentaje entre 0.01 y 100.');
+            informarBloqueoExpediente('Comisión por venta fuera del rango',
+                ['Captura un porcentaje entre 0.01 y 100.'], 'datos');
             return;
         }
     }
@@ -424,6 +444,8 @@ function guardarExpedienteAdmin(e) {
                 Array.from(new Set(pendientesOpcionales)).join('\n• '));
         }
     }
+    // Los efectos financieros y de estado solo ocurren tras todas las validaciones.
+    if (typeof sincronizarPresupuestoProspecto === 'function') sincronizarPresupuestoProspecto(p);
     p.estatus = RH_ESTATUS_PROSPECTO.PROPUESTA_LISTA;
     p.enviadoAdministradora = true;
     p.ofertaListaParaFirma = true;

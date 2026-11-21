@@ -1053,7 +1053,7 @@
                         <option>BBVA</option><option>Banorte</option><option>Santander</option>
                         <option>Banamex / Citibanamex</option><option>HSBC</option><option>Scotiabank</option>
                         <option>Inbursa</option><option>Banregio</option><option>Afirme</option>
-                        <option>Otro</option>
+                        <option>Otro</option><option>Efectivo</option>
                     </select>
                 </div>
                 <div class="form-group"><label>Alias de la cuenta *</label><input id="cuenta-bancaria-alias" class="form-control" required placeholder="Ej. Operativa nómina"></div>
@@ -1086,7 +1086,7 @@
                     <div class="form-group"><label>Proveedor / beneficiario</label><input id="emp-mov-proveedor" class="form-control" placeholder="Quién recibe o entrega"></div>
                     <div class="form-group"><label>Método de pago</label><select id="emp-mov-metodo" class="form-control"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Cheque</option><option>Otro</option></select></div>
                     <div class="form-group"><label>Banco / tipo</label><select id="emp-mov-banco" class="form-control" onchange="filtrarCuentasPorBancoMovimiento()"></select></div>
-                    <div class="form-group"><label>Cuenta bancaria</label><select id="emp-mov-cuenta" class="form-control"></select></div>
+                    <div class="form-group"><label>Cuenta bancaria o efectivo *</label><select id="emp-mov-cuenta" class="form-control" required></select></div>
                     <div class="form-group"><label>Referencia / factura</label><input id="emp-mov-referencia" class="form-control" placeholder="Folio, UUID, etc."></div>
                     <div class="form-group"><label>Vincular a propiedad</label><select id="emp-mov-casa" class="form-control"><option value="">Sin vincular</option></select></div>
                     <div class="form-group full-width"><label>Notas</label><textarea id="emp-mov-notas" class="form-control" rows="2" placeholder="Detalle adicional"></textarea></div>

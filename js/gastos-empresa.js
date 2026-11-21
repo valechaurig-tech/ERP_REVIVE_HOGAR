@@ -38,7 +38,7 @@ const RH_METODOS_PAGO_EMPRESA = [
 
 const RH_BANCOS_EMPRESA = [
     'BBVA', 'Banorte', 'Santander', 'Banamex / Citibanamex',
-    'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro'
+    'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro', 'Efectivo'
 ];
 
 const RH_EMPRESA_VISTAS = ['resumen', 'movimientos', 'presupuesto'];
@@ -92,6 +92,11 @@ function etiquetaCuentaBancaria(c) {
 
 function abrirModalCuentasBancarias() {
     if (!puedeGestionarGastosEmpresa()) return;
+    // El HTML publicado aún no incluye esta opción; añadirla sin duplicarla.
+    const selectorBanco = document.getElementById('cuenta-bancaria-banco');
+    if (selectorBanco && ![...selectorBanco.options].some(op => op.value === 'Efectivo')) {
+        selectorBanco.add(new Option('Efectivo', 'Efectivo'));
+    }
     document.getElementById('cuenta-bancaria-id').value = '';
     document.getElementById('cuenta-bancaria-banco').value = '';
     document.getElementById('cuenta-bancaria-alias').value = '';
@@ -154,7 +159,13 @@ function guardarCuentaBancaria(event) {
 }
 
 function eliminarCuentaBancaria(id) {
-    if (!puedeGestionarGastosEmpresa() || !confirmAction('¿Eliminar esta cuenta bancaria?')) return;
+    if (!puedeGestionarGastosEmpresa()) return;
+    // Proteger la trazabilidad: ninguna cuenta usada puede borrarse.
+    if (getMovimientosEmpresa().some(m => m.cuentaId === id)) {
+        alert('Esta cuenta tiene movimientos asociados y no se puede eliminar. Debe conservarse para el historial.');
+        return;
+    }
+    if (!confirmAction('¿Eliminar esta cuenta bancaria?')) return;
     DB.set('cuentasBancarias', getCuentasBancarias().filter(x => x.id !== id));
     logAction('Cuenta bancaria eliminada');
     renderListaCuentasBancarias();
@@ -177,7 +188,7 @@ function filtrarCuentasPorBancoMovimiento(cuentaSeleccionada) {
     if (!cuentaSel) return;
     const cuentas = getCuentasBancarias().filter(c => !banco || c.banco === banco);
     const seleccion = cuentaSeleccionada || cuentaSel.value || '';
-    cuentaSel.innerHTML = `<option value="">Sin cuenta</option>${cuentas.map(c =>
+    cuentaSel.innerHTML = `<option value="">Selecciona cuenta…</option>${cuentas.map(c =>
         `<option value="${escapeHtml(c.id)}" ${c.id === seleccion ? 'selected' : ''}>${escapeHtml(etiquetaCuentaBancaria(c))}</option>`).join('')}`;
     if (!cuentas.length && banco) {
         cuentaSel.innerHTML += '<option value="" disabled>No hay cuentas de este banco · usa “Cuentas bancarias”</option>';
@@ -416,7 +427,7 @@ function tablaMovimientosEmpresa(items, compacto) {
             <td><strong>${escapeHtml(m.concepto || '—')}</strong>${m.referencia ? `<small>Ref: ${escapeHtml(m.referencia)}</small>` : ''}${m.notas ? `<small>${escapeHtml(m.notas)}</small>` : ''}</td>
             <td>${escapeHtml(m.categoria || '—')}</td>
             <td>${escapeHtml(m.proveedor || '—')}${m.metodoPago ? `<small>${escapeHtml(m.metodoPago)}</small>` : ''}</td>
-            <td>${escapeHtml(m.banco || '—')}${m.cuentaAlias ? `<small>${escapeHtml(m.cuentaAlias)}</small>` : ''}</td>
+            <td>${escapeHtml(m.banco || '—')}${!m.cuentaId ? '<small>Sin cuenta asignada (histórico)</small>' : ''}${m.cuentaAlias ? `<small>${escapeHtml(m.cuentaAlias)}</small>` : ''}</td>
             <td class="text-right ${m.tipo === 'ingreso' ? 'emp-positive' : 'emp-negative'}">${m.tipo === 'ingreso' ? '+' : '−'}${formatearMoneda(m.monto)}</td>
             ${compacto ? '' : `<td><button type="button" class="btn-icon-danger" onclick="eliminarMovimientoEmpresa('${m.id}')" aria-label="Eliminar">×</button>
                 <button type="button" class="btn btn-outline btn-toolbar emp-edit-btn" onclick="abrirModalMovimientoEmpresa('${m.id}')">Editar</button></td>`}
@@ -462,6 +473,12 @@ function guardarMovimientoEmpresa(event) {
     const id = document.getElementById('emp-mov-id')?.value || DB.getId();
     const cuentaId = document.getElementById('emp-mov-cuenta')?.value || '';
     const cuenta = getCuentasBancarias().find(c => c.id === cuentaId);
+    // Solo se exige la cuenta al GUARDAR. No se modifica el historial existente.
+    if (!cuenta) {
+        alert('Selecciona una cuenta válida para registrar este ingreso o egreso. Si es efectivo, crea primero una cuenta de efectivo.');
+        document.getElementById('emp-mov-cuenta')?.focus();
+        return;
+    }
     const mov = {
         id,
         fecha: document.getElementById('emp-mov-fecha')?.value || hoyISO(),
@@ -480,7 +497,7 @@ function guardarMovimientoEmpresa(event) {
         actualizadoEn: new Date().toISOString(),
         creadoPor: getUsuarioActual()
     };
-    if (!mov.concepto || !mov.monto) {
+    if (!mov.concepto || !Number.isFinite(mov.monto) || mov.monto <= 0) {
         alert('Concepto y monto son obligatorios.');
         return;
     }
