@@ -228,6 +228,69 @@ function refreshActiveModule(incluirSelects = false) {
 }
 
 let rhLogoutEnCurso = false;
+let rhLoginEnCurso = false;
+
+function rhSesionEnNube() {
+    return DB.mode?.() === 'cloud';
+}
+
+function rhPedirSesion(method, payload) {
+    const request = () => rhSolicitarSesion(method, payload);
+    // Evita que recuperar la sesión en otra pestaña vuelva a poner una cookie tras cerrar sesión.
+    return typeof navigator !== 'undefined' && navigator.locks?.request
+        ? navigator.locks.request('revive-erp-session', request)
+        : request();
+}
+
+async function rhSolicitarSesion(method, payload) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+        return await fetch('/api/sesion', {
+            method, credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+            signal: controller.signal,
+            headers: { ...(method !== 'GET' ? { 'X-RH-Session': '1' } : {}), ...(payload ? { 'Content-Type': 'application/json' } : {}) },
+            ...(payload ? { body: JSON.stringify(payload) } : {})
+        });
+    } finally { clearTimeout(timeout); }
+}
+
+function rhMostrarSesion(user, inicioNuevo) {
+    currentUser = user;
+    document.getElementById('user-role-display').textContent = user.displayName;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('login-password').value = '';
+    if (inicioNuevo) {
+        logAction(`Inicio de sesión: ${user.displayName}`);
+        addHistory('sesion', 'Inicio de sesión', user.displayName);
+        if (window.RH_USAGE?.anotar) window.RH_USAGE.anotar('session_start', 'app');
+    }
+    if (typeof mostrarNotaPrueba === 'function') mostrarNotaPrueba(true);
+    buildSidebar();
+    if (typeof iniciarSesionIA === 'function') iniciarSesionIA();
+    updateClock();
+    if (clockInterval) clearInterval(clockInterval);
+    clockInterval = setInterval(updateClock, 1000);
+}
+
+async function restaurarSesionRevive() {
+    if (!rhSesionEnNube() || currentUser || rhLoginEnCurso) return false;
+    try {
+        const response = await rhPedirSesion('GET');
+        if (!response.ok || currentUser || rhLoginEnCurso) return false;
+        const { userId } = await response.json();
+        if (currentUser || rhLoginEnCurso) return false;
+        await DB.cargarDatosProtegidos();
+        const user = DB.get('usuariosLogin').find(u => u.id === userId && u.activo !== false);
+        if (!user) return false;
+        rhMostrarSesion(user, false);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 async function logout() {
     if (rhLogoutEnCurso) return false;
     rhLogoutEnCurso = true;
@@ -236,9 +299,14 @@ async function logout() {
         if (window.RH_USAGE?.flush) window.RH_USAGE.flush();
         logAction(`Cierre de sesión: ${currentUser ? currentUser.displayName : 'Sistema'}`);
         await DB.flush();
+        if (rhSesionEnNube()) {
+            const response = await rhPedirSesion('DELETE');
+            if (!response.ok) throw new Error('No se pudo cerrar la sesión del servidor.');
+        }
         document.getElementById('app-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
         currentUser = null;
+        if (rhSesionEnNube()) DB.limpiarDatosSesion();
         activeModuleId = null;
         allowedModuleIds = [];
         vendedorVistaId = null;
@@ -275,8 +343,9 @@ function bindLoginForm() {
         });
     });
 
-    document.getElementById('login-form')?.addEventListener('submit', function (e) {
+    document.getElementById('login-form')?.addEventListener('submit', async function (e) {
         e.preventDefault();
+        if (rhLoginEnCurso || currentUser) return;
         const mode = document.getElementById('login-access-mode').value;
         const selectedId = mode === 'vendedor'
             ? document.getElementById('login-vendedor-user').value
@@ -288,29 +357,43 @@ function bindLoginForm() {
         if (user.tipo !== tipoEsperado) { alert('Perfil de acceso incorrecto.'); return; }
 
         const cfg = window.RH_CONFIG || {};
-        if (cfg.LOGIN_REQUIERE_PASSWORD !== false) {
-            const ingresada = document.getElementById('login-password').value;
-            // No admitir contraseñas de respaldo ni credenciales inexistentes.
+        const ingresada = document.getElementById('login-password').value;
+        if (!rhSesionEnNube() && cfg.LOGIN_REQUIERE_PASSWORD !== false) {
+            // En el modo local sintético no existe la API: mantener comprobación local.
             const esperada = user.password;
             if (!esperada || ingresada !== esperada) {
                 alert(!esperada ? 'Esta cuenta no tiene acceso configurado. Contacta a Dirección.' : 'Contraseña incorrecta.');
                 return;
             }
         }
+        // En la nube la clave NUNCA se entrega al navegador: la valida /api/sesion.
 
-        currentUser = user;
-        document.getElementById('user-role-display').textContent = user.displayName;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-screen').style.display = 'flex';
-        logAction(`Inicio de sesión: ${user.displayName}`);
-        addHistory('sesion', 'Inicio de sesión', user.displayName);
         document.getElementById('login-password').value = '';
-        if (window.RH_USAGE?.anotar) window.RH_USAGE.anotar('session_start', 'app');
-        if (typeof mostrarNotaPrueba === 'function') mostrarNotaPrueba(true);
-        buildSidebar();
-        if (typeof iniciarSesionIA === 'function') iniciarSesionIA();
-        updateClock();
-        if (clockInterval) clearInterval(clockInterval);
-        clockInterval = setInterval(updateClock, 1000);
+        rhLoginEnCurso = true;
+        const submit = document.querySelector('#login-form button[type=submit]');
+        if (submit) submit.disabled = true;
+        try {
+            if (rhSesionEnNube()) {
+                const response = await rhPedirSesion('POST', { userId: user.id, mode, password: ingresada });
+                if (response.status === 401) {
+                    alert('No se pudo verificar esa cuenta. Recarga Revive e intenta nuevamente.');
+                    return;
+                }
+                if (!response.ok) throw new Error('Sesión no disponible');
+                const identity = await response.json();
+                if (identity.userId !== user.id) throw new Error('Identidad no confirmada');
+            }
+            if(rhSesionEnNube()) {
+                await DB.cargarDatosProtegidos();
+                const verificado=DB.get('usuariosLogin').find(u=>u.id===user.id && u.activo!==false);
+                if(!verificado)throw new Error('Usuario no confirmado');
+                rhMostrarSesion(verificado,true);
+            } else rhMostrarSesion(user,true);
+        } catch {
+            alert('No pudimos iniciar sesión. Revisa tu conexión e inténtalo de nuevo.');
+        } finally {
+            rhLoginEnCurso = false;
+            if (submit) submit.disabled = false;
+        }
     });
 }
