@@ -93,7 +93,7 @@ function ownerCheck(row,collection,userId,role,write=false){
  if(collection==='prospectos')return row?.vendedorId===userId;
  if(collection==='compradores')return row?.asesorId===userId;
  if(collection==='operacionesVenta')return row?.vendedorId===userId||row?.asesorId===userId;
- if(collection==='archivos')return !write; // Documentos: escritura solo por API específica de archivos.
+ if(collection==='archivos')return true; // El propietario se verifica con la ficha del prospecto.
  if(['auditoria','historial','tareas','alertas'].includes(collection))return write ? row?.usuarioId===userId||row?.actorId===userId : true;
  return true;
 }
@@ -115,6 +115,15 @@ function validData(data,collection){
 }
 function canDo(user,collection,write=false){
  return (write?WRITE[user.role]:READ[user.role])?.has(collection)===true;
+}
+async function verificarPropiedadArchivo(conf,user,row){
+ if(user.role!=='Vendedor')return;
+ const prospectoId=String(row?.prospectoId||'');
+ check(ID.test(prospectoId),403,'El archivo debe pertenecer a tu prospecto.');
+ const candidates=await getRows(conf,'prospectos',
+   '&record_id=eq.'+encodeURIComponent(prospectoId)+'&limit=1');
+ check(candidates[0]?.data?.vendedorId===user.userId,403,
+   'No puedes modificar documentos de otro vendedor.');
 }
 function strictDate(value){
  const t=Date.parse(value);
@@ -154,8 +163,17 @@ module.exports=async function handler(req,res){
    check(Number.isSafeInteger(offset)&&offset>=0&&Number.isSafeInteger(limit)&&limit>0&&limit<=MAX_BATCH,
     400,'Paginación inválida.');
    const rows=await getRows(conf,collection,'&offset='+offset+'&limit='+limit);
+   let ownProspects=null;
+   if(user.role==='Vendedor'&&['archivos','historial'].includes(collection)){
+     const own=await getRows(conf,'prospectos','&limit=1000');
+     ownProspects=new Set(own.filter(p=>p.data?.vendedorId===user.userId)
+       .map(p=>p.record_id));
+   }
    return json(res,200,{rows:rows
     .filter(r=>ownerCheck(r.data,collection,user.userId,user.role))
+    .filter(r=>!ownProspects||
+      (collection==='archivos'?ownProspects.has(r.data?.prospectoId):
+       (ownProspects.has(r.data?.prospectoId)||r.data?.usuarioId===user.userId)))
     .map(r=>({record_id:r.record_id,updated_at:r.updated_at,data:sanitizeRow(r.data,collection,user.role)}))});
   }
   const body=req.body||{},action=body.action;
@@ -168,6 +186,7 @@ module.exports=async function handler(req,res){
    const current=await getRows(conf,collection,'&record_id=eq.'+encodeURIComponent(id)+'&limit=1');
    check(current.length===1,404,'Registro no encontrado.');
    check(ownerCheck(current[0].data,collection,user.userId,user.role,true),403,'Registro fuera de tu alcance.');
+   if(collection==='archivos')await verificarPropiedadArchivo(conf,user,current[0].data);
    const rows=await request(conf,'rh_records?collection=eq.'+encodeURIComponent(collection)+'&record_id=eq.'+encodeURIComponent(id),
     {method:'DELETE',prefer:'return=representation'});
    check(rows?.length===1,409,'Registro modificado por otro usuario.');
@@ -176,6 +195,7 @@ module.exports=async function handler(req,res){
   const data=body.data;
   validData(data,collection);
   check(data.id===id,400,'Folio no coincide.');
+  if(collection==='archivos')await verificarPropiedadArchivo(conf,user,data);
   if(user.role==='Vendedor'&&['auditoria','historial'].includes(collection)) {
     check(action==='insert',403,'No se permite modificar historial existente.');
     data.actorId=user.userId;
@@ -196,6 +216,7 @@ module.exports=async function handler(req,res){
   check(current.length===1,404,'Registro no encontrado.');
   check(current[0].updated_at===sello,409,'El registro fue actualizado por otra persona.');
   check(ownerCheck(current[0].data,collection,user.userId,user.role,true),403,'Registro fuera de tu alcance.');
+  if(collection==='archivos')await verificarPropiedadArchivo(conf,user,current[0].data);
   // Nunca borrar la contraseña almacenada al recibir un usuario sin ese campo.
   const stored=collection==='usuariosLogin' ? current[0].data:{};
   const payload=collection==='usuariosLogin'?
