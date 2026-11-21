@@ -2,77 +2,62 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-const dbSource = readFileSync(fileURLToPath(new URL('../js/db.js', import.meta.url)), 'utf8');
-const serviceSource = readFileSync(fileURLToPath(new URL('../js/services.js', import.meta.url)), 'utf8');
-
-let passed = 0;
-const ok = label => { passed++; console.log('PASS '+label); };
-function createDB({errorOnConnect = false, missingSdk = false, missingKey = false} = {}) {
-    let reads = 0, upserts = 0, selects = 0;
-    const rows = new Map();
-    const supabase = {
-        from(table) {
-            assert.equal(table,'rh_records');
-            return {
-                select(field,options) {
-                    selects++;
-                    if (field==='collection') return {limit: async () => ({
-                        data: errorOnConnect ? null : [],
-                        error: errorOnConnect ? {message:'simulated offline'} : null
-                    })};
-                    if (options?.count==='exact') throw Error('No se permite comprobar la nube para migración automática');
-                    if (field==='data' || field==='data, record_id, updated_at') return {eq(key,value) {
-                        return {order() { return {range: async () => ({data: [...(rows.get(value)||[])], error:null})}; }};
-                    }};
-                    throw Error('Unexpected cloud read '+field);
-                },
-                upsert() {upserts++;throw Error('Unexpected automatic cloud write');}
-            };
-        },
-        channel() {return {on(){return this;},subscribe(){return this;}};}
-    };
-    const store = new Map([['revive_hogar_usuariosLogin',JSON.stringify([{id:'local-demo',password:'1234'}])]]);
-    const context=vm.createContext({
-        window:{RH_CONFIG:{SUPABASE_URL:'https://corp.invalid',SUPABASE_ANON_KEY:missingKey ? '' : 'fake',LOGIN_REQUIERE_PASSWORD:true},
-            supabase:missingSdk ? undefined : {createClient:()=>supabase},addEventListener(){}},
-        document:{getElementById:()=>({textContent:'',className:''})},
-        localStorage:{getItem:key=>{reads++;return store.get(key)||null;},setItem:(key,value)=>store.set(key,value)},
-        setTimeout:()=>1,clearTimeout(){},console:{log(){},warn(){},error(){}},
-        Date,Math,JSON,Set,Map
-    });
-    vm.runInContext(dbSource+';globalThis.__db=DB;',context);
-    return { DB:context.__db, get reads(){return reads;},get upserts(){return upserts;},get selects(){return selects;} };
+const dbSource=readFileSync(fileURLToPath(new URL('../js/db.js',import.meta.url)),'utf8');
+const serviceSource=readFileSync(fileURLToPath(new URL('../js/services.js',import.meta.url)),'utf8');
+let passed=0;
+const ok=label=>{passed++;console.log('PASS '+label)};
+function createDB({errorOnConnect=false,missingFetch=false,missingKey=false}={}){
+ let reads=0,writes=0,networkReads=0;
+ const local=new Map([['revive_hogar_usuariosLogin',
+  JSON.stringify([{id:'local-demo',password:'1234'}])]]);
+ const ctx=vm.createContext({
+  window:{RH_CONFIG:{SUPABASE_URL:'https://qa.supabase.co',SUPABASE_ANON_KEY:missingKey?'':'QA_KEY'},
+   addEventListener(){}},
+  document:{getElementById:()=>({textContent:'',className:''})},
+  localStorage:{getItem:key=>{reads++;return local.get(key)||null;},
+    setItem:()=>{writes++},removeItem:()=>{}},
+  fetch:missingFetch?undefined:async(url,opts={})=>{
+   networkReads++;
+   if(errorOnConnect)return{ok:false,status:503,json:async()=>({message:'Sin red'})};
+   return{ok:true,status:200,json:async()=>({rows:[]})};
+  },
+  setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>2,clearInterval:()=>{},
+  console:{log(){},warn(){},error(){}},Date,Math,JSON,Set,Map
+ });
+ vm.runInContext(dbSource+';globalThis.__db=DB;',ctx);
+ return{DB:ctx.__db,get reads(){return reads},get writes(){return writes},get networkReads(){return networkReads}};
 }
 {
-    const h=createDB({errorOnConnect:true});
-    await assert.rejects(h.DB.init(), /RH-DB-007/);
-    assert.equal(h.DB.mode(),'unavailable');
-    assert.equal(h.DB.isReady(),false);
-    assert.equal(h.reads,0);
-    ok('nube caída bloquea acceso sin cargar expedientes locales');
+ const h=createDB({errorOnConnect:true});
+ await assert.rejects(h.DB.init(),/RH-DB-007/);
+ assert.equal(h.DB.mode(),'unavailable');
+ assert.equal(h.DB.isReady(),false);
+ assert.equal(h.reads,0);
+ ok('API corporativa caída bloquea acceso sin usar expedientes locales');
 }
 {
-    const h=createDB();
-    await h.DB.init();
-    assert.equal(h.DB.mode(),'cloud');
-    assert.equal(h.DB.isReady(),true);
-    assert.equal(h.upserts,0);
-    assert.equal(h.reads,0);
-    ok('nube vacía no importa automáticamente información de navegador');
+ const h=createDB();
+ await h.DB.init();
+ assert.equal(h.DB.mode(),'cloud');
+ assert.equal(h.DB.isReady(),true);
+ assert.equal(h.writes,0);
+ assert.equal(h.reads,0);
+ assert.equal(h.networkReads,1);
+ ok('arranque corporativo solo consulta lista pública y no importa información local');
 }
 {
-    const h=createDB({missingSdk:true});
-    await assert.rejects(h.DB.init(),/RH-DB-007/);
-    assert.equal(h.DB.mode(),'unavailable');
-    assert.equal(h.reads,0);
-    ok('sin biblioteca Supabase tampoco se entra a datos locales');
+ const h=createDB({missingFetch:true});
+ await assert.rejects(h.DB.init(),/RH-DB-007/);
+ assert.equal(h.DB.mode(),'unavailable');
+ assert.equal(h.reads,0);
+ ok('si no hay conexión de red, no se entra a datos locales');
 }
 {
-    const h=createDB({missingKey:true});
-    await assert.rejects(h.DB.init(),/RH-DB-007/);
-    assert.equal(h.DB.mode(),'unavailable');
-    assert.equal(h.reads,0);
-    ok('configuración parcial de nube se bloquea en vez de degradarse a local');
+ const h=createDB({missingKey:true});
+ await assert.rejects(h.DB.init(),/RH-DB-007/);
+ assert.equal(h.DB.mode(),'unavailable');
+ assert.equal(h.reads,0);
+ ok('configuración parcial de nube bloquea entrada');
 }
 function seed(mode) {
     let users=[],writes=0;
