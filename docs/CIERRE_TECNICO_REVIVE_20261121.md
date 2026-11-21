@@ -15,7 +15,7 @@
 
 ## Validaciones
 
-- **35 pruebas automatizadas aprobadas**, incluyendo permisos, origen de peticiones, cobros falsos no realizados, datos inválidos, coherencia financiera, preservación de expedientes, fecha de corte, traspasos y uso colectivo.
+- **46 pruebas automatizadas sin navegador aprobadas**, incluyendo permisos, origen de peticiones, cobros falsos no realizados, datos inválidos, coherencia financiera, preservación de expedientes, fecha de corte, traspasos y uso colectivo.
 - API sin sesión responde `401` en producción en `/api/sesion`, `/api/pruebas`, `/api/finanzas` y `/api/uso`.
 - La base general conserva 15 cuentas y 2 movimientos con total `$31,275.74`. Existen **0 traspasos reales y 0 aperturas confirmadas**. La telemetría central iniciará su medición desde la versión nueva.
 - Nuevas tablas y RPC de Finanzas/Uso tienen RLS y NO permiten ejecución ni lectura a `anon`.
@@ -37,3 +37,15 @@
 - RH-4 Administradora «No me deja avanzar»: se mejoraron errores y protección de borradores; origen exacto no reproducido aún → `en_revision`.
 
 **Política para cerrar:** solo marcar resuelto tras verificar el flujo real de usuario y que la misma acción no provoque regresiones. Nunca modificar saldos o expedientes comerciales a modo de simulación.
+
+## Revisión adicional — seguridad y QA del 21 de noviembre
+
+- Ejecutada la batería extendida: **46 pruebas automáticas sin navegador, 46 aprobadas**, sin cambios en cuentas ni prospectos reales. La prueba de interfaz con Chromium NO pudo completarse en el sandbox Vercel Ubuntu 26.04: Playwright no dispone de Chromium compatible y el navegador descargado carece de librerías compartidas. Se añadió un job separado con runner `ubuntu-24.04` para no disfrazar el problema como prueba superada.
+- El privilegio heredado de `anon` y `authenticated` para `TRUNCATE`, `REFERENCES` y `TRIGGER` sobre `public.rh_records` se **revocó y verificó**. **No** se revocó `SELECT/INSERT/UPDATE/DELETE` porque el navegador aún depende de ellos. La seguridad general SIGUE ABIERTA.
+- La función de traspasos ahora exige que los reintentos con el mismo `request_id` coincidan en **fecha, origen, destino, monto, concepto y actor**; de lo contrario rechaza el intento. Verificado con operación ficticia y ROLLBACK: exactamente una operación temporal y cero movimientos persistidos.
+- El asesor de Supabase indica INFO de RLS sin política en tablas de **servidor exclusivamente**: es intencional al usar el rol de servicio con grants revocados para `anon`; no es una apertura pública. También advierte que la protección contra contraseñas filtradas de Supabase Auth está desactivada; Revive usa su propia autenticación ERP, por lo que requiere revisar el modelo de acceso al migrar.
+- El reporte RH-4 no tiene error técnico reproducible confirmado. El caso real mantiene una ficha en Administradora y borradores; no se ha alterado. Las reglas documentales y financieras siguen activas, y las pruebas aisladas demuestran que un intento inválido no guarda ni sincroniza prematuramente.
+- La bandeja todavía contiene **4 folios: RH-1, RH-3 y RH-4 en revisión; RH-2 resuelto; cero reportes nuevos**.
+- Revisión posterior: **15 cuentas, 2 movimientos, $31,275.74; cero traspasos reales y cero aperturas conciliadas**. No presentar este valor como saldo contable de una fecha histórica.
+
+**Para cerrar formalmente:** se necesita migrar el acceso `rh_records` a servidor con prueba autenticada de todos los roles y rollback; ejecutar prueba de navegador compatible; validar una transferencia y un expediente ficticio desde sesiones reales; obtener las 15 aperturas firmadas/conciliadas por Vale. No otorgar cierre sin esas evidencias.
