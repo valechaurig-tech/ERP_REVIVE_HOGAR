@@ -144,7 +144,10 @@ module.exports=async function handler(req,res){
     413,'Solicitud demasiado grande.');
   }
   const user=await identity(req,conf,host);
-  check(canDo(user,collection,req.method==='POST'),403,'No tienes acceso a esta operación.');
+  if(req.method==='GET'&&!canDo(user,collection,false))
+    return json(res,200,{rows:[]}); // No filtradas: ningún dato ajeno se revela.
+  if(req.method==='POST')
+    check(canDo(user,collection,true),403,'No tienes acceso a esta operación.');
   if(req.method==='GET'){
    let offset=Number(url.searchParams.get('offset')||0);
    let limit=Number(url.searchParams.get('limit')||1000);
@@ -160,6 +163,8 @@ module.exports=async function handler(req,res){
   const id=String(body.record_id||body.data?.id||'');
   check(ID.test(id),400,'Folio inválido.');
   if(action==='delete'){
+   check(!(user.role==='Vendedor'&&['auditoria','historial'].includes(collection)),403,
+     'No se permite borrar auditoría.');
    const current=await getRows(conf,collection,'&record_id=eq.'+encodeURIComponent(id)+'&limit=1');
    check(current.length===1,404,'Registro no encontrado.');
    check(ownerCheck(current[0].data,collection,user.userId,user.role,true),403,'Registro fuera de tu alcance.');
@@ -171,7 +176,11 @@ module.exports=async function handler(req,res){
   const data=body.data;
   validData(data,collection);
   check(data.id===id,400,'Folio no coincide.');
-  check(ownerCheck(data,collection,user.userId,user.role,true),403,'Registro fuera de tu alcance.');
+  if(user.role==='Vendedor'&&['auditoria','historial'].includes(collection)) {
+    check(action==='insert',403,'No se permite modificar historial existente.');
+    data.actorId=user.userId;
+    data.usuarioId=user.userId;
+  } else check(ownerCheck(data,collection,user.userId,user.role,true),403,'Registro fuera de tu alcance.');
   const path='rh_records?collection=eq.'+encodeURIComponent(collection)+
    '&record_id=eq.'+encodeURIComponent(id);
   if(action==='insert'){
