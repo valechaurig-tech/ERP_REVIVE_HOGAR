@@ -5,6 +5,9 @@ on:
       - "work/responsive-redesign-2026-10-29"
     paths:
       - "api/finanzas.js"
+      - "api/uso.js"
+      - "js/render.js"
+      - "js/usage-metrics.js"
       - "js/gastos-empresa.js"
       - "scripts/test-*.mjs"
       - ".github/workflows/qa-cierre-financiero.yml"
@@ -22,6 +25,9 @@ jobs:
       - name: Sintaxis
         run: |
           node --check api/finanzas.js
+          node --check api/uso.js
           node --check js/gastos-empresa.js
+          node --check js/render.js
+          node --check js/usage-metrics.js
       - name: Validaciones seguras sin credenciales
-        run: node --test scripts/test-finanzas-api.mjs scripts/test-corte-diario.mjs scripts/test-finanzas-integridad.mjs scripts/test-admin-cierre-seguro.mjs scripts/test-uso-local.mjs
+        run: node --test scripts/test-finanzas-api.mjs scripts/test-corte-diario.mjs scripts/test-finanzas-integridad.mjs scripts/test-admin-cierre-seguro.mjs scripts/test-uso-local.mjs scripts/test-uso-privado-api.mjs
