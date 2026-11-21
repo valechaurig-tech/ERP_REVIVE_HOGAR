@@ -819,7 +819,8 @@ function generarHTMLCorteDiarioEmpresa(fecha) {
       '<th>'+moneyOrPending(c.cierre)+'</th></tr></tbody></table>';
 
     function seccion(titulo,encabezados,datos) {
-        return '<section class="detalle"><h2>'+esc(titulo)+'</h2><table><thead><tr>'+
+        const estilo=titulo.startsWith('TRASPASOS')?'traspasos':'operaciones';
+        return '<section class="detalle '+estilo+'"><h2>'+esc(titulo)+'</h2><table><thead><tr>'+
            encabezados.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+
            (datos.length?datos.map(d=>'<tr>'+
               d.map((x,i)=>'<td>'+ (i===d.length-1?money(x):esc(x))+'</td>').join('')+
@@ -858,6 +859,10 @@ function generarHTMLCorteDiarioEmpresa(fecha) {
       '.resumen{font-size:9px}.resumen tr.total{background:#e5eff3;font-weight:bold}'+
       '.doble{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;align-items:start}'+
       '.detalle table{font-size:8px}.detalle td{min-height:22px}.subtotal{text-align:right;font-weight:bold}'+
+      '.detalle.operaciones h2{color:#458b34}.detalle.operaciones th{background:#bcdca8}'+
+      '.detalle.traspasos h2{color:#d28709}.detalle.traspasos th{background:#ffe09a}'+
+      '.resumen th:nth-child(3),.resumen th:nth-child(4){color:#387b29}'+
+      '.resumen th:nth-child(5),.resumen th:nth-child(6){color:#be7b04}'+
       '.alerta{font-weight:bold;margin:9px 0;padding:8px;border:1px solid #b58f38;background:#fff8e8}'+
       '.observaciones{border-bottom:1px solid #9ca3af;height:35px;margin-top:10px}'+
       '.firmas{display:grid;grid-template-columns:1fr 1fr;gap:45px;margin-top:36px}'+
