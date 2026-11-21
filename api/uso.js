@@ -17,7 +17,7 @@ const FORMS=new Set(['form-campana','form-prospecto','form-gestion-prospecto',
  'form-nuevo-vendedor','form-usuario','form-mi-perfil','form-tarea','form-mensaje-caso',
  'form-autorizacion','form-pago-referido','form-comprador','form-operacion',
  'form-nueva-propiedad','form-cuenta-bancaria','form-movimiento-empresa','form-copropietario',
- 'form-traspaso-empresa']);
+ 'form-traspaso-empresa','form-apertura-empresa']);
 const TABS=new Set(['detalle:resumen','detalle:historial','detalle:expediente','detalle:remodelacion',
  'detalle:recorrido','detalle:comunicacion','captura:contacto','captura:identidad',
  'captura:adeudos','captura:datos','captura:ubicacion','captura:documentos']);
