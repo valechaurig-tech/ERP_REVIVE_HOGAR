@@ -86,7 +86,7 @@ module.exports = async function handler(req,res){
       check(data.confirmado===true,400,'Debes confirmar que el saldo fue conciliado.');
       check(ID.test(String(data.cuentaId||'')),400,'Cuenta inválida.');
       check(DATE.test(String(data.fecha||'')),400,'Fecha inválida.');
-      check(/^-?\\d+(?:\\.\\d{1,2})?$/.test(String(data.saldo||'')),
+      check(/^-?\d+(?:\.\d{1,2})?$/.test(String(data.saldo||'')),
         400,'Captura un saldo con hasta dos decimales.');
       const saldo=Number(data.saldo);
       check(Number.isFinite(saldo)&&Math.abs(saldo)<=999999999.99,
