@@ -1,33 +1,44 @@
-name: "Revive | QA Cierre Financiero"
+name: "Revive | regresión completa"
 on:
   pull_request:
     branches:
       - "work/responsive-redesign-2026-10-29"
     paths:
-      - "api/finanzas.js"
-      - "api/uso.js"
-      - "js/render.js"
-      - "js/usage-metrics.js"
-      - "js/gastos-empresa.js"
+      - "api/**"
+      - "js/**"
       - "scripts/test-*.mjs"
       - ".github/workflows/qa-cierre-financiero.yml"
 permissions:
   contents: read
 jobs:
-  finance-regression:
+  pruebas-unitarias:
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - name: Sintaxis
+      - name: Sintaxis JavaScript
         run: |
           node --check api/finanzas.js
           node --check api/uso.js
           node --check js/gastos-empresa.js
           node --check js/render.js
           node --check js/usage-metrics.js
-      - name: Validaciones seguras sin credenciales
-        run: node --test scripts/test-finanzas-api.mjs scripts/test-corte-diario.mjs scripts/test-finanzas-integridad.mjs scripts/test-admin-cierre-seguro.mjs scripts/test-uso-local.mjs scripts/test-uso-privado-api.mjs
+      - name: Pruebas sin navegador
+        shell: bash
+        run: |
+          mapfile -t tests < <(find scripts -maxdepth 1 -name 'test-*.mjs' ! -name 'test-responsive-browser.mjs' | sort)
+          node --test "${tests[@]}"
+  interfaz-responsiva:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-responsive-browser.mjs
