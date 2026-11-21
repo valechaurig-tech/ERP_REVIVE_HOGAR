@@ -1,8 +1,8 @@
 /**
- * REVIVE HOGAR — Métricas locales mínimas de navegación.
- * No recoge campos, valores, usuarios, IP, teléfonos, textos ni documentos.
- * Retiene siete días; las cifras NO representan a toda la empresa.
- * En ausencia de una política RLS/servidor verificada NO envía datos a la nube.
+ * REVIVE HOGAR — contadores locales de navegación, privacidad por diseño.
+ * NO recoge nombres, identificadores personales, IP, valores ni documentos.
+ * Retiene siete días por dispositivo, NO representan a toda la empresa.
+ * Se prohíbe sincronizar por rh_records hasta tener API autenticada y protegida.
  */
 (function initUsoRevive() {
     'use strict';
@@ -29,8 +29,7 @@
         'captura:contacto', 'captura:identidad', 'captura:adeudos',
         'captura:datos', 'captura:ubicacion', 'captura:documentos'
     ]);
-    const ALLOWED_EVENTS = new Set(['module_open', 'form_attempt']);
-    const CLOUD_EVENTS = new Set(['module_open', 'form_attempt', 'form_open', 'tab_open', 'session_start']);
+    const ALLOWED_EVENTS = new Set(['module_open', 'form_attempt', 'form_open', 'tab_open', 'session_start']);
     const localDay = date => [
         date.getFullYear(),
         String(date.getMonth() + 1).padStart(2, '0'),
@@ -56,7 +55,7 @@
                 const parts = key.split('|');
                 const [event, role, target] = parts;
                 if (parts.length !== 3 || !ALLOWED_EVENTS.has(event)
-                    || !ALLOWED_ROLES.has(role) || !(event === 'module_open' ? ALLOWED_MODULES : ALLOWED_FORMS).has(target)) continue;
+                    || !ALLOWED_ROLES.has(role) || !destinoPermitido(event, target)) continue;
                 if (Number.isSafeInteger(count) && count > 0 && count <= 100000) safe[key] = count;
             }
             if (Object.keys(safe).length) result[day] = safe;
@@ -76,7 +75,7 @@
     }
     function record(event, target, role) {
         if (!ALLOWED_EVENTS.has(event) || !ALLOWED_ROLES.has(role)) return false;
-        if (!(event === 'module_open' ? ALLOWED_MODULES : ALLOWED_FORMS).has(target)) return false;
+        if (!destinoPermitido(event, target)) return false;
         try {
             const today = new Date();
             const counts = load(today);
@@ -105,61 +104,24 @@
         return false;
     }
 
-    const colaNube = [];
-    let timerNube = null;
-
+    // El usuario real es una variable léxica global (`let currentUser` en utils.js),
+    // no la propiedad window.currentUser. Solo se almacena su ROL, nunca su identidad.
     let ultimaFirma = '';
     let ultimaMarca = 0;
-
     function anotar(event, target) {
         if (!destinoPermitido(event, target)) return false;
-        const firma = event + '|' + target;
         const ahora = Date.now();
+        const firma = event + '|' + target;
         if (firma === ultimaFirma && ahora - ultimaMarca < 800) return true;
         ultimaFirma = firma;
         ultimaMarca = ahora;
-        const role = window.currentUser?.rol || null;
-        if ((event === 'module_open' || event === 'form_attempt') && role) record(event, target, role);
-        if (!CLOUD_EVENTS.has(event) || !role || !window.currentUser?.id) return event === 'module_open' || event === 'form_attempt';
-        const nombre = String(window.currentUser.displayName || '').trim().slice(0, 80);
-        colaNube.push({
-            id: 'rh_uso_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-            ts: new Date().toISOString(),
-            dia: localDay(new Date()),
-            rol: role,
-            usuarioId: String(window.currentUser.id).slice(0, 40),
-            usuario: nombre,
-            tipo: event,
-            destino: target
-        });
-        if (typeof setTimeout === 'function') {
-            clearTimeout(timerNube);
-            timerNube = setTimeout(vaciarNube, 1200);
-        }
-        return true;
+        const usuarioActual = typeof currentUser !== 'undefined' ? currentUser : null;
+        const rol = usuarioActual?.rol;
+        return !!rol && record(event, target, rol);
     }
-
-    function vaciarNube() {
-        if (!colaNube.length || typeof DB === 'undefined' || typeof DB.get !== 'function' || typeof DB.set !== 'function') return false;
-        const actuales = DB.get('actividadUso') || [];
-        const conocidos = new Set(actuales.map(x => x?.id).filter(Boolean));
-        const nuevos = colaNube.splice(0, 40).filter(x => x.id && !conocidos.has(x.id));
-        const limite = Date.now() - 30 * 86400000;
-        const siguientes = actuales.filter(x => {
-            const momento = Date.parse(x?.ts || '');
-            return !Number.isFinite(momento) || momento >= limite;
-        }).concat(nuevos);
-        siguientes.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
-        try {
-            DB.set('actividadUso', siguientes.slice(-4000));
-            return true;
-        } catch (_) { return false; }
-    }
-
-    function reporteNube() {
-        if (typeof DB === 'undefined' || typeof DB.get !== 'function') return [];
-        return (DB.get('actividadUso') || []).filter(x => x && destinoPermitido(x.tipo, x.destino) && ALLOWED_ROLES.has(x.rol));
-    }
+    // No exporta eventos individuales a rh_records ni a otras tablas públicas.
+    function vaciarNube() { return false; }
+    function reporteNube() { return []; }
 
     window.RH_USAGE = Object.freeze({
         record, report, anotar, flush: vaciarNube, reporteNube,
