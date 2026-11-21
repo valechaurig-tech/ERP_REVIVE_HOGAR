@@ -88,7 +88,7 @@ module.exports = async function handler(req,res){
     check(ID.test(String(data.origen||''))&&ID.test(String(data.destino||''))&&data.origen!==data.destino,
       400,'Selecciona dos cuentas diferentes.');
     const monto=Number(data.monto);
-    check(Number.isFinite(monto)&&monto>0&&monto<=999999999.99&&Number.isInteger(monto*100),
+    check(/^\d+(?:\.\d{1,2})?$/.test(String(data.monto||''))&&Number.isFinite(monto)&&monto>0&&monto<=999999999.99,
       400,'Monto inválido.');
     check(typeof data.concepto==='string'&&data.concepto.length<=500,400,'Descripción demasiado larga.');
     const result=await rest(conf,'rpc/rh_fin_registrar_traspaso','POST',{
