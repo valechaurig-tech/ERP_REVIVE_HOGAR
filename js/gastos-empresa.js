@@ -328,7 +328,7 @@ function renderGastosEmpresa() {
     else if (empresaVistaActiva === 'movimientos') contenido.innerHTML = renderVistaMovimientosEmpresa(mes);
     else if (empresaVistaActiva === 'diario') {
         contenido.innerHTML = renderVistaDiarioEmpresa();
-        if (!empresaCorteDatos && !empresaCorteCargando) cargarDatosCorteEmpresa();
+        if (!empresaCorteDatos && !empresaCorteCargando && !empresaCorteError) cargarDatosCorteEmpresa();
     }
     else contenido.innerHTML = renderVistaPresupuestoEmpresa(mes, resumen);
 }
