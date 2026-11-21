@@ -61,11 +61,11 @@ test('dos aperturas del mismo módulo se cuentan si no son duplicado inmediato',
   assert.equal(metrics.report()[0].count, 2);
 });
 
-test('solo medición local: no exporta datos ni llena rh_records', () => {
+test('sin red ni sesión no transmite datos personales', async () => {
   const { metrics } = lanzar();
   metrics.anotar('module_open', 'mod-administradora');
-  assert.equal(metrics.scope, 'local-only');
-  assert.equal(metrics.flush(), false);
+  assert.equal(metrics.scope, 'private-aggregates');
+  assert.equal(await metrics.flush(), false);
   assert.deepEqual([...metrics.reporteNube()], []);
 });
 
@@ -73,4 +73,14 @@ test('el panel usa recuentos locales y no afirma desuso global', () => {
   assert.match(render, /RH_USAGE\?\.report\?\.\(\)/);
   assert.match(render, /Number\(evento\.count \|\| 0\)/);
   assert.match(render, /no implica que nadie las utilice/);
+});
+
+test('las transiciones quedan agregadas por módulo sin nombres',()=>{
+  const {metrics,writes}=lanzar('Direccion');
+  metrics.anotar('module_open','mod-dashboard');
+  metrics.anotar('module_open','mod-gastos-empresa');
+  const rutas=metrics.report().filter(x=>x.event==='transition');
+  assert.equal(rutas.length,1);
+  assert.equal(rutas[0].target,'mod-dashboard>mod-gastos-empresa');
+  assert.doesNotMatch(JSON.stringify(writes),/Persona real|id-privado-1/);
 });
