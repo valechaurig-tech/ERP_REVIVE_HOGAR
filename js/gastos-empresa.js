@@ -41,7 +41,7 @@ const RH_BANCOS_EMPRESA = [
     'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro', 'Efectivo'
 ];
 
-const RH_EMPRESA_VISTAS = ['resumen', 'movimientos', 'presupuesto'];
+const RH_EMPRESA_VISTAS = ['resumen', 'movimientos', 'presupuesto', 'diario'];
 
 let empresaMesActivo = null;
 let empresaVistaActiva = 'resumen';
@@ -321,10 +321,15 @@ function renderGastosEmpresa() {
         btn.classList.toggle('active', btn.dataset.empVista === empresaVistaActiva);
     });
 
+    instalarAccesosFinancierosDiarios();
     const contenido = document.getElementById('emp-contenido');
     if (!contenido) return;
     if (empresaVistaActiva === 'resumen') contenido.innerHTML = renderVistaResumenEmpresa(mes, resumen);
     else if (empresaVistaActiva === 'movimientos') contenido.innerHTML = renderVistaMovimientosEmpresa(mes);
+    else if (empresaVistaActiva === 'diario') {
+        contenido.innerHTML = renderVistaDiarioEmpresa();
+        if (!empresaCorteDatos && !empresaCorteCargando) cargarDatosCorteEmpresa();
+    }
     else contenido.innerHTML = renderVistaPresupuestoEmpresa(mes, resumen);
 }
 
@@ -609,4 +614,241 @@ function imprimirReporteEmpresa() {
     ventana.document.close();
     ventana.focus();
     ventana.print();
+}
+
+/* ════════════════════════════════════════════════════════════
+ * Saldos diarios y traspasos — datos reales, sin apertura falsa.
+ * Un traspaso se guarda atómicamente SOLO mediante /api/finanzas.
+ * ════════════════════════════════════════════════════════════ */
+let empresaCorteDatos = null;
+let empresaCorteCargando = false;
+let empresaCorteError = '';
+let empresaCorteDiaActivo = null;
+let empresaTraspasoRequestId = null;
+
+function fechaMexicoEmpresa(){
+    const partes = new Intl.DateTimeFormat('es-MX',{
+        timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'
+    }).formatToParts(new Date());
+    const v = tipo => partes.find(x=>x.type===tipo)?.value||'';
+    return v('year')+'-'+v('month')+'-'+v('day');
+}
+function fechaCorteEmpresa(){
+    return empresaCorteDiaActivo||fechaMexicoEmpresa();
+}
+function cambiarDiaCorteEmpresa(valor){
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(valor||'')))return;
+    empresaCorteDiaActivo=valor;
+    if(empresaVistaActiva==='diario')renderGastosEmpresa();
+}
+function moverDiaCorteEmpresa(delta){
+    const t=fechaCorteEmpresa().split('-').map(Number);
+    const d=new Date(Date.UTC(t[0],t[1]-1,t[2]+delta));
+    cambiarDiaCorteEmpresa(d.toISOString().slice(0,10));
+}
+function instalarAccesosFinancierosDiarios(){
+    if(!puedeGestionarGastosEmpresa())return;
+    const ultima=document.querySelector('[data-emp-vista="presupuesto"]');
+    if(ultima?.parentElement&&!ultima.parentElement.querySelector('[data-emp-vista="diario"]')){
+        const btn=document.createElement('button');
+        btn.type='button';btn.className=ultima.className;
+        btn.dataset.empVista='diario';btn.textContent='Saldos diarios';
+        btn.addEventListener('click',()=>cambiarVistaEmpresa('diario'));
+        ultima.parentElement.appendChild(btn);
+    }
+    const barra=document.querySelector('#mod-gastos-empresa .emp-toolbar-actions');
+    if(barra&&!document.getElementById('rh-traspaso-abrir')){
+        const boton=document.createElement('button');
+        boton.type='button';boton.id='rh-traspaso-abrir';boton.className='btn btn-primary btn-toolbar';
+        boton.textContent='↔ Traspaso';
+        boton.addEventListener('click',abrirTraspasoEmpresa);
+        barra.appendChild(boton);
+    }
+    const nueva=document.querySelector('[data-emp-vista="diario"]');
+    if(nueva)nueva.classList.toggle('active',empresaVistaActiva==='diario');
+}
+async function cargarDatosCorteEmpresa(){
+    if(empresaCorteCargando||!puedeGestionarGastosEmpresa())return;
+    empresaCorteCargando=true;empresaCorteError='';
+    try{
+        const response=await fetch('/api/finanzas',{
+            credentials:'same-origin',cache:'no-store',redirect:'error'
+        });
+        if(!response.ok)throw new Error(response.status===401?'Tu sesión debe renovarse.': 'No se pudieron cargar los traspasos.');
+        const datos=await response.json();
+        if(!Array.isArray(datos.transferencias)||!Array.isArray(datos.aperturas))throw new Error('Datos financieros incompletos.');
+        empresaCorteDatos=datos;
+    }catch(err){empresaCorteError=err.message||'Error de carga';}
+    finally{
+        empresaCorteCargando=false;
+        if(empresaVistaActiva==='diario')renderGastosEmpresa();
+    }
+}
+function importeMovimientoEmpresa(m){
+    const n=Number(m.monto);
+    return Number.isFinite(n)?Math.round(n*100)/100:0;
+}
+function calcularCorteDiarioEmpresa(fecha){
+    const cuentas=getCuentasBancarias();
+    const movimientos=getMovimientosEmpresa();
+    const traspasos=empresaCorteDatos?.transferencias||[];
+    const aperturas=new Map((empresaCorteDatos?.aperturas||[]).map(a=>[a.cuenta_id,a]));
+    const filas=cuentas.map(cuenta=>{
+        const apertura=aperturas.get(cuenta.id);
+        const valido=apertura?.estado==='confirmado'&&apertura.fecha_corte&&
+            apertura.saldo_inicial!=null&&apertura.fecha_corte<=fecha;
+        const prev=movimientos.filter(m=>m.cuentaId===cuenta.id&&
+            m.fecha>=apertura?.fecha_corte&&m.fecha<fecha);
+        const delDia=movimientos.filter(m=>m.cuentaId===cuenta.id&&m.fecha===fecha);
+        const tPrev=traspasos.filter(t=>t.fecha>=apertura?.fecha_corte&&t.fecha<fecha);
+        const tHoy=traspasos.filter(t=>t.fecha===fecha);
+        const suma=(registros,tipo)=>registros.filter(m=>m.tipo===tipo)
+            .reduce((total,m)=>total+importeMovimientoEmpresa(m),0);
+        const tr=(lista,key)=>lista.filter(t=>t[key]===cuenta.id)
+            .reduce((total,t)=>total+Number(t.monto||0),0);
+        const ingreso=suma(delDia,'ingreso'),egreso=suma(delDia,'gasto'),
+            recibido=tr(tHoy,'cuenta_destino_id'),enviado=tr(tHoy,'cuenta_origen_id');
+        const previo=suma(prev,'ingreso')-suma(prev,'gasto')+
+            tr(tPrev,'cuenta_destino_id')-tr(tPrev,'cuenta_origen_id');
+        const inicio=valido?Number(apertura.saldo_inicial)+previo:null;
+        const cierre=inicio==null?null:inicio+ingreso+recibido-egreso-enviado;
+        return {cuenta,inicio,cierre,ingreso,egreso,recibido,enviado};
+    });
+    const sum=campo=>filas.reduce((t,f)=>t+f[campo],0);
+    const sinCuenta=movimientos.filter(m=>m.fecha===fecha&&!m.cuentaId);
+    const todosConfirmados=filas.every(f=>f.inicio!==null);
+    return {fecha,filas,movimientos:movimientos.filter(m=>m.fecha===fecha),traspasos:traspasos.filter(t=>t.fecha===fecha),
+        sinCuenta,confirmado:todosConfirmados,
+        ingresos:sum('ingreso'),egresos:sum('egreso'),recibidos:sum('recibido'),enviados:sum('enviado'),
+        apertura:todosConfirmados?sum('inicio'):null,cierre:todosConfirmados?sum('cierre'):null};
+}
+function dineroCorteEmpresa(valor){return valor==null?'Sin confirmar':formatearMoneda(valor);}
+function filasCorteEmpresa(c){
+    return c.filas.map(f=>'<tr><td>'+escapeHtml(f.cuenta.alias||'—')+
+        '<small>'+escapeHtml(f.cuenta.banco||'')+'</small></td>'+
+        '<td>'+dineroCorteEmpresa(f.inicio)+'</td>'+
+        '<td>'+formatearMoneda(f.ingreso)+'</td>'+
+        '<td>'+formatearMoneda(f.recibido)+'</td>'+
+        '<td>'+formatearMoneda(f.egreso)+'</td>'+
+        '<td>'+formatearMoneda(f.enviado)+'</td>'+
+        '<td><strong>'+dineroCorteEmpresa(f.cierre)+'</strong></td></tr>').join('');
+}
+function detalleCorteEmpresa(c){
+    const idMap=new Map(c.filas.map(f=>[f.cuenta.id,f.cuenta.alias]));
+    let html='';
+    const grupos=[
+      ['Ingresos',c.movimientos.filter(m=>m.tipo==='ingreso'),m=>[m.concepto,m.categoria,idMap.get(m.cuentaId)||'Sin cuenta',m.monto]],
+      ['Egresos',c.movimientos.filter(m=>m.tipo==='gasto'),m=>[m.concepto,m.proveedor||m.categoria,idMap.get(m.cuentaId)||'Sin cuenta',m.monto]],
+      ['Traspasos recibidos',c.traspasos,t=>[t.concepto||'Traspaso',idMap.get(t.cuenta_origen_id)||'Origen',idMap.get(t.cuenta_destino_id)||'Destino',t.monto]],
+      ['Traspasos enviados',c.traspasos,t=>[t.concepto||'Traspaso',idMap.get(t.cuenta_origen_id)||'Origen',idMap.get(t.cuenta_destino_id)||'Destino',t.monto]]
+    ];
+    for(const [titulo,registros,presenta] of grupos){
+        html+='<h4 style="margin:18px 0 6px">'+escapeHtml(titulo)+'</h4>'+
+            (registros.length?'<div style="overflow-x:auto"><table class="fin-table"><thead><tr><th>Concepto</th><th>Referencia</th><th>Cuenta</th><th>Importe</th></tr></thead><tbody>'+
+            registros.map(r=>'<tr>'+presenta(r).map((v,i)=>'<td>'+ (i===3?formatearMoneda(Number(v)||0):escapeHtml(String(v||'—')) )+'</td>').join('')+'</tr>').join('')+
+            '</tbody></table></div>':'<p class="fin-empty">Sin movimientos.</p>');
+    }
+    return html;
+}
+function renderVistaDiarioEmpresa(){
+    const fecha=fechaCorteEmpresa();
+    const controles='<section class="fin-section"><div class="fin-section-heading"><div><span>04</span><h4>Corte diario de efectivo y bancos</h4></div></div>'+
+      '<div class="emp-filters"><button class="btn btn-outline btn-toolbar" type="button" onclick="moverDiaCorteEmpresa(-1)">‹</button>'+
+      '<input type="date" aria-label="Seleccionar fecha del corte" class="form-control" style="max-width:190px" value="'+fecha+'" onchange="cambiarDiaCorteEmpresa(this.value)">'+
+      '<button class="btn btn-outline btn-toolbar" type="button" onclick="moverDiaCorteEmpresa(1)">›</button>'+
+      '<button class="btn btn-outline btn-toolbar" type="button" onclick="cambiarDiaCorteEmpresa(fechaMexicoEmpresa())">Hoy</button>'+
+      '<button class="btn btn-primary btn-toolbar" type="button" onclick="imprimirCorteDiarioEmpresa()">Imprimir corte diario</button></div>';
+    if(!empresaCorteDatos){
+        const mensaje=empresaCorteCargando?'Consultando saldos y traspasos…':empresaCorteError||'Cargando información financiera…';
+        return controles+'<p class="fin-empty">'+escapeHtml(mensaje)+'</p>'+
+         (empresaCorteError?'<button type="button" class="btn btn-outline" onclick="cargarDatosCorteEmpresa()">Reintentar</button>':'')+'</section>';
+    }
+    const c=calcularCorteDiarioEmpresa(fecha);
+    const nota=c.confirmado?'Saldos calculados desde aperturas conciliadas.':
+        'Hay cuentas sin saldo inicial conciliado. Se muestran movimientos reales, pero NO se inventan aperturas ni cierres.';
+    return controles+'<p class="field-hint"><strong>'+escapeHtml(nota)+'</strong></p>'+
+      (c.sinCuenta.length?'<p class="advisor-warning">Atención: '+c.sinCuenta.length+' movimiento(s) histórico(s) sin cuenta asignada no se incluyen en el saldo por cuenta.</p>':'')+
+      '<div style="overflow-x:auto"><table class="fin-table"><thead><tr><th>Cuenta</th><th>Inicial</th><th>Ingreso</th><th>Recibido</th><th>Egreso</th><th>Enviado</th><th>Final</th></tr></thead><tbody>'+
+      filasCorteEmpresa(c)+
+      '<tr><th>TOTAL</th><th>'+dineroCorteEmpresa(c.apertura)+'</th><th>'+formatearMoneda(c.ingresos)+
+      '</th><th>'+formatearMoneda(c.recibidos)+'</th><th>'+formatearMoneda(c.egresos)+
+      '</th><th>'+formatearMoneda(c.enviados)+'</th><th>'+dineroCorteEmpresa(c.cierre)+'</th></tr>'+
+      '</tbody></table></div>'+detalleCorteEmpresa(c)+'</section>';
+}
+function imprimirCorteDiarioEmpresa(){
+    if(!empresaCorteDatos){alert('Carga primero el corte diario.');return;}
+    const c=calcularCorteDiarioEmpresa(fechaCorteEmpresa());
+    const nota=c.confirmado?'Saldos conciliados.':'SALDOS INICIALES SIN CONCILIAR: reporte provisional, no es un cierre validado.';
+    const html='<html lang="es"><head><meta charset="utf-8"><title>Corte diario '+c.fecha+
+      '</title><style>body{font:12px Arial,sans-serif;padding:24px}h1{font-size:22px}table{width:100%;border-collapse:collapse;font-size:10px}th,td{padding:7px;border:1px solid #ddd;text-align:left}td small{display:block}h4{margin-top:22px}.alerta{font-weight:bold;padding:12px;border:1px solid #999}</style></head><body>'+
+      '<h1>Revive Hogar · Corte de efectivo y bancos</h1>'+
+      '<p>Fecha del corte: '+c.fecha+' · Fecha de impresión: '+new Date().toLocaleString('es-MX')+'</p>'+
+      '<p class="alerta">'+nota+'</p>'+
+      '<table><thead><tr><th>Cuenta</th><th>Inicial</th><th>Ingresos</th><th>Recibidos</th><th>Egresos</th><th>Enviados</th><th>Final</th></tr></thead><tbody>'+
+      filasCorteEmpresa(c)+'</tbody></table>'+detalleCorteEmpresa(c)+
+      '<p style="margin-top:40px">Elaboró: ____________________ &nbsp;&nbsp; Autorizó: ____________________</p></body></html>';
+    const frame=document.createElement('iframe');
+    frame.style.cssText='position:fixed;width:0;height:0;border:0;opacity:0';
+    frame.setAttribute('title','Impresión del corte');
+    document.body.appendChild(frame);
+    frame.onload=()=>{try{frame.contentWindow?.focus();frame.contentWindow?.print();}finally{
+        setTimeout(()=>frame.remove(),30000);
+    }};
+    frame.srcdoc=html;
+}
+function abrirTraspasoEmpresa(){
+    if(!puedeGestionarGastosEmpresa())return;
+    let modal=document.getElementById('modal-traspaso-empresa');
+    if(!modal){
+        modal=document.createElement('div');modal.id='modal-traspaso-empresa';modal.className='modal';
+        modal.innerHTML='<div class="modal-content modal-content--wide"><div class="modal-header"><h3>Nuevo traspaso entre cuentas</h3>'+
+         '<button type="button" class="btn-close" onclick="cerrarTraspasoEmpresa()">×</button></div>'+
+         '<form id="form-traspaso-empresa" onsubmit="guardarTraspasoEmpresa(event)" class="form-grid">'+
+         '<div class="form-group"><label>Cuenta de origen *</label><select required id="traspaso-origen" class="form-control"></select></div>'+
+         '<div class="form-group"><label>Cuenta de destino *</label><select required id="traspaso-destino" class="form-control"></select></div>'+
+         '<div class="form-group"><label>Fecha *</label><input required type="date" id="traspaso-fecha" class="form-control"></div>'+
+         '<div class="form-group"><label>Monto ($) *</label><input required type="number" min="0.01" step="0.01" id="traspaso-monto" class="form-control"></div>'+
+         '<div class="form-group full-width"><label>Concepto</label><input maxlength="500" id="traspaso-concepto" class="form-control" placeholder="Motivo del traspaso"></div>'+
+         '<div class="form-group full-width modal-form-actions"><button type="button" class="btn btn-outline" onclick="cerrarTraspasoEmpresa()">Cancelar</button>'+
+         '<button type="submit" id="traspaso-enviar" class="btn btn-primary">Guardar traspaso</button></div></form></div>';
+        document.body.appendChild(modal);
+    }
+    const cuentas=getCuentasBancarias(), options='<option value="">Selecciona cuenta…</option>'+
+        cuentas.map(c=>'<option value="'+escapeHtml(c.id)+'">'+escapeHtml(c.banco+' · '+c.alias)+'</option>').join('');
+    document.getElementById('traspaso-origen').innerHTML=options;
+    document.getElementById('traspaso-destino').innerHTML=options;
+    document.getElementById('traspaso-fecha').value=fechaMexicoEmpresa();
+    empresaTraspasoRequestId=crypto.randomUUID();
+    modal.classList.add('active');
+}
+function cerrarTraspasoEmpresa(){
+    document.getElementById('modal-traspaso-empresa')?.classList.remove('active');
+}
+async function guardarTraspasoEmpresa(event){
+    event.preventDefault();
+    if(!puedeGestionarGastosEmpresa())return;
+    const boton=document.getElementById('traspaso-enviar');
+    if(boton.disabled)return;
+    const origen=document.getElementById('traspaso-origen').value,destino=document.getElementById('traspaso-destino').value;
+    const monto=document.getElementById('traspaso-monto').value;
+    if(!origen||!destino||origen===destino){alert('Selecciona cuentas de origen y destino diferentes.');return;}
+    if(!/^\\d+(?:\\.\\d{1,2})?$/.test(monto)||Number(monto)<=0){alert('Captura un monto válido con hasta dos decimales.');return;}
+    boton.disabled=true;boton.textContent='Confirmando…';
+    try{
+        const result=await fetch('/api/finanzas',{
+            method:'POST',credentials:'same-origin',redirect:'error',
+            headers:{'Content-Type':'application/json','X-RH-Finanzas':'1'},
+            body:JSON.stringify({requestId:empresaTraspasoRequestId,
+                fecha:document.getElementById('traspaso-fecha').value,
+                origen,destino,monto,concepto:document.getElementById('traspaso-concepto').value.trim()})
+        });
+        const data=await result.json();
+        if(!result.ok||!data.ok)throw new Error(data.message||'No se confirmó el traspaso.');
+        empresaTraspasoRequestId=null;
+        cerrarTraspasoEmpresa();
+        empresaCorteDatos=null;
+        alert('Traspaso guardado con folio '+data.folio+'. Recarga Revive para consultar los saldos actualizados.');
+        if(empresaVistaActiva==='diario')renderGastosEmpresa();
+    }catch(e){alert(e.message||'Error al guardar. Reintenta; se conservará el mismo folio para evitar duplicados.');}
+    finally{boton.disabled=false;boton.textContent='Guardar traspaso';}
 }
