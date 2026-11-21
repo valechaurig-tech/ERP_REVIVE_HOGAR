@@ -764,9 +764,24 @@ function renderVistaDiarioEmpresa(){
          (empresaCorteError?'<button type="button" class="btn btn-outline" onclick="cargarDatosCorteEmpresa()">Reintentar</button>':'')+'</section>';
     }
     const c=calcularCorteDiarioEmpresa(fecha);
+    const aperturas=new Map(empresaCorteDatos.aperturas.map(a=>[a.cuenta_id,a]));
+    const pendientes=getCuentasBancarias().filter(a=>aperturas.get(a.id)?.estado!=='confirmado');
+    const panel=pendientes.length?
+      '<div style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin:12px 0">'+
+      '<h4>Conciliación inicial · '+pendientes.length+' cuenta(s) pendientes</h4>'+
+      '<p class="field-hint">Solo confirma saldos y fechas que Vale haya validado. La fecha es el <strong>inicio del día</strong>. No se puede cambiar una apertura confirmada sin revisión administrativa.</p>'+
+      '<form class="form-grid" onsubmit="guardarAperturaEmpresa(event)">'+
+      '<div class="form-group"><label>Cuenta *</label><select id="rh-apertura-cuenta" class="form-control" required>'+
+      '<option value="">Seleccionar…</option>'+pendientes.map(a=>'<option value="'+escapeHtml(a.id)+'">'+escapeHtml(a.banco+' · '+a.alias)+'</option>').join('')+
+      '</select></div>'+
+      '<div class="form-group"><label>Fecha de apertura *</label><input id="rh-apertura-fecha" type="date" required class="form-control" value="'+fechaMexicoEmpresa()+'"></div>'+
+      '<div class="form-group"><label>Saldo inicial confirmado ($) *</label><input id="rh-apertura-saldo" type="number" step="0.01" required class="form-control" placeholder="También admite negativo"></div>'+
+      '<div class="form-group full-width"><label><input id="rh-apertura-confirma" type="checkbox" required> Confirmo que Vale concilió este saldo y esta fecha</label></div>'+
+      '<div class="form-group full-width"><button type="submit" id="rh-apertura-guardar" class="btn btn-primary">Confirmar apertura</button></div></form></div>'
+      :'';
     const nota=c.confirmado?'Saldos calculados desde aperturas conciliadas.':
         'Hay cuentas sin saldo inicial conciliado. Se muestran movimientos reales, pero NO se inventan aperturas ni cierres.';
-    return controles+'<p class="field-hint"><strong>'+escapeHtml(nota)+'</strong></p>'+
+    return controles+panel+'<p class="field-hint"><strong>'+escapeHtml(nota)+'</strong></p>'+
       (c.sinCuenta.length?'<p class="advisor-warning">Atención: '+c.sinCuenta.length+' movimiento(s) histórico(s) sin cuenta asignada no se incluyen en el saldo por cuenta.</p>':'')+
       '<div style="overflow-x:auto"><table class="fin-table"><thead><tr><th>Cuenta</th><th>Inicial</th><th>Ingreso</th><th>Recibido</th><th>Egreso</th><th>Enviado</th><th>Final</th></tr></thead><tbody>'+
       filasCorteEmpresa(c)+
@@ -851,4 +866,31 @@ async function guardarTraspasoEmpresa(event){
         if(empresaVistaActiva==='diario')renderGastosEmpresa();
     }catch(e){alert(e.message||'Error al guardar. Reintenta; se conservará el mismo folio para evitar duplicados.');}
     finally{boton.disabled=false;boton.textContent='Guardar traspaso';}
+}
+
+async function guardarAperturaEmpresa(event){
+    event.preventDefault();
+    if(!puedeGestionarGastosEmpresa())return;
+    const cuentaId=document.getElementById('rh-apertura-cuenta')?.value||'';
+    const fecha=document.getElementById('rh-apertura-fecha')?.value||'';
+    const saldo=document.getElementById('rh-apertura-saldo')?.value||'';
+    const confirmado=document.getElementById('rh-apertura-confirma')?.checked===true;
+    if(!confirmado||!cuentaId||!fecha||!saldo){
+       alert('Confirma la cuenta, fecha y el saldo conciliado.');return;
+    }
+    const btn=document.getElementById('rh-apertura-guardar');
+    if(btn.disabled)return;
+    btn.disabled=true;btn.textContent='Guardando apertura…';
+    try{
+       const res=await fetch('/api/finanzas',{
+          method:'POST',credentials:'same-origin',redirect:'error',
+          headers:{'Content-Type':'application/json','X-RH-Finanzas':'1'},
+          body:JSON.stringify({action:'confirmar_apertura',cuentaId,fecha,saldo,confirmado})
+       });
+       const data=await res.json();
+       if(!res.ok||!data.ok)throw new Error(data.message||'No fue posible confirmar.');
+       empresaCorteDatos=null;empresaCorteError='';
+       renderGastosEmpresa();
+    }catch(e){alert(e.message||'La confirmación no se pudo guardar.');}
+    finally{btn.disabled=false;btn.textContent='Confirmar apertura';}
 }
