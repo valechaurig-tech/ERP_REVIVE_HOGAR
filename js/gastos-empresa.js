@@ -38,10 +38,10 @@ const RH_METODOS_PAGO_EMPRESA = [
 
 const RH_BANCOS_EMPRESA = [
     'BBVA', 'Banorte', 'Santander', 'Banamex / Citibanamex',
-    'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro'
+    'HSBC', 'Scotiabank', 'Inbursa', 'Banregio', 'Afirme', 'Otro', 'Efectivo'
 ];
 
-const RH_EMPRESA_VISTAS = ['resumen', 'movimientos', 'presupuesto'];
+const RH_EMPRESA_VISTAS = ['resumen', 'movimientos', 'presupuesto', 'diario'];
 
 let empresaMesActivo = null;
 let empresaVistaActiva = 'resumen';
@@ -92,6 +92,11 @@ function etiquetaCuentaBancaria(c) {
 
 function abrirModalCuentasBancarias() {
     if (!puedeGestionarGastosEmpresa()) return;
+    // El HTML publicado aún no incluye esta opción; añadirla sin duplicarla.
+    const selectorBanco = document.getElementById('cuenta-bancaria-banco');
+    if (selectorBanco && ![...selectorBanco.options].some(op => op.value === 'Efectivo')) {
+        selectorBanco.add(new Option('Efectivo', 'Efectivo'));
+    }
     document.getElementById('cuenta-bancaria-id').value = '';
     document.getElementById('cuenta-bancaria-banco').value = '';
     document.getElementById('cuenta-bancaria-alias').value = '';
@@ -154,7 +159,13 @@ function guardarCuentaBancaria(event) {
 }
 
 function eliminarCuentaBancaria(id) {
-    if (!puedeGestionarGastosEmpresa() || !confirmAction('¿Eliminar esta cuenta bancaria?')) return;
+    if (!puedeGestionarGastosEmpresa()) return;
+    // Proteger la trazabilidad: ninguna cuenta usada puede borrarse.
+    if (getMovimientosEmpresa().some(m => m.cuentaId === id)) {
+        alert('Esta cuenta tiene movimientos asociados y no se puede eliminar. Debe conservarse para el historial.');
+        return;
+    }
+    if (!confirmAction('¿Eliminar esta cuenta bancaria?')) return;
     DB.set('cuentasBancarias', getCuentasBancarias().filter(x => x.id !== id));
     logAction('Cuenta bancaria eliminada');
     renderListaCuentasBancarias();
@@ -177,7 +188,7 @@ function filtrarCuentasPorBancoMovimiento(cuentaSeleccionada) {
     if (!cuentaSel) return;
     const cuentas = getCuentasBancarias().filter(c => !banco || c.banco === banco);
     const seleccion = cuentaSeleccionada || cuentaSel.value || '';
-    cuentaSel.innerHTML = `<option value="">Sin cuenta</option>${cuentas.map(c =>
+    cuentaSel.innerHTML = `<option value="">Selecciona cuenta…</option>${cuentas.map(c =>
         `<option value="${escapeHtml(c.id)}" ${c.id === seleccion ? 'selected' : ''}>${escapeHtml(etiquetaCuentaBancaria(c))}</option>`).join('')}`;
     if (!cuentas.length && banco) {
         cuentaSel.innerHTML += '<option value="" disabled>No hay cuentas de este banco · usa “Cuentas bancarias”</option>';
@@ -310,10 +321,15 @@ function renderGastosEmpresa() {
         btn.classList.toggle('active', btn.dataset.empVista === empresaVistaActiva);
     });
 
+    instalarAccesosFinancierosDiarios();
     const contenido = document.getElementById('emp-contenido');
     if (!contenido) return;
     if (empresaVistaActiva === 'resumen') contenido.innerHTML = renderVistaResumenEmpresa(mes, resumen);
     else if (empresaVistaActiva === 'movimientos') contenido.innerHTML = renderVistaMovimientosEmpresa(mes);
+    else if (empresaVistaActiva === 'diario') {
+        contenido.innerHTML = renderVistaDiarioEmpresa();
+        if (!empresaCorteDatos && !empresaCorteCargando && !empresaCorteError) cargarDatosCorteEmpresa();
+    }
     else contenido.innerHTML = renderVistaPresupuestoEmpresa(mes, resumen);
 }
 
@@ -416,7 +432,7 @@ function tablaMovimientosEmpresa(items, compacto) {
             <td><strong>${escapeHtml(m.concepto || '—')}</strong>${m.referencia ? `<small>Ref: ${escapeHtml(m.referencia)}</small>` : ''}${m.notas ? `<small>${escapeHtml(m.notas)}</small>` : ''}</td>
             <td>${escapeHtml(m.categoria || '—')}</td>
             <td>${escapeHtml(m.proveedor || '—')}${m.metodoPago ? `<small>${escapeHtml(m.metodoPago)}</small>` : ''}</td>
-            <td>${escapeHtml(m.banco || '—')}${m.cuentaAlias ? `<small>${escapeHtml(m.cuentaAlias)}</small>` : ''}</td>
+            <td>${escapeHtml(m.banco || '—')}${!m.cuentaId ? '<small>Sin cuenta asignada (histórico)</small>' : ''}${m.cuentaAlias ? `<small>${escapeHtml(m.cuentaAlias)}</small>` : ''}</td>
             <td class="text-right ${m.tipo === 'ingreso' ? 'emp-positive' : 'emp-negative'}">${m.tipo === 'ingreso' ? '+' : '−'}${formatearMoneda(m.monto)}</td>
             ${compacto ? '' : `<td><button type="button" class="btn-icon-danger" onclick="eliminarMovimientoEmpresa('${m.id}')" aria-label="Eliminar">×</button>
                 <button type="button" class="btn btn-outline btn-toolbar emp-edit-btn" onclick="abrirModalMovimientoEmpresa('${m.id}')">Editar</button></td>`}
@@ -435,6 +451,20 @@ function abrirModalMovimientoEmpresa(id) {
     document.getElementById('emp-mov-id').value = mov?.id || '';
     document.getElementById('emp-mov-fecha').value = mov?.fecha || hoyISO();
     document.getElementById('emp-mov-tipo').value = tipo;
+    // Clasificación de la empresa sin alterar el esquema del formulario publicado.
+    if(!document.getElementById('emp-mov-empresa')){
+        const concepto=document.getElementById('emp-mov-concepto');
+        const grupo=concepto?.closest('.form-group');
+        if(grupo?.parentNode){
+            const campo=document.createElement('div');
+            campo.className='form-group';
+            campo.innerHTML='<label for="emp-mov-empresa">Empresa (opcional)</label>'+
+                '<input id="emp-mov-empresa" class="form-control" type="text" maxlength="120" placeholder="Empresa a la que corresponde">';
+            grupo.parentNode.insertBefore(campo,grupo.nextSibling);
+        }
+    }
+    const empresa=document.getElementById('emp-mov-empresa');
+    if(empresa)empresa.value=mov?.empresa||'';
     document.getElementById('emp-mov-concepto').value = mov?.concepto || '';
     document.getElementById('emp-mov-proveedor').value = mov?.proveedor || '';
     document.getElementById('emp-mov-monto').value = mov?.monto != null ? mov.monto : '';
@@ -462,6 +492,12 @@ function guardarMovimientoEmpresa(event) {
     const id = document.getElementById('emp-mov-id')?.value || DB.getId();
     const cuentaId = document.getElementById('emp-mov-cuenta')?.value || '';
     const cuenta = getCuentasBancarias().find(c => c.id === cuentaId);
+    // Solo se exige la cuenta al GUARDAR. No se modifica el historial existente.
+    if (!cuenta) {
+        alert('Selecciona una cuenta válida para registrar este ingreso o egreso. Si es efectivo, crea primero una cuenta de efectivo.');
+        document.getElementById('emp-mov-cuenta')?.focus();
+        return;
+    }
     const mov = {
         id,
         fecha: document.getElementById('emp-mov-fecha')?.value || hoyISO(),
@@ -469,6 +505,7 @@ function guardarMovimientoEmpresa(event) {
         categoria: document.getElementById('emp-mov-categoria')?.value || '',
         concepto: document.getElementById('emp-mov-concepto')?.value.trim() || '',
         proveedor: document.getElementById('emp-mov-proveedor')?.value.trim() || '',
+        empresa: document.getElementById('emp-mov-empresa')?.value.trim() || '',
         monto: Math.max(0, Number(document.getElementById('emp-mov-monto')?.value || 0)),
         metodoPago: document.getElementById('emp-mov-metodo')?.value || '',
         banco: document.getElementById('emp-mov-banco')?.value || cuenta?.banco || '',
@@ -480,7 +517,7 @@ function guardarMovimientoEmpresa(event) {
         actualizadoEn: new Date().toISOString(),
         creadoPor: getUsuarioActual()
     };
-    if (!mov.concepto || !mov.monto) {
+    if (!mov.concepto || !Number.isFinite(mov.monto) || mov.monto <= 0) {
         alert('Concepto y monto son obligatorios.');
         return;
     }
@@ -592,4 +629,368 @@ function imprimirReporteEmpresa() {
     ventana.document.close();
     ventana.focus();
     ventana.print();
+}
+
+/* ════════════════════════════════════════════════════════════
+ * Saldos diarios y traspasos — datos reales, sin apertura falsa.
+ * Un traspaso se guarda atómicamente SOLO mediante /api/finanzas.
+ * ════════════════════════════════════════════════════════════ */
+let empresaCorteDatos = null;
+let empresaCorteCargando = false;
+let empresaCorteError = '';
+let empresaCorteDiaActivo = null;
+let empresaTraspasoRequestId = null;
+
+function fechaMexicoEmpresa(){
+    const partes = new Intl.DateTimeFormat('es-MX',{
+        timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'
+    }).formatToParts(new Date());
+    const v = tipo => partes.find(x=>x.type===tipo)?.value||'';
+    return v('year')+'-'+v('month')+'-'+v('day');
+}
+function fechaCorteEmpresa(){
+    return empresaCorteDiaActivo||fechaMexicoEmpresa();
+}
+function cambiarDiaCorteEmpresa(valor){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(valor||'')))return;
+    empresaCorteDiaActivo=valor;
+    if(empresaVistaActiva==='diario')renderGastosEmpresa();
+}
+function moverDiaCorteEmpresa(delta){
+    const t=fechaCorteEmpresa().split('-').map(Number);
+    const d=new Date(Date.UTC(t[0],t[1]-1,t[2]+delta));
+    cambiarDiaCorteEmpresa(d.toISOString().slice(0,10));
+}
+function instalarAccesosFinancierosDiarios(){
+    if(!puedeGestionarGastosEmpresa())return;
+    const ultima=document.querySelector('[data-emp-vista="presupuesto"]');
+    if(ultima?.parentElement&&!ultima.parentElement.querySelector('[data-emp-vista="diario"]')){
+        const btn=document.createElement('button');
+        btn.type='button';btn.className=ultima.className;
+        btn.dataset.empVista='diario';btn.textContent='Saldos diarios';
+        btn.addEventListener('click',()=>cambiarVistaEmpresa('diario'));
+        ultima.parentElement.appendChild(btn);
+    }
+    const barra=document.querySelector('#mod-gastos-empresa .emp-toolbar-actions');
+    if(barra&&!document.getElementById('rh-traspaso-abrir')){
+        const boton=document.createElement('button');
+        boton.type='button';boton.id='rh-traspaso-abrir';boton.className='btn btn-primary btn-toolbar';
+        boton.textContent='↔ Traspaso';
+        boton.addEventListener('click',abrirTraspasoEmpresa);
+        barra.appendChild(boton);
+    }
+    const nueva=document.querySelector('[data-emp-vista="diario"]');
+    if(nueva)nueva.classList.toggle('active',empresaVistaActiva==='diario');
+}
+async function cargarDatosCorteEmpresa(){
+    if(empresaCorteCargando||!puedeGestionarGastosEmpresa())return;
+    empresaCorteCargando=true;empresaCorteError='';
+    try{
+        const response=await fetch('/api/finanzas',{
+            credentials:'same-origin',cache:'no-store',redirect:'error'
+        });
+        if(!response.ok)throw new Error(response.status===401?'Tu sesión debe renovarse.': 'No se pudieron cargar los traspasos.');
+        const datos=await response.json();
+        if(!Array.isArray(datos.transferencias)||!Array.isArray(datos.aperturas))throw new Error('Datos financieros incompletos.');
+        empresaCorteDatos=datos;
+    }catch(err){empresaCorteError=err.message||'Error de carga';}
+    finally{
+        empresaCorteCargando=false;
+        if(empresaVistaActiva==='diario')renderGastosEmpresa();
+    }
+}
+function importeMovimientoEmpresa(m){
+    const n=Number(m.monto);
+    return Number.isFinite(n)?Math.round(n*100)/100:0;
+}
+function calcularCorteDiarioEmpresa(fecha){
+    const cuentas=getCuentasBancarias();
+    const movimientos=getMovimientosEmpresa();
+    const traspasos=empresaCorteDatos?.transferencias||[];
+    const aperturas=new Map((empresaCorteDatos?.aperturas||[]).map(a=>[a.cuenta_id,a]));
+    const filas=cuentas.map(cuenta=>{
+        const apertura=aperturas.get(cuenta.id);
+        const valido=apertura?.estado==='confirmado'&&apertura.fecha_corte&&
+            apertura.saldo_inicial!=null&&apertura.fecha_corte<=fecha;
+        const prev=movimientos.filter(m=>m.cuentaId===cuenta.id&&
+            m.fecha>=apertura?.fecha_corte&&m.fecha<fecha);
+        const delDia=movimientos.filter(m=>m.cuentaId===cuenta.id&&m.fecha===fecha);
+        const tPrev=traspasos.filter(t=>t.fecha>=apertura?.fecha_corte&&t.fecha<fecha);
+        const tHoy=traspasos.filter(t=>t.fecha===fecha);
+        const suma=(registros,tipo)=>registros.filter(m=>m.tipo===tipo)
+            .reduce((total,m)=>total+importeMovimientoEmpresa(m),0);
+        const tr=(lista,key)=>lista.filter(t=>t[key]===cuenta.id)
+            .reduce((total,t)=>total+Number(t.monto||0),0);
+        const ingreso=suma(delDia,'ingreso'),egreso=suma(delDia,'gasto'),
+            recibido=tr(tHoy,'cuenta_destino_id'),enviado=tr(tHoy,'cuenta_origen_id');
+        const previo=suma(prev,'ingreso')-suma(prev,'gasto')+
+            tr(tPrev,'cuenta_destino_id')-tr(tPrev,'cuenta_origen_id');
+        const inicio=valido?Number(apertura.saldo_inicial)+previo:null;
+        const cierre=inicio==null?null:inicio+ingreso+recibido-egreso-enviado;
+        return {cuenta,inicio,cierre,ingreso,egreso,recibido,enviado};
+    });
+    const sum=campo=>filas.reduce((t,f)=>t+f[campo],0);
+    const sinCuenta=movimientos.filter(m=>m.fecha===fecha&&!m.cuentaId);
+    const todosConfirmados=filas.every(f=>f.inicio!==null);
+    return {fecha,filas,movimientos:movimientos.filter(m=>m.fecha===fecha),traspasos:traspasos.filter(t=>t.fecha===fecha),
+        sinCuenta,confirmado:todosConfirmados,
+        ingresos:sum('ingreso'),egresos:sum('egreso'),recibidos:sum('recibido'),enviados:sum('enviado'),
+        apertura:todosConfirmados?sum('inicio'):null,cierre:todosConfirmados?sum('cierre'):null};
+}
+function dineroCorteEmpresa(valor){return valor==null?'Sin confirmar':formatearMoneda(valor);}
+function filasCorteEmpresa(c){
+    return c.filas.map(f=>'<tr><td>'+escapeHtml(f.cuenta.alias||'—')+
+        '<small>'+escapeHtml(f.cuenta.banco||'')+'</small></td>'+
+        '<td>'+dineroCorteEmpresa(f.inicio)+'</td>'+
+        '<td>'+formatearMoneda(f.ingreso)+'</td>'+
+        '<td>'+formatearMoneda(f.recibido)+'</td>'+
+        '<td>'+formatearMoneda(f.egreso)+'</td>'+
+        '<td>'+formatearMoneda(f.enviado)+'</td>'+
+        '<td><strong>'+dineroCorteEmpresa(f.cierre)+'</strong></td></tr>').join('');
+}
+function detalleCorteEmpresa(c){
+    const idMap=new Map(c.filas.map(f=>[f.cuenta.id,f.cuenta.alias]));
+    let html='';
+    const grupos=[
+      ['Ingresos',c.movimientos.filter(m=>m.tipo==='ingreso'),m=>[m.concepto,m.categoria,idMap.get(m.cuentaId)||'Sin cuenta',m.monto]],
+      ['Egresos',c.movimientos.filter(m=>m.tipo==='gasto'),m=>[m.concepto,m.proveedor||m.categoria,idMap.get(m.cuentaId)||'Sin cuenta',m.monto]],
+      ['Traspasos recibidos',c.traspasos,t=>[t.concepto||'Traspaso',idMap.get(t.cuenta_origen_id)||'Origen',idMap.get(t.cuenta_destino_id)||'Destino',t.monto]],
+      ['Traspasos enviados',c.traspasos,t=>[t.concepto||'Traspaso',idMap.get(t.cuenta_origen_id)||'Origen',idMap.get(t.cuenta_destino_id)||'Destino',t.monto]]
+    ];
+    for(const [titulo,registros,presenta] of grupos){
+        html+='<h4 style="margin:18px 0 6px">'+escapeHtml(titulo)+'</h4>'+
+            (registros.length?'<div style="overflow-x:auto"><table class="fin-table"><thead><tr><th>Concepto</th><th>Referencia</th><th>Cuenta</th><th>Importe</th></tr></thead><tbody>'+
+            registros.map(r=>'<tr>'+presenta(r).map((v,i)=>'<td>'+ (i===3?formatearMoneda(Number(v)||0):escapeHtml(String(v||'—')) )+'</td>').join('')+'</tr>').join('')+
+            '</tbody></table></div>':'<p class="fin-empty">Sin movimientos.</p>');
+    }
+    return html;
+}
+function renderVistaDiarioEmpresa(){
+    const fecha=fechaCorteEmpresa();
+    const controles='<section class="fin-section"><div class="fin-section-heading"><div><span>04</span><h4>Corte diario de efectivo y bancos</h4></div></div>'+
+      '<div class="emp-filters"><button class="btn btn-outline btn-toolbar" type="button" onclick="moverDiaCorteEmpresa(-1)">‹</button>'+
+      '<input type="date" aria-label="Seleccionar fecha del corte" class="form-control" style="max-width:190px" value="'+fecha+'" onchange="cambiarDiaCorteEmpresa(this.value)">'+
+      '<button class="btn btn-outline btn-toolbar" type="button" onclick="moverDiaCorteEmpresa(1)">›</button>'+
+      '<button class="btn btn-outline btn-toolbar" type="button" onclick="cambiarDiaCorteEmpresa(fechaMexicoEmpresa())">Hoy</button>'+
+      '<button class="btn btn-primary btn-toolbar" type="button" onclick="imprimirCorteDiarioEmpresa()">Imprimir corte diario</button></div>';
+    if(!empresaCorteDatos){
+        const mensaje=empresaCorteCargando?'Consultando saldos y traspasos…':empresaCorteError||'Cargando información financiera…';
+        return controles+'<p class="fin-empty">'+escapeHtml(mensaje)+'</p>'+
+         (empresaCorteError?'<button type="button" class="btn btn-outline" onclick="cargarDatosCorteEmpresa()">Reintentar</button>':'')+'</section>';
+    }
+    const c=calcularCorteDiarioEmpresa(fecha);
+    const aperturas=new Map(empresaCorteDatos.aperturas.map(a=>[a.cuenta_id,a]));
+    const pendientes=getCuentasBancarias().filter(a=>aperturas.get(a.id)?.estado!=='confirmado');
+    const panel=pendientes.length?
+      '<div style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin:12px 0">'+
+      '<h4>Conciliación inicial · '+pendientes.length+' cuenta(s) pendientes</h4>'+
+      '<p class="field-hint">Solo confirma saldos y fechas que Vale haya validado. La fecha es el <strong>inicio del día</strong>. No se puede cambiar una apertura confirmada sin revisión administrativa.</p>'+
+      '<form id="form-apertura-empresa" class="form-grid" onsubmit="guardarAperturaEmpresa(event)">'+
+      '<div class="form-group"><label>Cuenta *</label><select id="rh-apertura-cuenta" class="form-control" required>'+
+      '<option value="">Seleccionar…</option>'+pendientes.map(a=>'<option value="'+escapeHtml(a.id)+'">'+escapeHtml(a.banco+' · '+a.alias)+'</option>').join('')+
+      '</select></div>'+
+      '<div class="form-group"><label>Fecha de apertura *</label><input id="rh-apertura-fecha" type="date" required class="form-control" value="'+fechaMexicoEmpresa()+'"></div>'+
+      '<div class="form-group"><label>Saldo inicial confirmado ($) *</label><input id="rh-apertura-saldo" type="number" step="0.01" required class="form-control" placeholder="También admite negativo"></div>'+
+      '<div class="form-group full-width"><label><input id="rh-apertura-confirma" type="checkbox" required> Confirmo que Vale concilió este saldo y esta fecha</label></div>'+
+      '<div class="form-group full-width"><button type="submit" id="rh-apertura-guardar" class="btn btn-primary">Confirmar apertura</button></div></form></div>'
+      :'';
+    const nota=c.confirmado?'Saldos calculados desde aperturas conciliadas.':
+        'Hay cuentas sin saldo inicial conciliado. Se muestran movimientos reales, pero NO se inventan aperturas ni cierres.';
+    return controles+panel+'<p class="field-hint"><strong>'+escapeHtml(nota)+'</strong></p>'+
+      (c.sinCuenta.length?'<p class="advisor-warning">Atención: '+c.sinCuenta.length+' movimiento(s) histórico(s) sin cuenta asignada no se incluyen en el saldo por cuenta.</p>':'')+
+      '<div style="overflow-x:auto"><table class="fin-table"><thead><tr><th>Cuenta</th><th>Inicial</th><th>Ingreso</th><th>Recibido</th><th>Egreso</th><th>Enviado</th><th>Final</th></tr></thead><tbody>'+
+      filasCorteEmpresa(c)+
+      '<tr><th>TOTAL</th><th>'+dineroCorteEmpresa(c.apertura)+'</th><th>'+formatearMoneda(c.ingresos)+
+      '</th><th>'+formatearMoneda(c.recibidos)+'</th><th>'+formatearMoneda(c.egresos)+
+      '</th><th>'+formatearMoneda(c.enviados)+'</th><th>'+dineroCorteEmpresa(c.cierre)+'</th></tr>'+
+      '</tbody></table></div>'+detalleCorteEmpresa(c)+'</section>';
+}
+/* Reporte fiel a las secciones del formato diario recibido de Alexis:
+ * resumen por cuenta, movimientos, traspasos, observaciones y firmas.
+ * No se importan los saldos del PDF de referencia ni se inventa empresa.
+ */
+function generarHTMLCorteDiarioEmpresa(fecha) {
+    if (!empresaCorteDatos) throw new Error('Primero carga el corte diario.');
+    const c=calcularCorteDiarioEmpresa(fecha);
+    const cuentas=getCuentasBancarias();
+    const nombreCuenta=id=>cuentas.find(x=>x.id===id)?.alias||'Cuenta sin identificar';
+    const esc=value=>escapeHtml(String(value==null||value===''?'—':value));
+    const money=n=>formatearMoneda(Number(n)||0);
+    const moneyOrPending=n=>n==null?'SIN CONFIRMAR':money(n);
+    const ahora=new Date().toLocaleString('es-MX',{timeZone:'America/Mexico_City'});
+    const total=(nombre,valor)=>'<td><strong>'+esc(nombre)+'</strong></td><td><strong>'+money(valor)+'</strong></td>';
+    const header=['Cuenta / banco','Saldo inicial','Ingresos','Egresos','Traspasos recibidos',
+      'Traspasos enviados','Saldo final'];
+    const tablaResumen='<table class="resumen"><thead><tr>'+
+      header.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+
+      c.filas.map(f=>'<tr><td><strong>'+esc(f.cuenta.alias)+'</strong><small>'+
+        esc(f.cuenta.banco)+'</small></td><td>'+moneyOrPending(f.inicio)+'</td>'+
+        '<td>'+money(f.ingreso)+'</td><td>'+money(f.egreso)+'</td>'+
+        '<td>'+money(f.recibido)+'</td><td>'+money(f.enviado)+'</td>'+
+        '<td><strong>'+moneyOrPending(f.cierre)+'</strong></td></tr>').join('')+
+      '<tr class="total"><th>TOTALES</th><th>'+moneyOrPending(c.apertura)+'</th>'+
+      '<th>'+money(c.ingresos)+'</th><th>'+money(c.egresos)+'</th>'+
+      '<th>'+money(c.recibidos)+'</th><th>'+money(c.enviados)+'</th>'+
+      '<th>'+moneyOrPending(c.cierre)+'</th></tr></tbody></table>';
+
+    function seccion(titulo,encabezados,datos) {
+        const estilo=titulo.startsWith('TRASPASOS')?'traspasos':'operaciones';
+        return '<section class="detalle '+estilo+'"><h2>'+esc(titulo)+'</h2><table><thead><tr>'+
+           encabezados.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+
+           (datos.length?datos.map(d=>'<tr>'+
+              d.map((x,i)=>'<td>'+ (i===d.length-1?money(x):esc(x))+'</td>').join('')+
+              '</tr>').join(''):'<tr><td colspan="'+encabezados.length+'">Sin movimientos en este día</td></tr>')+
+           '</tbody></table><p class="subtotal">TOTAL: '+money(datos.reduce((s,d)=>s+Number(d[d.length-1]||0),0))+'</p></section>';
+    }
+    const ingresos=c.movimientos.filter(x=>x.tipo==='ingreso').map(m=>[
+      m.proveedor,m.metodoPago,nombreCuenta(m.cuentaId),m.empresa||'—',m.concepto,m.monto]);
+    const egresos=c.movimientos.filter(x=>x.tipo==='gasto').map(m=>[
+      m.proveedor,m.metodoPago,m.concepto,nombreCuenta(m.cuentaId),m.categoria,m.empresa||'—',m.monto]);
+    const transferencias=c.traspasos.map(t=>[
+      nombreCuenta(t.cuenta_origen_id),'Traspaso',nombreCuenta(t.cuenta_destino_id),
+      t.concepto||'Traspaso',Number(t.monto||0)]);
+    const transferenciasSalida=c.traspasos.map(t=>[
+      nombreCuenta(t.cuenta_destino_id),'Traspaso',t.concepto||'Traspaso',
+      nombreCuenta(t.cuenta_origen_id),Number(t.monto||0)]);
+    const detalle='<div class="doble">'+
+      seccion('INGRESOS',['Remitente','Forma de pago','Cuenta beneficiaria','Empresa','Concepto','Monto'],ingresos)+
+      seccion('EGRESOS',['Beneficiario','Forma de pago','Concepto','Cuenta ordenante','Categoría','Empresa','Monto'],egresos)+
+      '</div><div class="doble">'+
+      seccion('TRASPASOS RECIBIDOS',['Remitente','Forma de pago','Cuenta beneficiaria','Concepto','Monto'],transferencias)+
+      seccion('TRASPASOS ENVIADOS',['Beneficiario','Forma de pago','Concepto','Cuenta ordenante','Monto'],transferenciasSalida)+
+      '</div>';
+    const aviso=c.confirmado?'Saldos calculados desde aperturas conciliadas.':
+      'REPORTE PROVISIONAL: existen saldos iniciales pendientes de conciliación. No constituye cierre contable validado.';
+    const sinCuenta=c.sinCuenta.length?
+      '<p class="alerta">'+c.sinCuenta.length+' movimiento(s) histórico(s) sin cuenta asignada. No se atribuyen a un saldo por cuenta.</p>':'';
+    const css='@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}'+
+      'body{font-family:Arial,sans-serif;color:#17212b;font-size:9px;margin:0}'+
+      'header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1b5a72;padding-bottom:7px}'+
+      'h1{font-size:17px;margin:0;color:#15445b}h2{font-size:11px;margin:11px 0 7px;color:#15445b}'+
+      '.fecha{font-size:10px}.encabezado{font-weight:bold;text-align:center;font-size:13px;margin:13px 0}'+
+      'table{width:100%;border-collapse:collapse;table-layout:fixed}th{background:#eef3f6;text-align:left}'+
+      'th,td{border:1px solid #cbd5df;padding:5px 4px;vertical-align:top;overflow-wrap:anywhere}'+
+      'td small{display:block;font-size:8px;color:#566879;margin-top:2px}'+
+      '.resumen{font-size:9px}.resumen tr.total{background:#e5eff3;font-weight:bold}'+
+      '.doble{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;align-items:start}'+
+      '.detalle table{font-size:8px}.detalle td{min-height:22px}.subtotal{text-align:right;font-weight:bold}'+
+      '.detalle.operaciones h2{color:#458b34}.detalle.operaciones th{background:#bcdca8}'+
+      '.detalle.traspasos h2{color:#d28709}.detalle.traspasos th{background:#ffe09a}'+
+      '.resumen th:nth-child(3),.resumen th:nth-child(4){color:#387b29}'+
+      '.resumen th:nth-child(5),.resumen th:nth-child(6){color:#be7b04}'+
+      '.alerta{font-weight:bold;margin:9px 0;padding:8px;border:1px solid #b58f38;background:#fff8e8}'+
+      '.observaciones{border-bottom:1px solid #9ca3af;height:35px;margin-top:10px}'+
+      '.firmas{display:grid;grid-template-columns:1fr 1fr;gap:45px;margin-top:36px}'+
+      '.firma{border-top:1px solid #334155;padding-top:6px;text-align:center}'+
+      '.pie{margin-top:20px;text-align:right;color:#4b5563;font-size:8px}'+
+      '@media print{.doble{break-inside:avoid}.detalle{break-inside:avoid}header{break-after:avoid}}';
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8">'+
+      '<title>Movimientos y saldos diarios · '+esc(c.fecha)+'</title>'+
+      '<style>'+css+'</style></head><body>'+
+      '<header><h1>REVIVE HOGAR</h1><div class="fecha"><strong>Fecha del corte:</strong> '+esc(c.fecha)+'</div></header>'+
+      '<div class="encabezado">MOVIMIENTOS Y SALDOS EN EFECTIVO / BANCOS</div>'+
+      '<p class="alerta">'+esc(aviso)+'</p>'+sinCuenta+
+      tablaResumen+detalle+
+      '<h2>OBSERVACIONES</h2><div class="observaciones"></div>'+
+      '<div class="firmas"><div class="firma">Elaboró: __________________________</div>'+
+      '<div class="firma">Firma de autorización: __________________________</div></div>'+
+      '<p class="pie">Fecha de impresión: '+esc(ahora)+'</p></body></html>';
+}
+function imprimirCorteDiarioEmpresa(){
+    if(!empresaCorteDatos){alert('Carga primero el corte diario.');return;}
+    const html=generarHTMLCorteDiarioEmpresa(fechaCorteEmpresa());
+    const frame=document.createElement('iframe');
+    frame.style.cssText='position:fixed;width:0;height:0;border:0;opacity:0';
+    frame.setAttribute('title','Impresión del corte diario');
+    document.body.appendChild(frame);
+    frame.onload=()=>{
+        try{frame.contentWindow?.focus();frame.contentWindow?.print();}
+        finally{setTimeout(()=>frame.remove(),30000);}
+    };
+    frame.srcdoc=html;
+}
+
+function abrirTraspasoEmpresa(){
+    if(!puedeGestionarGastosEmpresa())return;
+    let modal=document.getElementById('modal-traspaso-empresa');
+    if(!modal){
+        modal=document.createElement('div');modal.id='modal-traspaso-empresa';modal.className='modal';
+        modal.innerHTML='<div class="modal-content modal-content--wide"><div class="modal-header"><h3>Nuevo traspaso entre cuentas</h3>'+
+         '<button type="button" class="btn-close" onclick="cerrarTraspasoEmpresa()">×</button></div>'+
+         '<form id="form-traspaso-empresa" onsubmit="guardarTraspasoEmpresa(event)" class="form-grid">'+
+         '<div class="form-group"><label>Cuenta de origen *</label><select required id="traspaso-origen" class="form-control"></select></div>'+
+         '<div class="form-group"><label>Cuenta de destino *</label><select required id="traspaso-destino" class="form-control"></select></div>'+
+         '<div class="form-group"><label>Fecha *</label><input required type="date" id="traspaso-fecha" class="form-control"></div>'+
+         '<div class="form-group"><label>Monto ($) *</label><input required type="number" min="0.01" step="0.01" id="traspaso-monto" class="form-control"></div>'+
+         '<div class="form-group full-width"><label>Concepto</label><input maxlength="500" id="traspaso-concepto" class="form-control" placeholder="Motivo del traspaso"></div>'+
+         '<div class="form-group full-width modal-form-actions"><button type="button" class="btn btn-outline" onclick="cerrarTraspasoEmpresa()">Cancelar</button>'+
+         '<button type="submit" id="traspaso-enviar" class="btn btn-primary">Guardar traspaso</button></div></form></div>';
+        document.body.appendChild(modal);
+    }
+    const cuentas=getCuentasBancarias(), options='<option value="">Selecciona cuenta…</option>'+
+        cuentas.map(c=>'<option value="'+escapeHtml(c.id)+'">'+escapeHtml(c.banco+' · '+c.alias)+'</option>').join('');
+    document.getElementById('traspaso-origen').innerHTML=options;
+    document.getElementById('traspaso-destino').innerHTML=options;
+    document.getElementById('traspaso-fecha').value=fechaMexicoEmpresa();
+    empresaTraspasoRequestId=crypto.randomUUID();
+    modal.classList.add('active');
+    window.RH_USAGE?.anotar?.('form_open','form-traspaso-empresa');
+}
+function cerrarTraspasoEmpresa(){
+    document.getElementById('modal-traspaso-empresa')?.classList.remove('active');
+}
+async function guardarTraspasoEmpresa(event){
+    event.preventDefault();
+    if(!puedeGestionarGastosEmpresa())return;
+    const boton=document.getElementById('traspaso-enviar');
+    if(boton.disabled)return;
+    const origen=document.getElementById('traspaso-origen').value,destino=document.getElementById('traspaso-destino').value;
+    const monto=document.getElementById('traspaso-monto').value;
+    if(!origen||!destino||origen===destino){alert('Selecciona cuentas de origen y destino diferentes.');return;}
+    if(!/^\d+(?:\.\d{1,2})?$/.test(monto)||Number(monto)<=0){alert('Captura un monto válido con hasta dos decimales.');return;}
+    boton.disabled=true;boton.textContent='Confirmando…';
+    try{
+        const result=await fetch('/api/finanzas',{
+            method:'POST',credentials:'same-origin',redirect:'error',
+            headers:{'Content-Type':'application/json','X-RH-Finanzas':'1'},
+            body:JSON.stringify({requestId:empresaTraspasoRequestId,
+                fecha:document.getElementById('traspaso-fecha').value,
+                origen,destino,monto,concepto:document.getElementById('traspaso-concepto').value.trim()})
+        });
+        const data=await result.json();
+        if(!result.ok||!data.ok)throw new Error(data.message||'No se confirmó el traspaso.');
+        empresaTraspasoRequestId=null;
+        cerrarTraspasoEmpresa();
+        empresaCorteDatos=null;
+        alert('Traspaso guardado con folio '+data.folio+'. Recarga Revive para consultar los saldos actualizados.');
+        if(empresaVistaActiva==='diario')renderGastosEmpresa();
+    }catch(e){alert(e.message||'Error al guardar. Reintenta; se conservará el mismo folio para evitar duplicados.');}
+    finally{boton.disabled=false;boton.textContent='Guardar traspaso';}
+}
+
+async function guardarAperturaEmpresa(event){
+    event.preventDefault();
+    if(!puedeGestionarGastosEmpresa())return;
+    const cuentaId=document.getElementById('rh-apertura-cuenta')?.value||'';
+    const fecha=document.getElementById('rh-apertura-fecha')?.value||'';
+    const saldo=document.getElementById('rh-apertura-saldo')?.value||'';
+    const confirmado=document.getElementById('rh-apertura-confirma')?.checked===true;
+    if(!confirmado||!cuentaId||!fecha||!saldo){
+       alert('Confirma la cuenta, fecha y el saldo conciliado.');return;
+    }
+    const btn=document.getElementById('rh-apertura-guardar');
+    if(btn.disabled)return;
+    btn.disabled=true;btn.textContent='Guardando apertura…';
+    try{
+       const res=await fetch('/api/finanzas',{
+          method:'POST',credentials:'same-origin',redirect:'error',
+          headers:{'Content-Type':'application/json','X-RH-Finanzas':'1'},
+          body:JSON.stringify({action:'confirmar_apertura',cuentaId,fecha,saldo,confirmado})
+       });
+       const data=await res.json();
+       if(!res.ok||!data.ok)throw new Error(data.message||'No fue posible confirmar.');
+       empresaCorteDatos=null;empresaCorteError='';
+       renderGastosEmpresa();
+    }catch(e){alert(e.message||'La confirmación no se pudo guardar.');}
+    finally{btn.disabled=false;btn.textContent='Confirmar apertura';}
 }

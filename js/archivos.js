@@ -71,8 +71,8 @@ function nombreArchivoSeguro(nombre) {
 
 async function subirViaProxyServidor(path, file, mime) {
     const r = await fetch(`/api/archivos?action=upload&path=${encodeURIComponent(path)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': mime },
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': mime, 'X-RH-Archivos':'1' },
         body: file
     });
     const data = await r.json().catch(() => ({}));
@@ -82,8 +82,8 @@ async function subirViaProxyServidor(path, file, mime) {
 
 async function urlFirmadaViaProxy(storagePath) {
     const r = await fetch(`/api/archivos?action=signedUrl&path=${encodeURIComponent(storagePath)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-RH-Archivos':'1' },
         body: JSON.stringify({ path: storagePath })
     });
     const data = await r.json().catch(() => ({}));
@@ -93,8 +93,8 @@ async function urlFirmadaViaProxy(storagePath) {
 
 async function eliminarViaProxy(storagePath) {
     const r = await fetch(`/api/archivos?action=delete&path=${encodeURIComponent(storagePath)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-RH-Archivos':'1' },
         body: JSON.stringify({ path: storagePath })
     });
     const data = await r.json().catch(() => ({}));
@@ -106,19 +106,10 @@ async function guardarBinarioExpediente(prospectoId, tipo, file) {
     const mime = normalizarMimeArchivo(file);
     if (DB.mode() === 'cloud') {
         const path = `prospectos/${prospectoId}/${tipo}/${token}-${nombreArchivoSeguro(file.name)}`;
-        try {
-            await subirViaProxyServidor(path, file, mime);
-            return { almacenamiento: 'supabase', storagePath: path };
-        } catch (proxyError) {
-            // Compatibilidad: intenta cliente directo si el proxy aún no está desplegado.
-            if (supabaseClient) {
-                const { error } = await supabaseClient.storage
-                    .from(RH_ARCHIVOS_BUCKET)
-                    .upload(path, file, { cacheControl: '3600', upsert: false, contentType: mime });
-                if (!error) return { almacenamiento: 'supabase', storagePath: path };
-            }
-            console.warn('Storage nube no disponible; se guarda en este navegador.', proxyError);
-        }
+        // Un error del servidor NO debe almacenar expedientes empresariales
+        // solo en este dispositivo cuando está activada la nube.
+        await subirViaProxyServidor(path, file, mime);
+        return { almacenamiento: 'supabase', storagePath: path };
     }
     const localKey = `${prospectoId}/${tipo}/${token}`;
     await guardarBlobLocal(localKey, file);
@@ -127,17 +118,8 @@ async function guardarBinarioExpediente(prospectoId, tipo, file) {
 
 async function eliminarBinarioExpediente(a) {
     if (a?.almacenamiento === 'supabase' && a.storagePath) {
-        try {
-            await eliminarViaProxy(a.storagePath);
-            return;
-        } catch (e) {
-            if (supabaseClient) {
-                const { error } = await supabaseClient.storage.from(RH_ARCHIVOS_BUCKET).remove([a.storagePath]);
-                if (!error) return;
-                throw new Error(error.message || e.message);
-            }
-            throw e;
-        }
+        await eliminarViaProxy(a.storagePath);
+        return;
     } else if (a?.localKey) {
         await eliminarBlobLocal(a.localKey);
     }
@@ -238,16 +220,7 @@ async function subirArchivoProspecto(input, tipo, origen = 'expediente') {
 async function obtenerUrlArchivo(a, segundos = 3600) {
     if (!a) return '';
     if (a.almacenamiento === 'supabase' && a.storagePath) {
-        try {
-            return await urlFirmadaViaProxy(a.storagePath);
-        } catch (proxyError) {
-            if (!supabaseClient) throw proxyError;
-            const { data, error } = await supabaseClient.storage
-                .from(RH_ARCHIVOS_BUCKET)
-                .createSignedUrl(a.storagePath, segundos);
-            if (error) throw new Error(error.message || proxyError.message);
-            return data.signedUrl;
-        }
+        return await urlFirmadaViaProxy(a.storagePath);
     }
     if (a.localKey) {
         const blob = await leerBlobLocal(a.localKey);

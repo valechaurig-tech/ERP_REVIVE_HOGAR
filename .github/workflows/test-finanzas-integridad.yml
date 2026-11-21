@@ -1,0 +1,22 @@
+name: "Revive | Integridad financiera aislada"
+on:
+  pull_request:
+    branches:
+      - "work/responsive-redesign-2026-10-29"
+    paths:
+      - "js/gastos-empresa.js"
+      - "index.html"
+      - "scripts/test-finanzas-integridad.mjs"
+      - ".github/workflows/test-finanzas-integridad.yml"
+permissions:
+  contents: read
+jobs:
+  prueba-finanzas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node --test scripts/test-finanzas-integridad.mjs
