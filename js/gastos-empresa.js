@@ -770,7 +770,7 @@ function renderVistaDiarioEmpresa(){
       '<div style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin:12px 0">'+
       '<h4>Conciliación inicial · '+pendientes.length+' cuenta(s) pendientes</h4>'+
       '<p class="field-hint">Solo confirma saldos y fechas que Vale haya validado. La fecha es el <strong>inicio del día</strong>. No se puede cambiar una apertura confirmada sin revisión administrativa.</p>'+
-      '<form class="form-grid" onsubmit="guardarAperturaEmpresa(event)">'+
+      '<form id="form-apertura-empresa" class="form-grid" onsubmit="guardarAperturaEmpresa(event)">'+
       '<div class="form-group"><label>Cuenta *</label><select id="rh-apertura-cuenta" class="form-control" required>'+
       '<option value="">Seleccionar…</option>'+pendientes.map(a=>'<option value="'+escapeHtml(a.id)+'">'+escapeHtml(a.banco+' · '+a.alias)+'</option>').join('')+
       '</select></div>'+
@@ -835,6 +835,7 @@ function abrirTraspasoEmpresa(){
     document.getElementById('traspaso-fecha').value=fechaMexicoEmpresa();
     empresaTraspasoRequestId=crypto.randomUUID();
     modal.classList.add('active');
+    window.RH_USAGE?.anotar?.('form_open','form-traspaso-empresa');
 }
 function cerrarTraspasoEmpresa(){
     document.getElementById('modal-traspaso-empresa')?.classList.remove('active');
