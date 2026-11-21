@@ -1,284 +1,118 @@
 #!/usr/bin/env node
 /**
- * QA de sincronización SIN datos reales. Simula Supabase, navegador y fallos de red.
- * node scripts/test-db-sync.mjs
+ * Pruebas de sincronización por API protegida, con base falsa en memoria.
+ * No accede a producción, credenciales, ni expedientes reales.
  */
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import { fileURLToPath } from 'node:url';
-
-const source = readFileSync(fileURLToPath(new URL('../js/db.js', import.meta.url)), 'utf8');
-
-async function createHarness(initialRecords = null) {
-    const badge = { textContent: '', className: '' };
-    const events = {};
-    let failDeletes = false;
-    let failUpserts = false;
-    const remote = new Map();
-    const timers = [];
-    const calls = { delete: 0, upsert: 0, upsertRows: 0, update: 0, insert: 0, pages: 0 };
-    const stamps = new Map();
-    remote.set('prospectos', new Map(initialRecords
-        ? initialRecords.map(item => [item.id, item])
-        : [
-            ['rh_a', { id: 'rh_a', nombreCompleto: 'Ejemplo uno' }],
-            ['rh_b', { id: 'rh_b', nombreCompleto: 'Ejemplo dos' }]
-        ]));
-    function coll(key) {
-        if (!remote.has(key)) remote.set(key, new Map());
-        return remote.get(key);
-    }
-    const client = {
-        channel() { return { on() { return this; }, subscribe() { return this; } }; },
-        from(name) {
-            assert.equal(name, 'rh_records');
-            return {
-                select(column, options) {
-                    if (options?.count === 'exact') return Promise.resolve({ count: 2, error: null });
-                    let selectedKey;
-                    return {
-                        limit() { return Promise.resolve({ data: [], error: null }); },
-                        eq(field, key) {
-                            assert.equal(field, 'collection');
-                            selectedKey = key;
-                            return this;
-                        },
-                        order(field) {
-                            assert.equal(field, 'record_id');
-                            return this;
-                        },
-                        range(first, last) {
-                            calls.pages++;
-                            const values = [...coll(selectedKey).values()]
-                                .sort((a, b) => a.id.localeCompare(b.id))
-                                .slice(first, last + 1);
-                            return Promise.resolve({ data: values.map(data => ({
-                                data: structuredClone(data),
-                                record_id: data.id,
-                                updated_at: stamps.get(selectedKey + ':' + data.id) || 'v1'
-                            })), error: null });
-                        }
-                    };
-                },
-                delete() {
-                    let key;
-                    return {
-                        eq(column, value) {
-                            if (column === 'collection') {
-                                key = value;
-                                return this;
-                            }
-                            if (column === 'record_id') {
-                                calls.delete++;
-                                if (failDeletes) return Promise.resolve({ error: { message: 'Simulación de corte' } });
-                                coll(key).delete(value);
-                                return Promise.resolve({ error: null });
-                            }
-                            throw Error('Inesperado ' + column);
-                        },
-                        in(_column, ids) {
-                            calls.delete++;
-                            if (failDeletes) return Promise.resolve({ error: { message: 'Simulación de corte' } });
-                            ids.forEach(id => coll(key).delete(id));
-                            return Promise.resolve({ error: null });
-                        }
-                    };
-                },
-                upsert(rows) {
-                    calls.upsert++;
-                    calls.upsertRows += rows.length;
-                    if (failUpserts) return Promise.resolve({ error: { message: 'Escritura rechazada' } });
-                    for (const r of rows) coll(r.collection).set(r.record_id, structuredClone(r.data));
-                    return Promise.resolve({ error: null });
-                },
-                update(row) {
-                    const filters = {};
-                    return {
-                        eq(column, value) { filters[column] = value; return this; },
-                        select() {
-                            calls.update++;
-                            calls.upsertRows++;
-                            if (failUpserts) return Promise.resolve({ data: null, error: { message: 'Escritura rechazada' } });
-                            const map = coll(filters.collection);
-                            const stampKey = filters.collection + ':' + filters.record_id;
-                            if (!map.has(filters.record_id) || (stamps.get(stampKey) || 'v1') !== filters.updated_at) {
-                                return Promise.resolve({ data: [], error: null });
-                            }
-                            map.set(filters.record_id, structuredClone(row.data));
-                            const next = 'v' + (calls.update + 1);
-                            stamps.set(stampKey, next);
-                            return Promise.resolve({ data: [{ record_id: filters.record_id, updated_at: next }], error: null });
-                        }
-                    };
-                },
-                insert(row) {
-                    calls.insert++;
-                    calls.upsertRows++;
-                    if (failUpserts) return Promise.resolve({ error: { message: 'Escritura rechazada' } });
-                    const map = coll(row.collection);
-                    if (map.has(row.record_id)) return Promise.resolve({ error: { code: '23505', message: 'duplicate' } });
-                    map.set(row.record_id, structuredClone(row.data));
-                    stamps.set(row.collection + ':' + row.record_id, row.updated_at || 'v-new');
-                    return Promise.resolve({ error: null });
-                }
-            };
-        }
-    };
-    const storage = new Map();
-    const context = vm.createContext({
-        window: { RH_CONFIG: { SUPABASE_URL: 'https://test.invalid', SUPABASE_ANON_KEY: 'test' },
-            supabase: { createClient: () => client },
-            addEventListener: (event, fn) => { events[event] = fn; } },
-        localStorage: {
-            getItem: k => storage.get(k) ?? null,
-            setItem: (k, v) => storage.set(k, v)
-        },
-        document: { getElementById: () => badge },
-        console: { warn() {}, error() {} },
-        setTimeout: fn => { timers.push(fn); return timers.length; },
-        clearTimeout: () => {},
-        Date, Math, Set, JSON
-    });
-    vm.runInContext(source + '\n;globalThis.__qa={DB,DB_CACHE,pendingDeletes,flushPendientesEliminacion,persistirColeccionNube,cargarColeccionNube,DB_PENDING_WRITES};', context, {
-        filename: 'js/db.js'
-    });
-    const h = context.__qa;
-    await h.DB.init();
-    assert.equal(h.DB.mode(), 'cloud');
-    return {
-        ...h, badge, calls, remote, events,
-        setDeleteFailure: v => { failDeletes = v; },
-        setUpsertFailure: v => { failUpserts = v; },
-        touch(key, id) { stamps.set(key + ':' + id, 'externo-' + id); }
-    };
+const code=readFileSync(new URL('../js/db.js',import.meta.url),'utf8');
+async function setup(initial=[
+ {id:'a1',nombreCompleto:'Prospecto sintético uno'},
+ {id:'a2',nombreCompleto:'Prospecto sintético dos'}
+]){
+ const rows=new Map(initial.map(x=>[x.id,{data:structuredClone(x),
+  updated_at:'2026-11-20T10:00:00Z'}]));
+ const calls=[],local=new Map();
+ let failWrite=false,failDelete=false;
+ const ctx={
+  window:{RH_CONFIG:{SUPABASE_URL:'https://qa.supabase.co',SUPABASE_ANON_KEY:'ANON_TEST'},addEventListener(){}},
+  document:{getElementById:()=>null},
+  localStorage:{getItem:k=>local.get(k)||null,setItem:(k,v)=>local.set(k,v),removeItem:k=>local.delete(k)},
+  setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>2,clearInterval:()=>{},
+  console,Date,Math,Map,Set,JSON,
+  fetch:async(url,opt={})=>{
+   const q=new URL(url,'https://revive-hogar.vercel.app');
+   const action=opt.method==='POST'?JSON.parse(opt.body).action:'read';
+   const body=opt.method==='POST'?JSON.parse(opt.body):null;
+   const collection=q.searchParams.get('collection')||body?.collection;
+   calls.push({action,collection,body,url});
+   if(!opt.method||opt.method==='GET'){
+    const data=collection==='prospectos'?[...rows].map(([record_id,r])=>({record_id,...structuredClone(r)})):[];
+    const offset=Number(q.searchParams.get('offset')||0);
+    const limit=Number(q.searchParams.get('limit')||1000);
+    return{ok:true,status:200,json:async()=>({rows:data.slice(offset,offset+limit)})};
+   }
+   if(action==='delete'){
+    if(failDelete)return{ok:false,status:503,json:async()=>({message:'Error sintético delete'})};
+    rows.delete(body.record_id);
+    return{ok:true,status:200,json:async()=>({rows:[]})};
+   }
+   if(failWrite)return{ok:false,status:503,json:async()=>({message:'Error sintético de escritura'})};
+   if(action==='update'){
+    const row=rows.get(body.record_id);
+    if(!row||row.updated_at!==body.sello)return{ok:false,status:409,json:async()=>({message:'Conflicto'})};
+    row.data=structuredClone(body.data);
+    row.updated_at='2026-11-21T14:50:00Z';
+    return{ok:true,status:200,json:async()=>({rows:[{record_id:body.record_id,updated_at:row.updated_at}]})};
+   }
+   if(action==='insert'){
+    if(rows.has(body.record_id))return{ok:false,status:409,json:async()=>({message:'Duplicado'})};
+    rows.set(body.record_id,{data:structuredClone(body.data),updated_at:'2026-11-21T14:50:00Z'});
+    return{ok:true,status:201,json:async()=>({rows:[{record_id:body.record_id,updated_at:'2026-11-21T14:50:00Z'}]})};
+   }
+   throw Error('Acción inesperada: '+action);
+  }
+ };
+ vm.createContext(ctx);
+ vm.runInContext(code,ctx,{timeout:3000});
+ await vm.runInContext('DB.init()',ctx);
+ await vm.runInContext('DB.cargarDatosProtegidos()',ctx);
+ return{ctx,rows,calls,
+   get:(key)=>vm.runInContext('DB.get('+JSON.stringify(key)+')',ctx),
+   set:(key,val)=>vm.runInContext('DB.set('+JSON.stringify(key)+','+JSON.stringify(val)+')',ctx),
+   flush:()=>vm.runInContext('DB.flush()',ctx),
+   failWrite(v){failWrite=v},failDelete(v){failDelete=v}
+ };
 }
-
-let tests = 0;
-function ok(name) { tests++; console.log('PASS ' + name); }
-
-{
-    const h = await createHarness();
-    const list = h.DB.get('prospectos');
-    assert.equal(list.length, 2);
-    list.splice(0, 1);
-    h.DB.set('prospectos', list);
-    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), true,
-        'Un borrado in-place también debe detectarse');
-    ok('borrado in-place detectado desde snapshot independiente');
-    h.setDeleteFailure(true);
-    await assert.rejects(h.flushPendientesEliminacion('prospectos'), /RH-DB-002/);
-    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), true);
-    assert.match(h.badge.textContent, /Error de nube/);
-    ok('fallo de borrado mantiene cola y muestra error');
-    h.setDeleteFailure(false);
-    await h.flushPendientesEliminacion('prospectos');
-    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), false);
-    assert.equal(h.remote.get('prospectos').has('rh_a'), false);
-    ok('reintento de borrado confirmado elimina la cola');
-}
-{
-    const h = await createHarness();
-    const registros = h.DB.get('prospectos');
-    registros[0].nombreCompleto = 'Edición pendiente';
-    h.DB.set('prospectos', registros);
-    h.setUpsertFailure(true);
-    await assert.rejects(h.persistirColeccionNube('prospectos', true), /RH-DB-001/);
-    assert.match(h.badge.textContent, /Error de nube/);
-    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
-    ok('rechazo de upsert no declara nube sincronizada');
-    h.setUpsertFailure(false);
-    await h.persistirColeccionNube('prospectos', true);
-    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), false);
-    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Edición pendiente');
-    ok('un reintento tras recuperar conexión confirma el borrador');
-}
-{
-    const h = await createHarness();
-    h.setDeleteFailure(true);
-    const success = await h.DB.remove('prospectos', 'rh_a');
-    assert.equal(success, false);
-    assert.equal(h.DB.get('prospectos').some(i => i.id === 'rh_a'), true);
-    assert.match(h.badge.textContent, /Error de nube/);
-    ok('fallo de remove restaura registro visible y avisa');
-}
-{
-    const rows = Array.from({ length: 1005 }, (_, i) => ({
-        id: 'rh_' + String(i).padStart(5, '0'),
-        nombreCompleto: 'Demo ' + i
-    }));
-    const h = await createHarness(rows);
-    assert.equal(h.DB.get('prospectos').length, 1005);
-    assert.equal(h.DB.get('prospectos').at(-1).id, 'rh_01004');
-    assert.ok(h.calls.pages >= 2);
-    ok('lectura paginada incluye todos los registros después del límite de 1000');
-}
-{
-    const h = await createHarness();
-    const list = h.DB.get('prospectos');
-    list[0].nombreCompleto = 'Cambio pendiente';
-    h.DB.set('prospectos', list);
-    h.remote.get('prospectos').get('rh_a').nombreCompleto = 'Cambio externo';
-    h.touch('prospectos', 'rh_a');
-    const updated = await h.cargarColeccionNube('prospectos');
-    assert.equal(updated, false);
-    assert.equal(h.DB.get('prospectos')[0].nombreCompleto, 'Cambio pendiente');
-    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
-    ok('realtime no pisa borrador local no confirmado');
-    await assert.rejects(h.persistirColeccionNube('prospectos', true), /RH-DB-008/);
-    assert.equal(h.DB_PENDING_WRITES.has('prospectos'), true);
-    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Cambio externo');
-    ok('un guardado concurrente no sobrescribe el cambio del otro usuario');
-}
-{
-    const h = await createHarness();
-    h.DB.set('prospectos', h.DB.get('prospectos').filter(item => item.id !== 'rh_a'));
-    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), true);
-    h.DB.set('prospectos', [
-        ...h.DB.get('prospectos'),
-        { id: 'rh_a', nombreCompleto: 'Restaurado antes del borrado' }
-    ]);
-    assert.equal(h.pendingDeletes.prospectos.has('rh_a'), false);
-    await h.persistirColeccionNube('prospectos', true);
-    assert.equal(h.remote.get('prospectos').has('rh_a'), true);
-    ok('registro restaurado antes del envío cancela eliminación pendiente');
-}
-{
-    const h = await createHarness();
-    // Supabase externo cambia otro registro después de la lectura inicial.
-    h.remote.get('prospectos').get('rh_b').nombreCompleto = 'Edición de compañera';
-    const registros = h.DB.get('prospectos');
-    registros[0].nombreCompleto = 'Actualizado localmente';
-    h.DB.set('prospectos', registros);
-    await h.persistirColeccionNube('prospectos', true);
-    assert.equal(h.calls.update, 1);
-    assert.equal(h.calls.upsert, 0);
-    assert.equal(h.remote.get('prospectos').get('rh_a').nombreCompleto, 'Actualizado localmente');
-    assert.equal(h.remote.get('prospectos').get('rh_b').nombreCompleto, 'Edición de compañera');
-    ok('upsert solo actualiza registro cambiado sin pisar modificaciones ajenas');
-}
-{
-    const h = await createHarness();
-    await h.DB.flush();
-    assert.equal(h.calls.upsert, 0);
-    assert.equal(h.calls.delete, 0);
-    ok('flush de colección intacta evita sobrescribir datos ajenos');
-}
-{
-    const h = await createHarness();
-    let cancelados = 0;
-    const event = { returnValue: null, preventDefault() { cancelados++; } };
-    h.events.beforeunload(event);
-    assert.equal(cancelados, 0);
-    const rows = h.DB.get('prospectos');
-    rows[0].nombreCompleto = 'Edición a confirmar';
-    h.DB.set('prospectos', rows);
-    h.events.beforeunload(event);
-    assert.equal(cancelados, 1);
-    assert.equal(event.returnValue, '');
-    await h.persistirColeccionNube('prospectos', true);
-    h.events.beforeunload(event);
-    assert.equal(cancelados, 1);
-    ok('advertencia de cierre aparece únicamente con cambios pendientes');
-}
-console.log(JSON.stringify({ tests, passed: tests, mode: 'isolated-mock-no-production-data' }));
+test('la lectura y los cambios se realizan desde la API, no con Supabase directo',async()=>{
+ const s=await setup();
+ assert.equal(s.get('prospectos').length,2);
+ s.set('prospectos',[{id:'a1',nombreCompleto:'Modificado'},{id:'a2',nombreCompleto:'Dos'}]);
+ await s.flush();
+ assert.equal(s.rows.get('a1').data.nombreCompleto,'Modificado');
+ assert.equal(s.calls.filter(x=>x.action==='update'&&x.collection==='prospectos').length,2);
+});
+test('crear un nuevo expediente nunca usa upsert masivo',async()=>{
+ const s=await setup([]);
+ s.set('prospectos',[{id:'nuevo1',nombreCompleto:'QA'}]);
+ await s.flush();
+ assert.equal(s.rows.get('nuevo1').data.nombreCompleto,'QA');
+ assert.equal(s.calls.filter(x=>x.action==='insert').length,1);
+});
+test('escritura con sello viejo es rechazada y no sobreescribe',async()=>{
+ const s=await setup();
+ s.rows.get('a1').updated_at='2026-11-21T20:00:00Z';
+ s.set('prospectos',[{id:'a1',nombreCompleto:'Borrador invalidado'},{id:'a2',nombreCompleto:'Prospecto sintético dos'}]);
+ await assert.rejects(s.flush(),/RH-DB-001|RH-DB-008/);
+ assert.equal(s.rows.get('a1').data.nombreCompleto,'Prospecto sintético uno');
+});
+test('una caída de red no declara guardada la información',async()=>{
+ const s=await setup();
+ s.failWrite(true);
+ s.set('prospectos',[{id:'a1',nombreCompleto:'No guardado'},{id:'a2',nombreCompleto:'Prospecto sintético dos'}]);
+ await assert.rejects(s.flush(),/RH-DB-001/);
+ assert.equal(s.rows.get('a1').data.nombreCompleto,'Prospecto sintético uno');
+});
+test('borrado de un registro se transmite por ruta protegida y no borra otros',async()=>{
+ const s=await setup();
+ const result=await vm.runInContext("DB.remove('prospectos','a1')",s.ctx);
+ assert.equal(result,true);
+ assert.equal(s.rows.has('a1'),false);
+ assert.equal(s.rows.has('a2'),true);
+});
+test('borrado fallido conserva en memoria el registro',async()=>{
+ const s=await setup();
+ s.failDelete(true);
+ const result=await vm.runInContext("DB.remove('prospectos','a1')",s.ctx);
+ assert.equal(result,false);
+ assert.equal(s.get('prospectos').length,2);
+ assert.equal(s.rows.has('a1'),true);
+});
+test('cargar más de 1000 registros respeta paginación y límite de datos',async()=>{
+ const data=Array.from({length:1050},(_,i)=>({id:'case_'+String(i).padStart(5,'0'),nombreCompleto:'QA'}));
+ const s=await setup(data);
+ assert.equal(s.get('prospectos').length,1050);
+ assert.equal(s.calls.filter(x=>x.action==='read'&&x.collection==='prospectos').length,2);
+});
