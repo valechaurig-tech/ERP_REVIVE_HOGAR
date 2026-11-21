@@ -8,7 +8,7 @@ const DB_KEYS = [
     'alertas', 'historial', 'auditoria', 'tareas',
     'presupuestos', 'archivos', 'configuracion', 'gastosEmpresa', 'presupuestoEmpresa',
     'cuentasBancarias', 'compradores', 'copropietarios', 'operacionesVenta',
-    'actividadUso', 'notasPrueba'
+    'actividadUso'
 ];
 
 const DB_LIMITS = {
@@ -38,6 +38,72 @@ function registrarIdsCache(key) {
 }
 let dbMode = 'local';
 let supabaseClient = null;
+
+/** Adaptador compatible con la interfaz de sincronización que ya utiliza Revive. */
+function crearClienteERPServidorSeguro() {
+    const API = '/api/datos';
+    async function enviar(params) {
+        const url = API + '?collection=' + encodeURIComponent(params.collection) +
+            (params.login ? '&login=1' : '') +
+            '&offset=' + (params.offset || 0) + '&limit=' + (params.limit || 1000);
+        const write = params.action !== 'read';
+        try {
+            const response = await fetch(write ? API : url,{
+                method: write ? 'POST' : 'GET',credentials:'same-origin',
+                cache:'no-store',redirect:'error',
+                headers:write ? {'Content-Type':'application/json','X-RH-Datos':'1'} : {},
+                ...(write ? {body:JSON.stringify(params)} : {})
+            });
+            const body = await response.json();
+            if(!response.ok) return {data:null,error:{code:response.status===409?'23505':String(response.status),
+                message:body.message || 'No se pudo completar la operación.'}};
+            return {data:body.rows || [],error:null,count:body.rows?.length||0};
+        } catch (err) { return {data:null,error:{code:'NETWORK',message:err.message||'Sin conexión'}}; }
+    }
+    function from(name) {
+        if(name !== RH_TABLE) throw new Error('Tabla no permitida.');
+        const query={action:'read',collection:null,filters:[],limit:1000,offset:0};
+        const chain={
+            select(_fields,opts) { if(opts?.count)query.count=true; if(opts?.head)query.head=true; return chain; },
+            eq(field,value) { query.filters.push([field,value]);if(field==='collection')query.collection=value;
+                if(field==='record_id')query.record_id=value;
+                if(field==='updated_at')query.sello=value; return chain; },
+            in(field,values){if(field==='record_id')query.ids=values;return chain;},
+            order(){return chain;},
+            range(a,b){query.offset=a;query.limit=b-a+1;return chain;},
+            limit(n){query.limit=n;return chain;},
+            delete(){query.action='delete';return chain;},
+            update(data){query.action='update';query.data=data?.data;return chain;},
+            insert(data){query.action='insert';query.collection=data?.collection;query.record_id=data?.record_id;
+                query.data=data?.data;return chain;},
+            then(resolve,reject){
+                const go=async()=>{
+                    if(!query.collection && query.action==='read')return {data:[],error:null,count:1};
+                    if(query.action==='read'){
+                        const login=query.collection==='usuariosLogin' && !rhDatosSesionCargados;
+                        const result=await enviar({...query,login});
+                        return query.head ? {...result,data:null,count:result.count} : result;
+                    }
+                    if(query.action==='delete'&&query.ids){
+                        for(const id of query.ids){
+                            const result=await enviar({...query,record_id:id});
+                            if(result.error)return result;
+                        }
+                        return {data:[],error:null};
+                    }
+                    return enviar(query);
+                };
+                return go().then(resolve,reject);
+            }
+        };
+        return chain;
+    }
+    return {from,
+        channel(){return {on(){return this;},subscribe(){return {unsubscribe(){}};}};}
+    };
+}
+let rhDatosSesionCargados=false;
+
 let dbReady = false;
 const persistTimers = {};
 const deleteTimers = {};
@@ -297,6 +363,18 @@ async function recargarColeccionDesdeNube(key) {
     }, 900);
 }
 
+function iniciarPollingSeguro() {
+    if(realtimeChannel)return;
+    const timer=setInterval(()=>{
+        if(!rhDatosSesionCargados || typeof currentUser==='undefined'||!currentUser)return;
+        for(const key of DB_KEYS){
+            if(!DB_PENDING_WRITES.has(key) && !pendingDeletes[key]?.size)
+                recargarColeccionDesdeNube(key);
+        }
+    },45000);
+    realtimeChannel={unsubscribe:()=>clearInterval(timer)};
+}
+
 function iniciarRealtime() {
     if (!supabaseClient || realtimeChannel) return;
     realtimeChannel = supabaseClient
@@ -319,21 +397,20 @@ const DB = {
         if (url || key) {
             // Si hay intención de nube, una configuración incompleta o la CDN caída
             // JAMÁS deben permitir pasar a almacenamiento local.
-            if (!url || !key || typeof window.supabase === 'undefined') {
+            if (!url || !key) {
                 dbMode = 'unavailable';
                 dbReady = false;
                 actualizarIndicadorNube('error');
                 throw new Error('RH-DB-007: La configuración empresarial de Supabase está incompleta o su librería no cargó. Se bloqueó el acceso.');
             }
             try {
-                supabaseClient = window.supabase.createClient(url, key);
+                supabaseClient = crearClienteERPServidorSeguro();
                 dbMode = 'cloud';
+                rhDatosSesionCargados = false;
+                DB_KEYS.forEach(k=>{ DB_CACHE[k]=[];registrarIdsCache(k);});
                 actualizarIndicadorNube('sync');
-                await verificarTablaNube();
-                await cargarTodoDesdeNube();
-                // Nunca subir datos del navegador automáticamente a una nube vacía.
-                // La migración manual exige respaldos, trazabilidad y autorización.
-                iniciarRealtime();
+                // Solo lista pública de acceso, nunca contraseñas ni documentos antes de login.
+                await cargarColeccionNube('usuariosLogin');
                 actualizarIndicadorNube('ok');
             } catch (error) {
                 console.error('Supabase Revive Hogar no disponible:', error);
@@ -351,6 +428,27 @@ const DB = {
         dbReady = true;
     },
 
+    async cargarDatosProtegidos() {
+        if(dbMode!=='cloud'||!supabaseClient) return false;
+        await cargarTodoDesdeNube();
+        rhDatosSesionCargados=true;
+        // Evitar descargar datos desactualizados encima de ediciones locales.
+        if(!realtimeChannel)iniciarPollingSeguro();
+        return true;
+    },
+    limpiarDatosSesion() {
+        if(dbMode!=='cloud')return;
+        rhDatosSesionCargados=false;
+        DB_KEYS.forEach(k=>{
+            DB_CACHE[k]=[];
+            registrarIdsCache(k);
+            registrarFilasSincronizadas(k,[],[]);
+            DB_PENDING_WRITES.delete(k);
+            delete pendingDeletes[k];
+            try { localStorage.removeItem(RH_STORAGE_PREFIX+k); }catch{}
+        });
+        cargarColeccionNube('usuariosLogin').then(()=>{if(typeof cargarUsuariosLogin==='function')cargarUsuariosLogin();}).catch(console.warn);
+    },
     async flush() {
         if (dbMode !== 'cloud') return;
         await Promise.all(DB_KEYS.map(k => persistirColeccionNube(k, true)));
