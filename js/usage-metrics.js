@@ -21,7 +21,7 @@
         'form-montos-casa', 'form-nuevo-vendedor', 'form-usuario',
         'form-mi-perfil', 'form-tarea', 'form-mensaje-caso',
         'form-autorizacion', 'form-pago-referido', 'form-comprador', 'form-operacion',
-        'form-nueva-propiedad', 'form-cuenta-bancaria', 'form-movimiento-empresa', 'form-copropietario', 'form-traspaso-empresa'
+        'form-nueva-propiedad', 'form-cuenta-bancaria', 'form-movimiento-empresa', 'form-copropietario', 'form-traspaso-empresa', 'form-apertura-empresa'
     ]);
     const ALLOWED_TABS = new Set([
         'detalle:resumen', 'detalle:historial', 'detalle:expediente', 'detalle:remodelacion',
