@@ -22,7 +22,7 @@ function fixture(){
       fetches.push({url,method:opt.method??'GET',body:opt.body});
       const q=new URL(url,'https://revive-hogar.vercel.app');
       assert.equal(q.pathname,'/api/datos');
-      const collection=q.searchParams.get('collection')||JSON.parse(opt.body).collection;
+      const collection=q.searchParams.get('collection')||(opt.body?JSON.parse(opt.body).collection:null);
       const original=rows[collection]||[];
       if(!opt.method){
         return {ok:true,status:200,json:async()=>({rows: original.map(r=>{
