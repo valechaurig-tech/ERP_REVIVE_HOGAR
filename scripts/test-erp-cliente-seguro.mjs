@@ -24,7 +24,7 @@ function fixture(){
       assert.equal(q.pathname,'/api/datos');
       const collection=q.searchParams.get('collection')||(opt.body?JSON.parse(opt.body).collection:null);
       const original=rows[collection]||[];
-      if(!opt.method){
+      if(!opt.method||opt.method==='GET'){
         return {ok:true,status:200,json:async()=>({rows: original.map(r=>{
           return {...r,data:{...r.data}};
         })})};
