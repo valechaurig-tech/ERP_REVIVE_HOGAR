@@ -637,7 +637,7 @@ function fechaCorteEmpresa(){
     return empresaCorteDiaActivo||fechaMexicoEmpresa();
 }
 function cambiarDiaCorteEmpresa(valor){
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(valor||'')))return;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(valor||'')))return;
     empresaCorteDiaActivo=valor;
     if(empresaVistaActiva==='diario')renderGastosEmpresa();
 }
@@ -832,7 +832,7 @@ async function guardarTraspasoEmpresa(event){
     const origen=document.getElementById('traspaso-origen').value,destino=document.getElementById('traspaso-destino').value;
     const monto=document.getElementById('traspaso-monto').value;
     if(!origen||!destino||origen===destino){alert('Selecciona cuentas de origen y destino diferentes.');return;}
-    if(!/^\\d+(?:\\.\\d{1,2})?$/.test(monto)||Number(monto)<=0){alert('Captura un monto válido con hasta dos decimales.');return;}
+    if(!/^\d+(?:\.\d{1,2})?$/.test(monto)||Number(monto)<=0){alert('Captura un monto válido con hasta dos decimales.');return;}
     boton.disabled=true;boton.textContent='Confirmando…';
     try{
         const result=await fetch('/api/finanzas',{
