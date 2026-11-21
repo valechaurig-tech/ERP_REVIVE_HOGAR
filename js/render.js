@@ -596,12 +596,28 @@ function renderAuditoria() {
         ];
         sinUso.textContent = faltan.length ? 'Sin registro en ESTE dispositivo (no implica que nadie las utilice): ' + faltan.join(' · ') : 'No hay funciones sin registro local durante los últimos 7 días.';
     }
-
+    if (rhEsDireccion(currentUser) && !document.getElementById('rh-uso-global-panel')) {
+        const modulo = document.getElementById('mod-auditoria');
+        if (modulo) {
+            const bloque = document.createElement('section');
+            bloque.id='rh-uso-global-panel';
+            bloque.className='fin-section';
+            bloque.style.cssText='margin-top:24px;padding:16px;border:1px solid #ddd;border-radius:12px';
+            bloque.innerHTML='<h3>Uso del equipo · últimos 30 días</h3>'+
+              '<p class="field-hint">Datos agrupados por rol, sin nombres, contraseñas ni contenido de formularios. Los días anteriores a la activación no están medidos.</p>'+
+              '<button type="button" class="btn btn-outline btn-toolbar" onclick="cargarUsoGlobalRevive()">Consultar actividad del equipo</button>'+
+              '<div id="rh-uso-global-contenido" style="margin-top:12px">Sin consulta todavía.</div>';
+            modulo.appendChild(bloque);
+        }
+    }
 }
 
 function etiquetaUso(event, target) {
     if (event === 'module_open') return RH_MODULE_LABELS[target] || target;
     if (event === 'session_start') return 'Entrada al sistema';
+    if (event === 'transition') {
+        return target.split('>').map(x=>RH_MODULE_LABELS[x]||x).join(' → ');
+    }
     return target;
 }
 
@@ -611,7 +627,8 @@ function accionUso(event) {
         form_open: 'Abrió formulario',
         form_attempt: 'Envió formulario',
         tab_open: 'Abrió pestaña',
-        session_start: 'Inició sesión'
+        session_start: 'Inició sesión',
+        transition: 'Ruta entre módulos'
     }[event] || event;
 }
 
@@ -683,4 +700,47 @@ async function eliminarVendedor(id) {
     logAction('Vendedor eliminado');
     renderUsuarios();
     cargarUsuariosLogin();
+}
+
+async function cargarUsoGlobalRevive() {
+    if (!rhEsDireccion(currentUser)) return;
+    const wrap=document.getElementById('rh-uso-global-contenido');
+    if(!wrap)return;
+    wrap.textContent='Consultando…';
+    try{
+        const res=await fetch('/api/uso',{credentials:'same-origin',cache:'no-store',redirect:'error'});
+        if(!res.ok)throw new Error('No fue posible consultar el registro del equipo.');
+        const data=await res.json();
+        if(!Array.isArray(data.rows))throw new Error('Formato de uso inválido.');
+        const rows=data.rows;
+        const grouped=new Map();
+        for(const r of rows) {
+            const key=r.evento+'|'+r.rol+'|'+r.destino;
+            grouped.set(key,(grouped.get(key)||0)+Number(r.conteo||0));
+        }
+        const top=[...grouped].map(([k,conteo])=>{
+            const [evento,rol,destino]=k.split('|');
+            return {evento,rol,destino,conteo};
+        }).sort((a,b)=>b.conteo-a.conteo).slice(0,60);
+        const accesos=rows.filter(r=>r.evento==='module_open')
+            .reduce((total,r)=>total+Number(r.conteo||0),0);
+        const formularios=rows.filter(r=>r.evento==='form_attempt')
+            .reduce((total,r)=>total+Number(r.conteo||0),0);
+        const rutas=rows.filter(r=>r.evento==='transition')
+            .reduce((total,r)=>total+Number(r.conteo||0),0);
+        const vistos=new Set(rows.filter(r=>r.evento==='module_open').map(r=>r.destino));
+        const noMedidos=(window.RH_USAGE?.modulos||[]).filter(mod=>!vistos.has(mod));
+        const parrafo='<p><strong>Accesos a módulos:</strong> '+accesos+
+          ' · <strong>Intentos de envío:</strong> '+formularios+
+          ' · <strong>Cambios entre módulos:</strong> '+rutas+'</p>';
+        wrap.innerHTML=parrafo+
+          (noMedidos.length?'<p class="field-hint">Sin actividad registrada (NO significa sin uso): '+
+          escapeHtml(noMedidos.map(id=>RH_MODULE_LABELS[id]||id).join(' · '))+'</p>':'')+
+          '<div style="overflow-x:auto"><table class="fin-table"><thead><tr><th>Función o ruta</th><th>Acción</th><th>Rol</th><th>Veces</th></tr></thead><tbody>'+
+          (top.map(r=>'<tr><td>'+escapeHtml(etiquetaUso(r.evento,r.destino))+
+            '</td><td>'+escapeHtml(accionUso(r.evento))+
+            '</td><td>'+escapeHtml(r.rol)+'</td><td>'+r.conteo+'</td></tr>').join('')||
+            '<tr><td colspan="4">Sin eventos del equipo desde que se activó la medición.</td></tr>')+
+          '</tbody></table></div>';
+    }catch(e){wrap.textContent=e.message||'No se pudo cargar.';}
 }
