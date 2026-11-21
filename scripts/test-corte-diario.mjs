@@ -59,3 +59,46 @@ test('con una sola cuenta pendiente tampoco declara el total como conciliado',()
  assert.equal(r.apertura,null);
  assert.equal(r.filas.find(x=>x.cuenta.id==='c2').cierre,null);
 });
+
+function generarVistaImprimible(aperturas){
+ const context={
+  DB:{get:key=>key==='cuentasBancarias'?cuentas:key==='gastosEmpresa'?movimientos:[]},
+  console, Date,
+  formatearMoneda:n=>'$'+Number(n).toFixed(2),
+  escapeHtml:x=>String(x).replace(/[<>&"']/g,''),
+  rhEsDireccion:()=>true,currentUser:{rol:'Direccion'},
+  window:{},document:{}
+ };
+ vm.createContext(context);
+ vm.runInContext(source,context,{timeout:2500});
+ vm.runInContext('empresaCorteDatos = '+JSON.stringify({transferencias:traspasos,aperturas})+';',context);
+ return vm.runInContext("generarHTMLCorteDiarioEmpresa('2026-11-21')",context);
+}
+test('formato imprimible replica secciones del formato diario de Alexis, sin copiar sus montos',()=>{
+ const html=generarVistaImprimible([]);
+ for(const titulo of ['MOVIMIENTOS Y SALDOS EN EFECTIVO / BANCOS','INGRESOS','EGRESOS',
+  'TRASPASOS RECIBIDOS','TRASPASOS ENVIADOS','OBSERVACIONES','Elaboró','Firma de autorización']){
+  assert.ok(html.includes(titulo),titulo);
+ }
+ assert.match(html,/A4 landscape/);
+ assert.match(html,/2026-11-21/);
+ assert.doesNotMatch(html,/GRUPO KOSMOS ESTRATÉGICO/);
+ assert.doesNotMatch(html,/37\.184,34/);
+});
+test('corte pendiente se imprime claramente como provisional y sin saldos inventados',()=>{
+ const html=generarVistaImprimible([]);
+ assert.match(html,/REPORTE PROVISIONAL/);
+ assert.match(html,/SIN CONFIRMAR/);
+ assert.match(html,/movimiento\(s\) histórico\(s\) sin cuenta/);
+});
+test('informe conciliado tiene totales y transferencias neutras entre cuentas',()=>{
+ const html=generarVistaImprimible([
+  {cuenta_id:'c1',fecha_corte:'2026-11-20',saldo_inicial:100,estado:'confirmado'},
+  {cuenta_id:'c2',fecha_corte:'2026-11-20',saldo_inicial:200,estado:'confirmado'}
+ ]);
+ assert.doesNotMatch(html,/REPORTE PROVISIONAL/);
+ assert.match(html,/\$330\.00/);
+ assert.match(html,/\$350\.00/);
+ assert.match(html,/Cuenta origen/);
+ assert.match(html,/Caja/);
+});
