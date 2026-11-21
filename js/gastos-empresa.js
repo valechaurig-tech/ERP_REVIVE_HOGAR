@@ -790,27 +790,106 @@ function renderVistaDiarioEmpresa(){
       '</th><th>'+formatearMoneda(c.enviados)+'</th><th>'+dineroCorteEmpresa(c.cierre)+'</th></tr>'+
       '</tbody></table></div>'+detalleCorteEmpresa(c)+'</section>';
 }
+/* Reporte fiel a las secciones del formato diario recibido de Alexis:
+ * resumen por cuenta, movimientos, traspasos, observaciones y firmas.
+ * No se importan los saldos del PDF de referencia ni se inventa empresa.
+ */
+function generarHTMLCorteDiarioEmpresa(fecha) {
+    if (!empresaCorteDatos) throw new Error('Primero carga el corte diario.');
+    const c=calcularCorteDiarioEmpresa(fecha);
+    const cuentas=getCuentasBancarias();
+    const nombreCuenta=id=>cuentas.find(x=>x.id===id)?.alias||'Cuenta sin identificar';
+    const esc=value=>escapeHtml(String(value==null||value===''?'—':value));
+    const money=n=>formatearMoneda(Number(n)||0);
+    const moneyOrPending=n=>n==null?'SIN CONFIRMAR':money(n);
+    const ahora=new Date().toLocaleString('es-MX',{timeZone:'America/Mexico_City'});
+    const total=(nombre,valor)=>'<td><strong>'+esc(nombre)+'</strong></td><td><strong>'+money(valor)+'</strong></td>';
+    const header=['Cuenta / banco','Saldo inicial','Ingresos','Egresos','Traspasos recibidos',
+      'Traspasos enviados','Saldo final'];
+    const tablaResumen='<table class="resumen"><thead><tr>'+
+      header.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+
+      c.filas.map(f=>'<tr><td><strong>'+esc(f.cuenta.alias)+'</strong><small>'+
+        esc(f.cuenta.banco)+'</small></td><td>'+moneyOrPending(f.inicio)+'</td>'+
+        '<td>'+money(f.ingreso)+'</td><td>'+money(f.egreso)+'</td>'+
+        '<td>'+money(f.recibido)+'</td><td>'+money(f.enviado)+'</td>'+
+        '<td><strong>'+moneyOrPending(f.cierre)+'</strong></td></tr>').join('')+
+      '<tr class="total"><th>TOTALES</th><th>'+moneyOrPending(c.apertura)+'</th>'+
+      '<th>'+money(c.ingresos)+'</th><th>'+money(c.egresos)+'</th>'+
+      '<th>'+money(c.recibidos)+'</th><th>'+money(c.enviados)+'</th>'+
+      '<th>'+moneyOrPending(c.cierre)+'</th></tr></tbody></table>';
+
+    function seccion(titulo,encabezados,datos) {
+        return '<section class="detalle"><h2>'+esc(titulo)+'</h2><table><thead><tr>'+
+           encabezados.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+
+           (datos.length?datos.map(d=>'<tr>'+
+              d.map((x,i)=>'<td>'+ (i===d.length-1?money(x):esc(x))+'</td>').join('')+
+              '</tr>').join(''):'<tr><td colspan="'+encabezados.length+'">Sin movimientos en este día</td></tr>')+
+           '</tbody></table><p class="subtotal">TOTAL: '+money(datos.reduce((s,d)=>s+Number(d[d.length-1]||0),0))+'</p></section>';
+    }
+    const ingresos=c.movimientos.filter(x=>x.tipo==='ingreso').map(m=>[
+      m.proveedor,m.metodoPago,nombreCuenta(m.cuentaId),m.empresa||'—',m.concepto,m.monto]);
+    const egresos=c.movimientos.filter(x=>x.tipo==='gasto').map(m=>[
+      m.proveedor,m.metodoPago,m.concepto,nombreCuenta(m.cuentaId),m.categoria,m.empresa||'—',m.monto]);
+    const transferencias=c.traspasos.map(t=>[
+      nombreCuenta(t.cuenta_origen_id),'Traspaso',nombreCuenta(t.cuenta_destino_id),
+      t.concepto||'Traspaso',Number(t.monto||0)]);
+    const transferenciasSalida=c.traspasos.map(t=>[
+      nombreCuenta(t.cuenta_destino_id),'Traspaso',t.concepto||'Traspaso',
+      nombreCuenta(t.cuenta_origen_id),Number(t.monto||0)]);
+    const detalle='<div class="doble">'+
+      seccion('INGRESOS',['Remitente','Forma de pago','Cuenta beneficiaria','Empresa','Concepto','Monto'],ingresos)+
+      seccion('EGRESOS',['Beneficiario','Forma de pago','Concepto','Cuenta ordenante','Categoría','Empresa','Monto'],egresos)+
+      '</div><div class="doble">'+
+      seccion('TRASPASOS RECIBIDOS',['Remitente','Forma de pago','Cuenta beneficiaria','Concepto','Monto'],transferencias)+
+      seccion('TRASPASOS ENVIADOS',['Beneficiario','Forma de pago','Concepto','Cuenta ordenante','Monto'],transferenciasSalida)+
+      '</div>';
+    const aviso=c.confirmado?'Saldos calculados desde aperturas conciliadas.':
+      'REPORTE PROVISIONAL: existen saldos iniciales pendientes de conciliación. No constituye cierre contable validado.';
+    const sinCuenta=c.sinCuenta.length?
+      '<p class="alerta">'+c.sinCuenta.length+' movimiento(s) histórico(s) sin cuenta asignada. No se atribuyen a un saldo por cuenta.</p>':'';
+    const css='@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}'+
+      'body{font-family:Arial,sans-serif;color:#17212b;font-size:9px;margin:0}'+
+      'header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1b5a72;padding-bottom:7px}'+
+      'h1{font-size:17px;margin:0;color:#15445b}h2{font-size:11px;margin:11px 0 7px;color:#15445b}'+
+      '.fecha{font-size:10px}.encabezado{font-weight:bold;text-align:center;font-size:13px;margin:13px 0}'+
+      'table{width:100%;border-collapse:collapse;table-layout:fixed}th{background:#eef3f6;text-align:left}'+
+      'th,td{border:1px solid #cbd5df;padding:5px 4px;vertical-align:top;overflow-wrap:anywhere}'+
+      'td small{display:block;font-size:8px;color:#566879;margin-top:2px}'+
+      '.resumen{font-size:9px}.resumen tr.total{background:#e5eff3;font-weight:bold}'+
+      '.doble{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;align-items:start}'+
+      '.detalle table{font-size:8px}.detalle td{min-height:22px}.subtotal{text-align:right;font-weight:bold}'+
+      '.alerta{font-weight:bold;margin:9px 0;padding:8px;border:1px solid #b58f38;background:#fff8e8}'+
+      '.observaciones{border-bottom:1px solid #9ca3af;height:35px;margin-top:10px}'+
+      '.firmas{display:grid;grid-template-columns:1fr 1fr;gap:45px;margin-top:36px}'+
+      '.firma{border-top:1px solid #334155;padding-top:6px;text-align:center}'+
+      '.pie{margin-top:20px;text-align:right;color:#4b5563;font-size:8px}'+
+      '@media print{.doble{break-inside:avoid}.detalle{break-inside:avoid}header{break-after:avoid}}';
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8">'+
+      '<title>Movimientos y saldos diarios · '+esc(c.fecha)+'</title>'+
+      '<style>'+css+'</style></head><body>'+
+      '<header><h1>REVIVE HOGAR</h1><div class="fecha"><strong>Fecha del corte:</strong> '+esc(c.fecha)+'</div></header>'+
+      '<div class="encabezado">MOVIMIENTOS Y SALDOS EN EFECTIVO / BANCOS</div>'+
+      '<p class="alerta">'+esc(aviso)+'</p>'+sinCuenta+
+      tablaResumen+detalle+
+      '<h2>OBSERVACIONES</h2><div class="observaciones"></div>'+
+      '<div class="firmas"><div class="firma">Elaboró: __________________________</div>'+
+      '<div class="firma">Firma de autorización: __________________________</div></div>'+
+      '<p class="pie">Fecha de impresión: '+esc(ahora)+'</p></body></html>';
+}
 function imprimirCorteDiarioEmpresa(){
     if(!empresaCorteDatos){alert('Carga primero el corte diario.');return;}
-    const c=calcularCorteDiarioEmpresa(fechaCorteEmpresa());
-    const nota=c.confirmado?'Saldos conciliados.':'SALDOS INICIALES SIN CONCILIAR: reporte provisional, no es un cierre validado.';
-    const html='<html lang="es"><head><meta charset="utf-8"><title>Corte diario '+c.fecha+
-      '</title><style>body{font:12px Arial,sans-serif;padding:24px}h1{font-size:22px}table{width:100%;border-collapse:collapse;font-size:10px}th,td{padding:7px;border:1px solid #ddd;text-align:left}td small{display:block}h4{margin-top:22px}.alerta{font-weight:bold;padding:12px;border:1px solid #999}</style></head><body>'+
-      '<h1>Revive Hogar · Corte de efectivo y bancos</h1>'+
-      '<p>Fecha del corte: '+c.fecha+' · Fecha de impresión: '+new Date().toLocaleString('es-MX')+'</p>'+
-      '<p class="alerta">'+nota+'</p>'+
-      '<table><thead><tr><th>Cuenta</th><th>Inicial</th><th>Ingresos</th><th>Recibidos</th><th>Egresos</th><th>Enviados</th><th>Final</th></tr></thead><tbody>'+
-      filasCorteEmpresa(c)+'</tbody></table>'+detalleCorteEmpresa(c)+
-      '<p style="margin-top:40px">Elaboró: ____________________ &nbsp;&nbsp; Autorizó: ____________________</p></body></html>';
+    const html=generarHTMLCorteDiarioEmpresa(fechaCorteEmpresa());
     const frame=document.createElement('iframe');
     frame.style.cssText='position:fixed;width:0;height:0;border:0;opacity:0';
-    frame.setAttribute('title','Impresión del corte');
+    frame.setAttribute('title','Impresión del corte diario');
     document.body.appendChild(frame);
-    frame.onload=()=>{try{frame.contentWindow?.focus();frame.contentWindow?.print();}finally{
-        setTimeout(()=>frame.remove(),30000);
-    }};
+    frame.onload=()=>{
+        try{frame.contentWindow?.focus();frame.contentWindow?.print();}
+        finally{setTimeout(()=>frame.remove(),30000);}
+    };
     frame.srcdoc=html;
 }
+
 function abrirTraspasoEmpresa(){
     if(!puedeGestionarGastosEmpresa())return;
     let modal=document.getElementById('modal-traspaso-empresa');
