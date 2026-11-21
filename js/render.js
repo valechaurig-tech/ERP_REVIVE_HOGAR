@@ -568,11 +568,12 @@ function renderAuditoria() {
 
     const metricsBody = document.querySelector('#table-uso-local tbody');
     if (metricsBody) {
-        const nube = window.RH_USAGE?.reporteNube?.() || [];
+        // Métricas por dispositivo, no datos globales. Nunca inferir abandono de funciones.
+        const nube = window.RH_USAGE?.report?.() || [];
         const agregados = new Map();
         nube.forEach(evento => {
-            const key = [evento.tipo, evento.rol, evento.destino].join('|');
-            agregados.set(key, (agregados.get(key) || 0) + 1);
+            const key = [evento.event, evento.role, evento.target].join('|');
+            agregados.set(key, (agregados.get(key) || 0) + Number(evento.count || 0));
         });
         const filas = [...agregados].map(([key, total]) => {
             const [event, role, target] = key.split('|');
@@ -583,29 +584,19 @@ function renderAuditoria() {
             <td>${escapeHtml(r.accion)}</td>
             <td>${escapeHtml(r.role)}</td>
             <td>${r.total}</td>
-        </tr>`).join('') || '<tr><td colspan="4" class="celda-vacia">Aún no hay uso registrado del equipo.</td></tr>';
+        </tr>`).join('') || '<tr><td colspan="4" class="celda-vacia">Sin registros locales de navegación en este dispositivo.</td></tr>';
     }
     const sinUso = document.getElementById('uso-sin-registros');
     if (sinUso && window.RH_USAGE) {
-        const vistos = new Set((window.RH_USAGE.reporteNube?.() || []).map(x => x.tipo + '|' + x.destino));
+        const vistos = new Set((window.RH_USAGE.report?.() || []).map(x => x.event + '|' + x.target));
         const faltan = [
             ...(window.RH_USAGE.modulos || []).filter(id => !vistos.has('module_open|' + id)).map(id => RH_MODULE_LABELS[id] || id),
             ...(window.RH_USAGE.pestanas || []).filter(id => !vistos.has('tab_open|' + id)),
             ...(window.RH_USAGE.formularios || []).filter(id => !vistos.has('form_open|' + id) && !vistos.has('form_attempt|' + id))
         ];
-        sinUso.textContent = faltan.length ? faltan.join(' · ') : 'Todo el catálogo tuvo al menos un uso en los últimos 30 días.';
+        sinUso.textContent = faltan.length ? 'Sin registro en ESTE dispositivo (no implica que nadie las utilice): ' + faltan.join(' · ') : 'No hay funciones sin registro local durante los últimos 7 días.';
     }
-    const notasBody = document.querySelector('#table-notas-prueba tbody');
-    if (notasBody && typeof DB !== 'undefined') {
-        const notas = (DB.get('notasPrueba') || []).slice().sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
-        notasBody.innerHTML = notas.map(nota => `<tr>
-            <td>${escapeHtml(nota.ts ? new Date(nota.ts).toLocaleString() : '—')}</td>
-            <td>${escapeHtml(nota.usuario || '—')}<small>${escapeHtml(nota.rol || '')}</small></td>
-            <td>${escapeHtml(nota.modulo || '—')}</td>
-            <td>${escapeHtml(nota.comentario || '')}</td>
-            <td>${nota.captura ? `<button type="button" class="btn btn-outline btn-small" onclick="verCapturaNotaPrueba('${escapeHtml(nota.id)}')">Ver</button>` : '—'}</td>
-        </tr>`).join('') || '<tr><td colspan="5" class="celda-vacia">Aún no hay notas de prueba.</td></tr>';
-    }
+
 }
 
 function etiquetaUso(event, target) {
@@ -624,16 +615,6 @@ function accionUso(event) {
     }[event] || event;
 }
 
-function verCapturaNotaPrueba(id) {
-    const nota = (DB.get('notasPrueba') || []).find(x => x.id === id);
-    const marco = document.getElementById('nota-prueba-visor');
-    const img = document.getElementById('nota-prueba-visor-img');
-    if (!nota?.captura || !marco || !img) return;
-    img.src = nota.captura;
-    marco.classList.add('active');
-}
-
-/* —— Usuarios —— */
 function formatoContactoUsuario(u) {
     const partes = [];
     if (u.correo) partes.push(escapeHtml(u.correo));
