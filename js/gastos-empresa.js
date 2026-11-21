@@ -92,6 +92,11 @@ function etiquetaCuentaBancaria(c) {
 
 function abrirModalCuentasBancarias() {
     if (!puedeGestionarGastosEmpresa()) return;
+    // El HTML publicado aún no incluye esta opción; añadirla sin duplicarla.
+    const selectorBanco = document.getElementById('cuenta-bancaria-banco');
+    if (selectorBanco && ![...selectorBanco.options].some(op => op.value === 'Efectivo')) {
+        selectorBanco.add(new Option('Efectivo', 'Efectivo'));
+    }
     document.getElementById('cuenta-bancaria-id').value = '';
     document.getElementById('cuenta-bancaria-banco').value = '';
     document.getElementById('cuenta-bancaria-alias').value = '';
