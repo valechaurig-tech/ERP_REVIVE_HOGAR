@@ -82,6 +82,21 @@ module.exports = async function handler(req,res){
       return json(res,200,{transferencias:t||[],aperturas:a||[],limite:5000});
     }
     const data=requestBody(req);
+    if(data.action==='confirmar_apertura'){
+      check(data.confirmado===true,400,'Debes confirmar que el saldo fue conciliado.');
+      check(ID.test(String(data.cuentaId||'')),400,'Cuenta inválida.');
+      check(DATE.test(String(data.fecha||'')),400,'Fecha inválida.');
+      check(/^-?\\d+(?:\\.\\d{1,2})?$/.test(String(data.saldo||'')),
+        400,'Captura un saldo con hasta dos decimales.');
+      const saldo=Number(data.saldo);
+      check(Number.isFinite(saldo)&&Math.abs(saldo)<=999999999.99,
+        400,'Saldo fuera de rango.');
+      const ok=await rest(conf,'rpc/rh_fin_confirmar_apertura','POST',{
+        p_cuenta:data.cuentaId,p_fecha:data.fecha,p_saldo:saldo,p_actor:actor
+      });
+      check(ok===true,502,'La confirmación no fue guardada.');
+      return json(res,200,{ok:true,cuentaId:data.cuentaId});
+    }
     check(UUID.test(String(data.requestId||'')),400,'Identificador de traspaso inválido.');
     check(DATE.test(String(data.fecha||''))&&!Number.isNaN(Date.parse(data.fecha+'T12:00:00Z')),
       400,'Fecha inválida.');
