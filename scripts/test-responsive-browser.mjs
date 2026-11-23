@@ -2,6 +2,7 @@
 /* Smoke visual sin credenciales, datos reales ni servicios externos. */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
+import { get as httpGet } from 'node:http';
 import { mkdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
@@ -11,7 +12,17 @@ mkdirSync('artifacts',{recursive:true});
 
 async function waitServer(){
     for(let i=0;i<40;i++){
-        try{ const response=await fetch(base);if(response.ok)return; }catch {}
+        const ok=await new Promise(resolve=>{
+            let settled=false;
+            const finish=value=>{if(!settled){settled=true;resolve(value);}};
+            const req=httpGet(base,res=>{
+                res.resume();
+                finish(res.statusCode>=200&&res.statusCode<400);
+            });
+            req.on('error',()=>finish(false));
+            req.setTimeout(1200,()=>{req.destroy();finish(false);});
+        });
+        if(ok)return;
         await new Promise(r=>setTimeout(r,150));
     }
     throw Error('El servidor estático no inició');
