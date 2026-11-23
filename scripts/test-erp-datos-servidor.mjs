@@ -16,6 +16,10 @@ function setup({method='GET',collection='usuariosLogin',login=false,role='Direcc
  const table={
    usuariosLogin:[{record_id:'rh_vendedor',data:user,updated_at:sello}],
    prospectos:prospects,
+   casas:[
+     {record_id:'c_mia',updated_at:sello,data:{id:'c_mia',vendedorId:'rh_vendedor',nombreCompleto:'Casa sintética propia'}},
+     {record_id:'c_ajena',updated_at:sello,data:{id:'c_ajena',vendedorId:'rh_ajeno',nombreCompleto:'Casa sintética ajena'}}
+   ],
    cuentasBancarias:[{record_id:'c1',data:{id:'c1',saldo:1000},updated_at:sello}],
    gastosEmpresa:[{record_id:'g1',data:{id:'g1',monto:450},updated_at:sello}]
  };
@@ -155,4 +159,29 @@ test('un vendedor no puede editar el perfil de otro usuario',async()=>{
    sello:'2026-11-21T10:00:00Z',
    data:{id:'rh_ajeno',tipo:'general',rol:'Direccion',activo:true,displayName:'QA'}}});
  assert.equal((await x.run()).statusCode,403);
+});
+
+test('vendedor solo recibe las casas que le corresponden',async()=>{
+ const x=setup({collection:'casas',role:'Vendedor'});
+ const r=await x.run();
+ assert.equal(r.statusCode,200);
+ assert.deepEqual(r.data.rows.map(x=>x.record_id),['c_mia']);
+});
+test('los datos de contacto de otros usuarios no se entregan al vendedor',async()=>{
+ const x=setup({collection:'usuariosLogin',role:'Vendedor'});
+ x.table.usuariosLogin.push({record_id:'rh_ajeno',
+   updated_at:'2026-11-21T10:00:00Z',
+   data:{id:'rh_ajeno',rol:'Direccion',tipo:'general',activo:true,
+     displayName:'Otro usuario',correo:'privado@correo.test',telefono:'0000000000',
+     nombreLuna:'Otro nombre',password:'OTRA_CLAVE'}});
+ const r=await x.run();
+ assert.equal(r.statusCode,200);
+ const own=r.data.rows.find(x=>x.record_id==='rh_vendedor');
+ const other=r.data.rows.find(x=>x.record_id==='rh_ajeno');
+ assert.ok(own&&other);
+ assert.equal(other.data.correo,undefined);
+ assert.equal(other.data.telefono,undefined);
+ assert.equal(other.data.nombreLuna,undefined);
+ assert.equal(other.data.password,undefined);
+ assert.equal(other.data.displayName,'Otro usuario');
 });
