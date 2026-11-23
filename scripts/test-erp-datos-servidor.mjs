@@ -124,3 +124,35 @@ test('rechaza sello desactualizado sin guardar cambios',async()=>{
  assert.equal((await s.run()).statusCode,409);
  assert.equal(s.table.prospectos[0].data.estatus,'En seguimiento');
 });
+
+test('vendedor puede editar su perfil sin cambiar permisos ni contraseña previa',async()=>{
+ const data={id:'rh_vendedor',tipo:'vendedor',rol:'Vendedor',activo:true,
+  displayName:'Vendedor QA actualizado',nombreLuna:'Vendedor QA',correo:'qa@example.test',
+  telefono:'0000000000'};
+ const x=setup({method:'POST',collection:'usuariosLogin',role:'Vendedor',
+  payload:{action:'update',collection:'usuariosLogin',record_id:'rh_vendedor',
+   sello:'2026-11-21T10:00:00Z',data}});
+ const r=await x.run();
+ assert.equal(r.statusCode,200);
+ assert.equal(x.table.usuariosLogin[0].data.rol,'Vendedor');
+ assert.equal(x.table.usuariosLogin[0].data.password,'NUNCA_COMPARTIR');
+ assert.equal(x.table.usuariosLogin[0].data.displayName,'Vendedor QA actualizado');
+ assert.equal(JSON.stringify(r.data).includes('NUNCA_COMPARTIR'),false);
+});
+test('autogestión de perfil no puede otorgar rol Dirección',async()=>{
+ const data={id:'rh_vendedor',tipo:'vendedor',rol:'Direccion',activo:true,
+  displayName:'Ataque QA',nombreLuna:'QA',correo:'',telefono:''};
+ const x=setup({method:'POST',collection:'usuariosLogin',role:'Vendedor',
+  payload:{action:'update',collection:'usuariosLogin',record_id:'rh_vendedor',
+   sello:'2026-11-21T10:00:00Z',data}});
+ assert.equal((await x.run()).statusCode,403);
+ assert.equal(x.table.usuariosLogin[0].data.rol,'Vendedor');
+ assert.equal(x.requests.some(p=>p.options.method==='PATCH'),false);
+});
+test('un vendedor no puede editar el perfil de otro usuario',async()=>{
+ const x=setup({method:'POST',collection:'usuariosLogin',role:'Vendedor',
+  payload:{action:'update',collection:'usuariosLogin',record_id:'rh_ajeno',
+   sello:'2026-11-21T10:00:00Z',
+   data:{id:'rh_ajeno',tipo:'general',rol:'Direccion',activo:true,displayName:'QA'}}});
+ assert.equal((await x.run()).statusCode,403);
+});
