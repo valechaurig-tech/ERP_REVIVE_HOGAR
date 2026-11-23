@@ -20,6 +20,11 @@ function setup({method='GET',collection='usuariosLogin',login=false,role='Direcc
      {record_id:'c_mia',updated_at:sello,data:{id:'c_mia',vendedorId:'rh_vendedor',nombreCompleto:'Casa sintética propia'}},
      {record_id:'c_ajena',updated_at:sello,data:{id:'c_ajena',vendedorId:'rh_ajeno',nombreCompleto:'Casa sintética ajena'}}
    ],
+   alertas:[
+     {record_id:'al_propia',data:{id:'al_propia',targetUserId:'rh_vendedor',targetRoles:[],mensaje:'Propia'},updated_at:sello},
+     {record_id:'al_ajena',data:{id:'al_ajena',targetUserId:'rh_ajeno',targetRoles:[],mensaje:'Ajena'},updated_at:sello},
+     {record_id:'al_roles',data:{id:'al_roles',targetUserId:'',targetRoles:['Vendedor','Administradora'],mensaje:'Grupo'},updated_at:sello}
+   ],
    cuentasBancarias:[{record_id:'c1',data:{id:'c1',saldo:1000},updated_at:sello}],
    gastosEmpresa:[{record_id:'g1',data:{id:'g1',monto:450},updated_at:sello}]
  };
@@ -184,4 +189,41 @@ test('los datos de contacto de otros usuarios no se entregan al vendedor',async(
  assert.equal(other.data.nombreLuna,undefined);
  assert.equal(other.data.password,undefined);
  assert.equal(other.data.displayName,'Otro usuario');
+});
+
+test('alertas privadas solo se entregan a su destinatario o rol correspondiente',async()=>{
+ const vendedor=setup({collection:'alertas',role:'Vendedor'});
+ const r=await vendedor.run();
+ assert.equal(r.statusCode,200);
+ assert.deepEqual(r.data.rows.map(x=>x.record_id),['al_propia','al_roles']);
+ const marketing=setup({collection:'alertas',role:'Marketing'});
+ assert.deepEqual((await marketing.run()).data.rows.map(x=>x.record_id),[]);
+ const admin=setup({collection:'alertas',role:'Administradora'});
+ assert.deepEqual((await admin.run()).data.rows.map(x=>x.record_id),['al_roles']);
+ const direccion=setup({collection:'alertas',role:'Direccion'});
+ assert.equal((await direccion.run()).data.rows.length,3);
+});
+test('vendedor no puede editar una alerta destinada a otra persona',async()=>{
+ const x=setup({method:'POST',collection:'alertas',role:'Vendedor',
+  payload:{action:'update',collection:'alertas',record_id:'al_ajena',
+    sello:'2026-11-21T10:00:00Z',
+    data:{id:'al_ajena',targetUserId:'rh_ajeno',targetRoles:[],mensaje:'Suplantado'}}});
+ assert.equal((await x.run()).statusCode,403);
+ assert.equal(x.table.alertas[1].data.mensaje,'Ajena');
+});
+test('un usuario no puede cambiar los destinatarios de una alerta existente',async()=>{
+ const x=setup({method:'POST',collection:'alertas',role:'Vendedor',
+  payload:{action:'update',collection:'alertas',record_id:'al_propia',
+    sello:'2026-11-21T10:00:00Z',
+    data:{id:'al_propia',targetUserId:'rh_ajeno',targetRoles:[],mensaje:'Privada'}}});
+ assert.equal((await x.run()).statusCode,403);
+ assert.equal(x.table.alertas[0].data.targetUserId,'rh_vendedor');
+});
+test('crear una alerta para Dirección conserva el remitente verificado por la sesión',async()=>{
+ const x=setup({method:'POST',collection:'alertas',role:'Vendedor',
+  payload:{action:'insert',collection:'alertas',record_id:'al_nueva',
+    data:{id:'al_nueva',targetUserId:'',targetRoles:['Direccion'],
+      mensaje:'Aviso',creadoPor:'rh_ajeno'}}});
+ assert.equal((await x.run()).statusCode,201);
+ assert.equal(x.table.alertas.find(a=>a.record_id==='al_nueva').data.creadoPor,'rh_vendedor');
 });
