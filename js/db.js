@@ -285,12 +285,12 @@ async function persistirColeccionNube(key, inmediato = false) {
             }
             sellos.set(fila.record_id, data[0].updated_at || fila.updated_at);
         } else {
-            const { error } = await supabaseClient.from(RH_TABLE).insert({
+            const { data, error } = await supabaseClient.from(RH_TABLE).insert({
                 collection: fila.collection,
                 record_id: fila.record_id,
                 data: fila.data,
                 updated_at: fila.updated_at
-            });
+            }).select('record_id, updated_at');
             if (error) {
                 actualizarIndicadorNube('error');
                 const duplicado = error.code === '23505' || /duplicate|already exists/i.test(error.message || '');
@@ -298,7 +298,13 @@ async function persistirColeccionNube(key, inmediato = false) {
                     ? `RH-DB-008: ${key}/${fila.record_id} ya fue creado por otro usuario. Recarga antes de guardar.`
                     : `RH-DB-001: Falló la escritura en ${key}: ${error.message || error}`);
             }
-            sellos.set(fila.record_id, fila.updated_at);
+            if (!data?.length || !data[0]?.updated_at) {
+                actualizarIndicadorNube('error');
+                throw new Error(`RH-DB-009: El servidor no confirmó la fecha de guardado en ${key}/${fila.record_id}.`);
+            }
+            // La API genera su propio timestamp: la siguiente edición debe usar
+            // ese sello real, no el reloj del navegador que creó el registro.
+            sellos.set(fila.record_id, data[0].updated_at);
         }
         if (!DB_SYNCED_ROWS[key]) DB_SYNCED_ROWS[key] = new Map();
         DB_SYNCED_ROWS[key].set(fila.record_id, JSON.stringify(fila.data));
