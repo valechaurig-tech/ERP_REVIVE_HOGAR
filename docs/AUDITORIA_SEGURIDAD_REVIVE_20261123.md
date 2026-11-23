@@ -34,3 +34,13 @@ Tampoco se realizó validación E2E autenticada con sesiones de Dirección, Admi
 - Pruebas: los borradores fallidos se guardan solo en la pestaña abierta. Evitar afirmar recepción cuando no existe folio confirmado.
 
 **Principio de cierre:** conservar la operación de la empresa, no presentar como aprobadas las pruebas autenticadas bloqueadas y cerrar solo con evidencia verificable.
+
+## Avance adicional del 23-11-2026 — sincronización y alertas
+
+- Corregida la sincronización después de un **INSERT**: el cliente ahora pide `record_id, updated_at` a la API y conserva el sello de tiempo confirmado por el servidor, evitando rechazos por concurrencia en la segunda edición inmediata. Prueba explícita de crear-editar-guardar sin recargar añadida a `scripts/test-db-sync.mjs`.
+- Protección de las **alertas personales**: la API filtra por `targetUserId` y `targetRoles` con la misma semántica que `alertaVisibleParaUsuario` de la interfaz. La Dirección tiene acceso a todas las alertas. Una actualización no puede cambiar sus destinatarios ni falsificar el autor; las alertas nuevas reciben la identidad del creador desde la sesión.
+- Pruebas ampliadas con diferentes identidades simuladas: **81/81 automáticas sin navegador aprobadas**. Integridad financiera y QA integral de GitHub Actions aprobadas en la ejecución comprobada.
+- **Despliegue seguro de solo backend publicado**: `dpl_77QSKGd2d1ZX1fp4JXgFrtH8LNWj` (READY) en https://revive-hogar.vercel.app/ , overlay exclusivo de `api/datos.js` sobre `dpl_4x4EDDjhb2DXwFW1nKKKuh9vhbEG`. Los otros 104 archivos no se alteraron.
+- Smoke de producción: aplicación y scripts HTTP 200; endpoints privados devuelven 401 sin sesión, origen cruzado devuelve 403; ocho perfiles de acceso, **sin contraseñas ni contactos** en la lista pública. Sin errores de ejecución registrados en la última hora de consulta.
+- Estado de base **no modificado**: 15 cuentas, 2 movimientos, suma registrada $31,275.74, 0 transferencias, 0 aperturas confirmadas, 0 residuos de QA. Bandeja: RH-1, RH-3 y RH-4 siguen en revisión; RH-2 resuelto; sin nuevos.
+- **Límite fundamental**: la corrección del cliente `js/db.js` todavía NO se ha activado en producción. La política `rh_anon_all` de la tabla principal sigue abierta porque el cliente actual la necesita. Mantener la migración y el SQL de revocación separados hasta pasar E2E autenticado y disponer de reversión verificada. Evitar declarar cierre de seguridad prematuramente.
