@@ -116,3 +116,16 @@ test('cargar más de 1000 registros respeta paginación y límite de datos',asyn
  assert.equal(s.get('prospectos').length,1050);
  assert.equal(s.calls.filter(x=>x.action==='read'&&x.collection==='prospectos').length,2);
 });
+
+test('un registro recién creado puede actualizarse sin recargar y conserva el sello del servidor',async()=>{
+ const x=await setup([]);
+ x.set('prospectos',[{id:'nuevo1',nombreCompleto:'Alta segura'}]);
+ await x.flush();
+ assert.equal(x.rows.get('nuevo1').data.nombreCompleto,'Alta segura');
+ x.set('prospectos',[{id:'nuevo1',nombreCompleto:'Edición inmediata'}]);
+ await x.flush();
+ assert.equal(x.rows.get('nuevo1').data.nombreCompleto,'Edición inmediata');
+ const updates=x.calls.filter(c=>c.action==='update'&&c.collection==='prospectos');
+ assert.equal(updates.length,1);
+ assert.equal(updates[0].body.sello,'2026-11-21T14:50:00Z');
+});
