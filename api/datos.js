@@ -88,7 +88,15 @@ async function identity(req,conf,host){
  check(READ[user.rol]&&WRITE[user.rol],403,'Rol no autorizado.');
  return {userId,role:user.rol};
 }
+function alertaParaRol(row,userId,role) {
+ if(role==='Direccion')return true;
+ if(row?.targetUserId)return row.targetUserId===userId;
+ return Array.isArray(row?.targetRoles)&&row.targetRoles.includes(role);
+}
 function ownerCheck(row,collection,userId,role,write=false){
+ // Las alertas pueden contener mensajes privados. Filtrarlas también
+ // en el servidor, no solo ocultarlas con JavaScript en el navegador.
+ if(collection==='alertas')return alertaParaRol(row,userId,role);
  if(role!=='Vendedor')return true;
  if(collection==='prospectos'||collection==='casas')return row?.vendedorId===userId;
  if(collection==='compradores')return row?.asesorId===userId;
@@ -203,7 +211,14 @@ module.exports=async function handler(req,res){
   validData(data,collection);
   check(data.id===id,400,'Folio no coincide.');
   if(collection==='archivos')await verificarPropiedadArchivo(conf,user,data);
-  if(user.role==='Vendedor'&&['auditoria','historial'].includes(collection)) {
+  if(collection==='alertas'&&action==='insert') {
+    check(!data.targetUserId||ID.test(String(data.targetUserId)),400,'Destinatario inválido.');
+    check(data.targetRoles===undefined||
+      (Array.isArray(data.targetRoles)&&data.targetRoles.length<=4&&
+       data.targetRoles.every(x=>['Direccion','Administradora','Marketing','Vendedor'].includes(x))),
+       400,'Roles de alerta inválidos.');
+    data.creadoPor=user.userId;
+  } else if(user.role==='Vendedor'&&['auditoria','historial'].includes(collection)) {
     check(action==='insert',403,'No se permite modificar historial existente.');
     data.actorId=user.userId;
     data.usuarioId=user.userId;
@@ -223,6 +238,13 @@ module.exports=async function handler(req,res){
   check(current.length===1,404,'Registro no encontrado.');
   check(current[0].updated_at===sello,409,'El registro fue actualizado por otra persona.');
   check(ownerCheck(current[0].data,collection,user.userId,user.role,true),403,'Registro fuera de tu alcance.');
+  if(collection==='alertas') {
+    check(data.targetUserId===current[0].data.targetUserId &&
+      JSON.stringify(data.targetRoles||[])===JSON.stringify(current[0].data.targetRoles||[]),
+      403,'No puedes cambiar los destinatarios de la alerta.');
+    // La autoría de una alerta no puede falsificarse al editar.
+    data.creadoPor=current[0].data.creadoPor;
+  }
   if(collection==='archivos')await verificarPropiedadArchivo(conf,user,current[0].data);
   // Nunca borrar la contraseña almacenada al recibir un usuario sin ese campo.
   const stored=collection==='usuariosLogin' ? current[0].data:{};
