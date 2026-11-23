@@ -155,8 +155,10 @@ module.exports=async function handler(req,res){
   const user=await identity(req,conf,host);
   if(req.method==='GET'&&!canDo(user,collection,false))
     return json(res,200,{rows:[]}); // No filtradas: ningún dato ajeno se revela.
+  const personal=req.method==='POST' && collection==='usuariosLogin' &&
+    req.body?.action==='update' && String(req.body.record_id||'')===user.userId;
   if(req.method==='POST')
-    check(canDo(user,collection,true),403,'No tienes acceso a esta operación.');
+    check(canDo(user,collection,true)||personal,403,'No tienes acceso a esta operación.');
   if(req.method==='GET'){
    let offset=Number(url.searchParams.get('offset')||0);
    let limit=Number(url.searchParams.get('limit')||1000);
@@ -219,8 +221,32 @@ module.exports=async function handler(req,res){
   if(collection==='archivos')await verificarPropiedadArchivo(conf,user,current[0].data);
   // Nunca borrar la contraseña almacenada al recibir un usuario sin ese campo.
   const stored=collection==='usuariosLogin' ? current[0].data:{};
+  if(personal) {
+    // Todos pueden actualizar su propio perfil, nunca su rol, estado o identidad.
+    check(stored.id===user.userId && stored.rol===user.role &&
+      data.rol===stored.rol && data.tipo===stored.tipo &&
+      data.activo===stored.activo && data.id===stored.id,
+      403,'No puedes cambiar los permisos de tu cuenta.');
+    const permitted=new Set(['id','rol','tipo','activo','displayName','nombreLuna',
+       'correo','telefono','password']);
+    check(Object.keys(data).every(k=>permitted.has(k)),
+      403,'El perfil contiene campos no permitidos.');
+    const nombre=String(data.displayName||'').trim();
+    check(nombre.length>=2 && nombre.length<=120,400,'Nombre inválido.');
+    for(const key of ['correo','telefono','nombreLuna']) {
+      check(typeof data[key]==='string'&&data[key].length<=180,400,
+        'Campo de perfil inválido.');
+    }
+    if(data.password) check(typeof data.password==='string'&&data.password.length>=10&&
+      data.password.length<=128&&/[a-zA-Z]/.test(data.password)&&/\d/.test(data.password),
+      400,'La nueva contraseña requiere 10 caracteres, letras y números.');
+  }
   const payload=collection==='usuariosLogin'?
-   {...stored,...data,password: typeof data.password==='string'&&data.password.length?data.password:stored.password}:data;
+   (personal ?
+     {...stored,displayName:data.displayName,nombreLuna:data.nombreLuna,
+       correo:data.correo,telefono:data.telefono,
+       password:data.password||stored.password} :
+     {...stored,...data,password:typeof data.password==='string'&&data.password.length?data.password:stored.password}) : data;
   const rows=await request(conf,path+'&updated_at=eq.'+encodeURIComponent(sello),{
    method:'PATCH',body:{data:payload,updated_at:new Date().toISOString()},prefer:'return=representation'});
   check(rows?.length===1,409,'El registro cambió mientras guardabas.');
