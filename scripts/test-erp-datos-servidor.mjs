@@ -6,15 +6,15 @@ import {readFileSync} from 'node:fs';
 const require=createRequire(import.meta.url);
 const source=readFileSync(new URL('../api/datos.js',import.meta.url),'utf8');
 function setup({method='GET',collection='usuariosLogin',login=false,role='Direccion',authenticated=true,
-  payload,origin=true,sello='2026-11-21T10:00:00Z'}={}){
+  payload,origin=true,userId='rh_vendedor',sello='2026-11-21T10:00:00Z'}={}){
  const requests=[];
- const user={id:'rh_vendedor',tipo:'vendedor',rol:role,displayName:'Usuario QA',password:'NUNCA_COMPARTIR',activo:true};
+ const user={id:userId,tipo:role==='Vendedor'?'vendedor':'general',rol:role,displayName:'Usuario QA',password:'NUNCA_COMPARTIR',activo:true};
  const prospects=[
   {record_id:'p_mio',data:{id:'p_mio',vendedorId:'rh_vendedor',estatus:'En seguimiento'},updated_at:sello},
   {record_id:'p_otro',data:{id:'p_otro',vendedorId:'rh_ajeno',estatus:'En seguimiento'},updated_at:sello}
  ];
  const table={
-   usuariosLogin:[{record_id:'rh_vendedor',data:user,updated_at:sello}],
+   usuariosLogin:[{record_id:userId,data:user,updated_at:sello}],
    prospectos:prospects,
    casas:[
      {record_id:'c_mia',updated_at:sello,data:{id:'c_mia',vendedorId:'rh_vendedor',nombreCompleto:'Casa sintética propia'}},
@@ -32,7 +32,7 @@ function setup({method='GET',collection='usuariosLogin',login=false,role='Direcc
    fetch:async(url,options)=>{
      requests.push({url,options});
      if(url.endsWith('/api/sesion')){
-       return {ok:authenticated,status:authenticated?200:401,json:async()=>({userId:'rh_vendedor'})};
+       return {ok:authenticated,status:authenticated?200:401,json:async()=>({userId})};
      }
      const u=new URL(url);
      if(u.pathname==='/rest/v1/rh_records'){
@@ -196,9 +196,9 @@ test('alertas privadas solo se entregan a su destinatario o rol correspondiente'
  const r=await vendedor.run();
  assert.equal(r.statusCode,200);
  assert.deepEqual(r.data.rows.map(x=>x.record_id),['al_propia','al_roles']);
- const marketing=setup({collection:'alertas',role:'Marketing'});
+ const marketing=setup({collection:'alertas',role:'Marketing',userId:'rh_marketing'});
  assert.deepEqual((await marketing.run()).data.rows.map(x=>x.record_id),[]);
- const admin=setup({collection:'alertas',role:'Administradora'});
+ const admin=setup({collection:'alertas',role:'Administradora',userId:'rh_admin'});
  assert.deepEqual((await admin.run()).data.rows.map(x=>x.record_id),['al_roles']);
  const direccion=setup({collection:'alertas',role:'Direccion'});
  assert.equal((await direccion.run()).data.rows.length,3);
