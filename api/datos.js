@@ -90,19 +90,24 @@ async function identity(req,conf,host){
 }
 function ownerCheck(row,collection,userId,role,write=false){
  if(role!=='Vendedor')return true;
- if(collection==='prospectos')return row?.vendedorId===userId;
+ if(collection==='prospectos'||collection==='casas')return row?.vendedorId===userId;
  if(collection==='compradores')return row?.asesorId===userId;
  if(collection==='operacionesVenta')return row?.vendedorId===userId||row?.asesorId===userId;
  if(collection==='archivos')return true; // El propietario se verifica con la ficha del prospecto.
  if(['auditoria','historial','tareas','alertas'].includes(collection))return write ? row?.usuarioId===userId||row?.actorId===userId : true;
  return true;
 }
-function sanitizeRow(row,collection,role){
+function sanitizeRow(row,collection,role,userId){
  if(!row||typeof row!=='object')return row;
  const data=JSON.parse(JSON.stringify(row));
- if(collection==='usuariosLogin')delete data.password;
- if(role==='Vendedor'&&collection==='prospectos'){
-   // Los campos del expediente propio siguen visibles a su asesor, nunca los de otro.
+ if(collection==='usuariosLogin'){
+   delete data.password;
+   // Un asesor solo necesita sus propios contactos y el nombre/rol de sus colegas.
+   if(role==='Vendedor'&&data.id!==userId){
+     delete data.correo;
+     delete data.telefono;
+     delete data.nombreLuna;
+   }
  }
  return data;
 }
@@ -176,7 +181,7 @@ module.exports=async function handler(req,res){
     .filter(r=>!ownProspects||
       (collection==='archivos'?ownProspects.has(r.data?.prospectoId):
        (ownProspects.has(r.data?.prospectoId)||r.data?.usuarioId===user.userId)))
-    .map(r=>({record_id:r.record_id,updated_at:r.updated_at,data:sanitizeRow(r.data,collection,user.role)}))});
+    .map(r=>({record_id:r.record_id,updated_at:r.updated_at,data:sanitizeRow(r.data,collection,user.role,user.userId)}))});
   }
   const body=req.body||{},action=body.action;
   check(['insert','update','delete'].includes(action),400,'Acción inválida.');
