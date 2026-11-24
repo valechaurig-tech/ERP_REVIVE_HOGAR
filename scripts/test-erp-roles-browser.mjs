@@ -80,7 +80,7 @@ async function controlBackend(page){
    const role=ROLES.find(x=>x.id===userId).rol;
    if(req.method()==='GET'){
     let rows=deepClone(db.get(collection)||[]);
-    if(role==='Vendedor'&&['prospectos','casas'].includes(collection))
+    if(role==='Vendedor'&&collection==='prospectos')
       rows=rows.filter(x=>x.data.vendedorId===userId);
     const offset=Number(url.searchParams.get('offset')||0);
     const limit=Number(url.searchParams.get('limit')||1000);
@@ -148,6 +148,10 @@ async function testRole(browser,person){
   if(person.rol==='Vendedor'){
    assert(seen.includes('qa_prop_vendedor'));
    assert(!seen.includes('qa_prop_otro'),'No debe cargar expedientes ajenos');
+   const catalogo=await page.evaluate(()=>DB.get('casas').map(x=>x.id));
+   assert(catalogo.includes('qa_casa_vendedor'));
+   assert(catalogo.includes('qa_casa_otra'),
+     'Debe mostrar todo el inventario aunque no tenga vendedor asignado');
   }
   if(person.rol==='Administradora'){
    const hasRender=await page.evaluate(()=>typeof renderAdministradora==='function');
