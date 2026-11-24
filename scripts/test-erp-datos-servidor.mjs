@@ -166,11 +166,15 @@ test('un vendedor no puede editar el perfil de otro usuario',async()=>{
  assert.equal((await x.run()).statusCode,403);
 });
 
-test('vendedor solo recibe las casas que le corresponden',async()=>{
+test('vendedor puede consultar inventario sin asignación pero no modificar propiedades',async()=>{
  const x=setup({collection:'casas',role:'Vendedor'});
  const r=await x.run();
  assert.equal(r.statusCode,200);
- assert.deepEqual(r.data.rows.map(x=>x.record_id),['c_mia']);
+ assert.deepEqual(r.data.rows.map(x=>x.record_id),['c_mia','c_ajena']);
+ const post=setup({collection:'casas',role:'Vendedor',method:'POST',
+  payload:{action:'insert',collection:'casas',record_id:'c_otro',data:{id:'c_otro',vendedorId:'rh_vendedor'}}});
+ assert.equal((await post.run()).statusCode,403);
+ assert.equal(post.table.casas.length,2);
 });
 test('los datos de contacto de otros usuarios no se entregan al vendedor',async()=>{
  const x=setup({collection:'usuariosLogin',role:'Vendedor'});
