@@ -160,6 +160,30 @@ async function testRole(browser,person){
    await page.waitForTimeout(300);
    const labels=await page.locator('#table-administradora tbody').innerText();
    assert.match(labels,/FICHA FICTICIA/);
+   // RH-4: probar desde la bandeja el expediente y el bloqueo real,
+   // sin rellenar cifras falsas ni modificar propuestas productivas.
+   const dialogs=[];
+   page.on('dialog',async dialog=>{
+     dialogs.push(dialog.message());
+     await dialog.accept();
+   });
+   await page.locator('#table-administradora tbody button')
+     .filter({hasText:'Expediente'}).first().click();
+   await page.locator('#modal-expediente-admin.active').waitFor({timeout:10000});
+   const before=mock.writes.filter(x=>x.collection==='prospectos').length;
+   await page.evaluate(()=>guardarExpedienteAdmin({
+     preventDefault(){},submitter:{dataset:{accion:'finalizar'}}
+   }));
+   await page.locator('#rh-admin-bloqueo').waitFor({timeout:10000});
+   const aviso=await page.locator('#rh-admin-bloqueo').innerText();
+   assert.match(aviso,/NO fue enviada/);
+   assert.match(aviso,/requisitos|documentos|obligatorios|faltan/i);
+   assert.equal(mock.writes.filter(x=>x.collection==='prospectos').length,before,
+     'No debe guardar ni enviar propuesta incompleta');
+   assert.equal(await page.evaluate(()=>
+     DB.get('prospectos')[0].estatus==='En administradora'),true);
+   assert(dialogs.length>0,'La alerta de validación debe mostrarse');
+   console.log('PASS RH-4 sintético: expediente abre, informa y no modifica datos');
   }
   const userId=person.id;
   await page.evaluate(async()=>{
