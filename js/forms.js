@@ -366,7 +366,7 @@ function informarBloqueoExpediente(titulo, detalles, paso = 'datos') {
         aviso.setAttribute('role', 'alert');
         aviso.setAttribute('aria-live', 'assertive');
         aviso.style.cssText = 'border:1px solid #d99145;background:#fff8eb;color:#6a411e;' +
-            'padding:14px 16px;border-radius:12px;margin:0 0 16px;line-height:1.5;';
+            'padding:14px 16px;border-radius:12px;margin:0 0 16px;line-height:1.5;grid-column:1/-1;';
         const encabezado = document.createElement('strong');
         encabezado.textContent = titulo + ' (' + faltantes.length + ')';
         const explicacion = document.createElement('p');
