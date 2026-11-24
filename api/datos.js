@@ -98,7 +98,8 @@ function ownerCheck(row,collection,userId,role,write=false){
  // en el servidor, no solo ocultarlas con JavaScript en el navegador.
  if(collection==='alertas')return alertaParaRol(row,userId,role);
  if(role!=='Vendedor')return true;
- if(collection==='prospectos'||collection==='casas')return row?.vendedorId===userId;
+ if(collection==='prospectos')return row?.vendedorId===userId;
+ if(collection==='casas')return !write; // Inventario consultable; un Vendedor no puede alterarlo.
  if(collection==='compradores')return row?.asesorId===userId;
  if(collection==='operacionesVenta')return row?.vendedorId===userId||row?.asesorId===userId;
  if(collection==='archivos')return true; // El propietario se verifica con la ficha del prospecto.
