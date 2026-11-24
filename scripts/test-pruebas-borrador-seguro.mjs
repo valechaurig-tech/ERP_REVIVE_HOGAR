@@ -82,7 +82,7 @@ test('las capturas no quedan guardadas en la sesion del navegador',async()=>{
 test('el reintento sin adjunto conserva el mismo requestId tras la recarga',async()=>{
  const q=fake({uuid:'00000000-0000-4000-8000-000000000011',
     fetcher:async()=>{throw Error('QA: sin red')}});
- q.open();q.get('comment').value='Problema de QA';q.emit('comment','input');
+ q.open();await settle();q.get('comment').value='Problema de QA';q.emit('comment','input');
  q.emit('form','submit');await settle();
  assert.equal(q.calls.length,1);
  assert.equal(JSON.parse(q.storage.get(KEY)).pending.requestId,q.calls[0].requestId);
@@ -95,7 +95,7 @@ test('el reintento sin adjunto conserva el mismo requestId tras la recarga',asyn
  assert.equal(q.storage.has(KEY),false);
 });
 test('el borrador se elimina al confirmar envio y al cerrar la sesion',async()=>{
- const q=fake();q.open();q.get('comment').value='Comentario';
+ const q=fake();q.open();await settle();q.get('comment').value='Comentario';
  q.emit('comment','input');assert.equal(q.storage.has(KEY),true);
  q.emit('form','submit');await settle();assert.equal(q.storage.has(KEY),false);
  const other=fake();other.open();other.get('comment').value='Otro borrador';
