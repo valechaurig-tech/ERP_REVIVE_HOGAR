@@ -356,6 +356,32 @@ function informarBloqueoExpediente(titulo, detalles, paso = 'datos') {
     const faltantes = Array.from(new Set((detalles || []).map(String).filter(Boolean)));
     const ir = paso === 'documentos' ? 'documentos' : 'datos';
     if (typeof cambiarPasoCaptura === 'function') cambiarPasoCaptura('form-expediente-admin', ir);
+    // RH-4: dejar visibles las razones del bloqueo después de cerrar el aviso.
+    // Renderizar mediante textContent para evitar interpretar datos del expediente como HTML.
+    const zona = document.getElementById(ir === 'documentos' ? 'exp-documentos-preview' : 'exp-fields');
+    if (zona && typeof document.createElement === 'function') {
+        zona.querySelector('#rh-admin-bloqueo')?.remove();
+        const aviso = document.createElement('section');
+        aviso.id = 'rh-admin-bloqueo';
+        aviso.setAttribute('role', 'alert');
+        aviso.setAttribute('aria-live', 'assertive');
+        aviso.style.cssText = 'border:1px solid #d99145;background:#fff8eb;color:#6a411e;' +
+            'padding:14px 16px;border-radius:12px;margin:0 0 16px;line-height:1.5;grid-column:1/-1;';
+        const encabezado = document.createElement('strong');
+        encabezado.textContent = titulo + ' (' + faltantes.length + ')';
+        const explicacion = document.createElement('p');
+        explicacion.textContent = 'La propuesta NO fue enviada. Completa lo siguiente o guarda un borrador para continuar después.';
+        explicacion.style.margin = '8px 0';
+        const lista = document.createElement('ul');
+        lista.style.cssText = 'margin:6px 0 0;padding-left:22px;';
+        for (const falta of faltantes) {
+            const item = document.createElement('li');
+            item.textContent = falta;
+            lista.appendChild(item);
+        }
+        aviso.append(encabezado, explicacion, lista);
+        zona.prepend(aviso);
+    }
     window.alert(titulo + ':\n• ' + faltantes.join('\n• ') +
         '\n\nEl expediente aún no se envió. Puedes guardar un borrador y completarlo después.');
     const modal = document.getElementById('modal-expediente-admin');
