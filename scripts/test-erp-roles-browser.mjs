@@ -42,14 +42,14 @@ function mockRows(){
  ]);
  return data;
 }
-function controlBackend(page){
+async function controlBackend(page){
  let userId=null, writes=[],usedRealAPI=false;
  const db=mockRows(),headers={'Content-Type':'application/json','Cache-Control':'no-store'};
  async function answer(route,status,obj){
   await route.fulfill({status,contentType:'application/json',
    headers,body:JSON.stringify(obj)});
  }
- page.route('**/*',async route=>{
+ await page.route('**/*',async route=>{
   const req=route.request(),url=new URL(req.url()),path=url.pathname;
   if(url.origin!==BASE){
    // Nunca acceder a Supabase con claves anónimas ni usar telemetría real.
@@ -121,14 +121,14 @@ function controlBackend(page){
 async function testRole(browser,person){
  const context=await browser.newContext({baseURL:BASE});
  const page=await context.newPage();
- const mock=controlBackend(page);
+ const mock=await controlBackend(page);
  let pageErrors=[];
  page.on('pageerror',error=>pageErrors.push(error.message));
  try{
   await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:35000});
-  await page.waitForFunction(()=>typeof DB!=='undefined'&&DB.mode?.()==='cloud',
+  await page.waitForFunction(()=>typeof DB!=='undefined'&&DB.mode?.()==='cloud',null,
    {timeout:20000});
-  await page.waitForFunction(()=>DB.get('usuariosLogin').length>=4,{timeout:15000});
+  await page.waitForFunction(()=>DB.get('usuariosLogin').length>=4,null,{timeout:15000});
   assert.equal(await page.evaluate(()=>DB.get('usuariosLogin').some(x=>Object.hasOwn(x,'password'))),
    false,'No exponer contraseñas en el catálogo de acceso');
   if(person.tipo==='vendedor'){
