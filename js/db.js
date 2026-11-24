@@ -436,8 +436,16 @@ const DB = {
 
     async cargarDatosProtegidos() {
         if(dbMode!=='cloud'||!supabaseClient) return false;
-        await cargarTodoDesdeNube();
+        // Cambiar al modo privado ANTES de cargar usuariosLogin.
+        // De lo contrario se repite la lista pública sin campos del perfil.
         rhDatosSesionCargados=true;
+        try {
+            await cargarTodoDesdeNube();
+        } catch (error) {
+            // Una carga parcial no debe dejar expedientes de otra sesión en memoria.
+            this.limpiarDatosSesion();
+            throw error;
+        }
         // Evitar descargar datos desactualizados encima de ediciones locales.
         if(!realtimeChannel)iniciarPollingSeguro();
         return true;
