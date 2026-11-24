@@ -11,9 +11,10 @@ const MIME_OK = new Set([
 ]);
 
 function cors(res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Sin CORS público: los documentos solo se entregan al origen del ERP.
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Vary', 'Origin');
 }
 
 function json(res, status, body) {
@@ -73,13 +74,70 @@ async function storageFetch(path, options = {}) {
     return { ok: r.ok, status: r.status, data, text };
 }
 
+const HOSTS_ARCHIVOS = new Set(['revive-hogar.vercel.app','revive-hogar-echauri-apps.vercel.app']);
+const PREVIEW_ARCHIVOS = /^revive-hogar-[a-z0-9]+-echauri-apps\.vercel\.app$/;
+
+class AccesoArchivoError extends Error {
+    constructor(status, message) { super(message); this.status = status; }
+}
+function exigirArchivo(ok, status, msg) {
+    if (!ok) throw new AccesoArchivoError(status,msg);
+}
+async function usuarioAutorizadoArchivos(req) {
+    const host = String(req.headers.host || '').toLowerCase();
+    exigirArchivo(HOSTS_ARCHIVOS.has(host) || PREVIEW_ARCHIVOS.test(host),
+        400, 'Dominio no autorizado.');
+    // Los intentos sin sesión nunca reciben acceso al proxy de service_role.
+    const cookie = String(req.headers.cookie || '');
+    exigirArchivo(cookie.includes('__Host-rh-session='), 401, 'Inicia sesión en Revive.');
+    exigirArchivo(req.headers.origin === 'https://' + host &&
+        req.headers['x-rh-archivos'] === '1', 403, 'Origen no autorizado.');
+
+    const response = await fetch('https://' + host + '/api/sesion', {
+        method: 'GET',redirect:'error',cache:'no-store',
+        headers:{cookie,'Cache-Control':'no-store'}
+    });
+    exigirArchivo(response.ok, 401, 'La sesión venció.');
+    const id = String((await response.json()).userId || '');
+    exigirArchivo(/^[A-Za-z0-9_-]{1,128}$/.test(id),401,'Sesión inválida.');
+    const storagePath = pathSeguro(req.query?.path);
+    exigirArchivo(!!storagePath, 400, 'Ruta del expediente no permitida.');
+    const prospectoId = storagePath.split('/')[1];
+    const {url,key} = supabaseConfig();
+    const headers = {apikey:key,Authorization:'Bearer '+key,Accept:'application/json'};
+    async function leerColeccion(collection,recordId) {
+        const q = new URLSearchParams({collection:'eq.'+collection,record_id:'eq.'+recordId,
+            select:'data',limit:'1'});
+        const r = await fetch(url+'/rest/v1/rh_records?'+q.toString(),{
+            method:'GET',cache:'no-store',redirect:'error',headers
+        });
+        exigirArchivo(r.ok,503,'No se pudo verificar el expediente.');
+        return (await r.json())?.[0]?.data;
+    }
+    const user = await leerColeccion('usuariosLogin',id);
+    exigirArchivo(user && user.id===id && user.activo!==false,403,'Cuenta no activa.');
+    exigirArchivo(['Direccion','Administradora','Vendedor'].includes(user.rol),
+        403,'El rol no tiene acceso a expedientes.');
+    if (user.rol!=='Direccion') {
+        const prospecto = await leerColeccion('prospectos',prospectoId);
+        exigirArchivo(!!prospecto,404,'Expediente no encontrado.');
+        if (user.rol==='Vendedor')
+            exigirArchivo(prospecto.vendedorId===id,403,
+                'No puedes acceder a documentos de otro vendedor.');
+    }
+    return true;
+}
+
 module.exports = async function handler(req, res) {
     cors(res);
-    if (req.method === 'OPTIONS') {
-        res.statusCode = 204;
-        return res.end();
+    if(req.method !== 'POST') return json(res, 405, {error:'Método no admitido.'});
+    try {
+        await usuarioAutorizadoArchivos(req);
+    } catch (e) {
+        if(e instanceof AccesoArchivoError) return json(res,e.status,{error:e.message});
+        console.error('RH-ARCHIVOS: autorización no disponible',e?.message);
+        return json(res,503,{error:'No pudimos verificar el acceso al expediente.'});
     }
-
     try {
         const action = String(req.query?.action || req.query?.a || '').toLowerCase();
 

@@ -14,7 +14,7 @@ const context = vm.createContext({
 });
 vm.runInContext(source, context);
 const metrics = context.window.RH_USAGE;
-assert.equal(metrics.scope, 'local-only');
+assert.equal(metrics.scope, 'private-aggregates');
 assert.equal(metrics.record('module_open', 'mod-gastos', 'Direccion'), true);
 assert.equal(metrics.record('module_open', 'mod-gastos', 'Direccion'), true);
 assert.equal(metrics.record('module_open', 'prospecto-nombre-real', 'Direccion'), false);

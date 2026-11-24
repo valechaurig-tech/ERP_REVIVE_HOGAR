@@ -1,0 +1,46 @@
+name: "Revive | QA integral y seguridad"
+on:
+  pull_request:
+    branches:
+      - "work/responsive-redesign-2026-10-29"
+    paths:
+      - "api/**"
+      - "js/**"
+      - "scripts/test-*.mjs"
+      - ".github/workflows/qa-cierre-financiero.yml"
+permissions:
+  contents: read
+jobs:
+  unitarios:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Sintaxis de acceso seguro
+        run: |
+          node --check api/datos.js
+          node --check api/archivos.js
+          node --check js/auth.js
+          node --check js/db.js
+          node --check js/archivos.js
+      - name: Regresiones sin credenciales
+        shell: bash
+        run: |
+          mapfile -t tests < <(find scripts -maxdepth 1 -name 'test-*.mjs' ! -name 'test-responsive-browser.mjs' ! -name 'test-erp-roles-browser.mjs' | sort)
+          node --test "${tests[@]}"
+  responsive:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-responsive-browser.mjs
+      - name: E2E sintético por rol sin acceder a datos reales
+        run: node scripts/test-erp-roles-browser.mjs
